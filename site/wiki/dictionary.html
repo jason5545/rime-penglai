@@ -1,0 +1,35 @@
+<!-- partial -->
+<h1>詞典從哪來</h1>
+<p class="lede">蓬萊注音的詞典是用程式從幾份公開資料產生的：字詞來自 Rime 的地球拼音，讀音另外收了兩個來源，常用程度照 Rime 的八股文詞頻。</p>
+
+<h2>字詞</h2>
+<p>字詞清單以 Rime 的<a href="https://github.com/rime/rime-terra-pinyin">地球拼音</a>為底，拿掉一些用語，加上一些用語。</p>
+
+<h2>讀音</h2>
+<p>同一個字詞的讀音，取這三個來源的聯集，不拿掉任何一邊：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">來源</th><th scope="col">內容</th></tr></thead>
+<tbody>
+<tr><td>教育部《重編國語辭典修訂本》</td><td>用 <a href="https://github.com/g0v/moedict-data">萌典</a>整理的資料</td></tr>
+<tr><td><a href="https://github.com/openvanilla/McBopomofo">小麥注音</a></td><td>小麥注音輸入法的字詞讀音</td></tr>
+<tr><td>地球拼音</td><td>Rime 的地球拼音，讀音來自 CC-CEDICT</td></tr>
+</tbody>
+</table></div>
+<p>詞典直接存注音（柏 ㄅㄛˊ），不是存拼音再轉換。哪個讀音先出，由<a href="/wiki/readings/">讀音設定</a>決定。</p>
+<p>每份資料都鎖定在固定的版本，詞典每次重新產生，結果都一樣。</p>
+
+<h2>常用程度</h2>
+<p>字詞的常用程度（決定排序）來自 Rime 的<a href="https://github.com/rime/rime-essay">八股文</a>（essay）詞頻。你打過的字詞另外記在學習紀錄，會排到前面，見<a href="/wiki/learning/">打過的會記住</a>。</p>
+
+<h2>其他資料</h2>
+<ul>
+<li>筆畫查字：Rime 的五筆畫（<a href="https://github.com/rime/rime-stroke">rime-stroke</a>）。</li>
+<li>聯想：Rime 官方的聯想資料（<a href="https://github.com/rime/librime-predict/releases/tag/data-1.0">librime-predict data-1.0</a>）。</li>
+<li>簡化字、臺灣字形的轉換：<a href="https://github.com/BYVoid/OpenCC">OpenCC</a>。</li>
+</ul>
+
+<h2>授權</h2>
+<p class="todo">還沒寫。公開下載前整理好再補。</p>
+
+<h2>發現讀音或用詞不對</h2>
+<p class="todo">回報的管道還沒定。</p>

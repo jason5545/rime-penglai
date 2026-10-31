@@ -1,0 +1,40 @@
+{
+ "groups": [
+  {"title": "開始", "pages": [
+   {"slug": "about", "title": "蓬萊是什麼", "desc": "蓬萊韻、蓬萊注音、貂毫三個名字，跟 Rime 內建的注音差在哪。"},
+   {"slug": "install", "title": "安裝", "desc": "還沒開放下載。"},
+   {"slug": "first-run", "title": "第一次使用", "desc": "選讀音的小視窗、選單列的中／西圖示、蓬萊設定在哪裡。"}
+  ]},
+  {"title": "打字", "pages": [
+   {"slug": "keyboard", "title": "鍵盤排列與聲調", "desc": "大千式排列，空白鍵是一聲，逗號句號要按 Shift。"},
+   {"slug": "typing", "title": "打字、選字、送出", "desc": "組字區和候選、選字、翻頁、只選前面一段、改錯。"},
+   {"slug": "abbrev", "title": "只打第一個注音", "desc": "每個字只按一個鍵也打得出來，打過的句子下次整句叫回來。"},
+   {"slug": "punctuation", "title": "標點符號", "desc": "每個標點在哪個鍵，有好幾種的怎麼選，送出之後按空白自動補標點。"},
+   {"slug": "english", "title": "英文與數字", "desc": "切換中文、西文，打到一半按 Shift 會發生什麼。"},
+   {"slug": "stroke", "title": "不知道讀音：筆畫查字", "desc": "先按 `，再打橫豎撇點折，候選旁邊有注音。"},
+   {"slug": "missing-initial", "title": "漏打聲母", "desc": "打了聲調、漏掉聲母的詞也找得到。"},
+   {"slug": "switcher", "title": "方案選單（F4）", "desc": "臨時切換中西文、全形、簡化字、讀音。"},
+   {"slug": "shortcuts", "title": "按鍵一覽", "desc": "所有按鍵整理成一張表。"}
+  ]},
+  {"title": "學習", "pages": [
+   {"slug": "learning", "title": "打過的會記住", "desc": "選過的字詞往前排，十個字以內的句子整句記住。"},
+   {"slug": "undo", "title": "選錯了怎麼辦", "desc": "送出後撤銷、打 77 忘掉上一筆、刪掉學錯的詞、藏起不要的詞。"},
+   {"slug": "prediction", "title": "聯想", "desc": "送出之後列出接下來可能要打的詞。預設關。"}
+  ]},
+  {"title": "讀音與詞典", "pages": [
+   {"slug": "readings", "title": "讀音：蓬萊音、中州音、兼收並蓄", "desc": "各種讀音都收，設定只決定誰先出。"},
+   {"slug": "dictionary", "title": "詞典從哪來", "desc": "字詞、讀音、詞頻的來源。"},
+   {"slug": "custom-words", "title": "加自己的詞", "desc": "用一個文字檔替常打的詞指定按鍵。"}
+  ]},
+  {"title": "設定", "pages": [
+   {"slug": "settings", "title": "蓬萊設定", "desc": "設定視窗每一頁有什麼，改了怎麼復原。"},
+   {"slug": "yaml", "title": "自己改設定檔", "desc": "給習慣改 YAML 的人：檔案在哪、怎麼寫、蓬萊多了哪些設定。"},
+   {"slug": "all-settings", "title": "全部設定", "desc": "蓬萊認得的每一個設定：作用、寫在哪個檔、預設值、在蓬萊設定的哪裡。"},
+   {"slug": "user-data", "title": "學習紀錄、備份與同步", "desc": "學習紀錄存在哪裡，怎麼備份、搬到另一台電腦。"}
+  ]},
+  {"title": "其他", "pages": [
+   {"slug": "faq", "title": "常見問題", "desc": "打字時常遇到的狀況。"},
+   {"slug": "glossary", "title": "名詞解釋", "desc": "組字區、候選、送出、部署……這份說明書用到的詞。"}
+  ]}
+ ]
+}

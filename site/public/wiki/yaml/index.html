@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>自己改設定檔｜蓬萊說明書</title>
+<meta name="description" content="給習慣改 YAML 的人：檔案在哪、怎麼寫、蓬萊多了哪些設定。">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161613" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://penglai.im/wiki/yaml/">
+<meta property="og:title" content="自己改設定檔｜蓬萊說明書">
+<meta property="og:description" content="給習慣改 YAML 的人：檔案在哪、怎麼寫、蓬萊多了哪些設定。">
+<meta property="og:image" content="https://penglai.im/img/og.png">
+<meta property="og:image:width" content="1344">
+<meta property="og:image:height" content="768">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="zh_TW">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/wiki/wiki.css">
+</head>
+<body class="wiki-page">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="glyph" viewBox="0 0 1024 1024"><g transform="matrix(28.2094,0,0,28.2094,0,0)"><path d="M11.633,13.700L11.287,14.300L8.169,12.500L12.208,5.500L16.364,5.500L13.710,10.100L28.291,10.100L27.232,13.037L27.019,13.582L26.792,14.123L26.552,14.659L26.297,15.191L26.030,15.719L25.749,16.243L25.456,16.763L25.151,17.278L24.833,17.790L24.504,18.298L24.163,18.802L23.811,19.302L23.449,19.798L23.075,20.291L22.692,20.781L22.298,21.267L21.894,21.750L21.481,22.230L21.301,22.433L30.799,31.200L25.491,31.200L18.818,25.040L18.339,25.505L17.857,25.961L17.368,26.416L16.872,26.868L16.368,27.317L15.858,27.765L15.342,28.210L14.819,28.652L14.289,29.093L13.754,29.532L13.214,29.968L12.667,30.403L12.116,30.836L11.646,31.200L5.601,31.200L6.592,30.486L7.156,30.073L8.270,29.246L8.819,28.830L9.364,28.414L9.902,27.997L10.435,27.579L10.962,27.160L11.482,26.739L11.996,26.318L12.504,25.895L13.004,25.472L13.497,25.047L13.983,24.621L14.461,24.194L14.931,23.766L15.393,23.337L15.847,22.906L16.168,22.594L11.107,17.923L13.549,15.277L18.655,19.990L19.149,19.421L19.518,18.980L19.876,18.537L20.224,18.094L20.560,17.650L20.885,17.204L21.199,16.758L21.502,16.310L21.793,15.861L22.072,15.412L22.339,14.961L22.594,14.509L22.837,14.055L23.017,13.700Z"/></g></symbol></svg>
+<header class="top">
+  <a class="brand" href="/" aria-label="蓬萊韻 首頁">
+    <svg class="mark" aria-hidden="true"><use href="#glyph"/></svg>
+    <span>蓬萊韻</span>
+  </a>
+  <nav aria-label="主選單">
+    <a href="/">首頁</a>
+    <a href="/wiki/" aria-current="false">說明書</a>
+  </nav>
+</header>
+<div class="wiki">
+<aside class="wiki-nav" id="toc" aria-label="說明書目錄"><p class="nav-home"><a href="/wiki/">說明書首頁</a></p><p class="nav-group">開始</p><ul><li><a href="/wiki/about/">蓬萊是什麼</a></li><li><a href="/wiki/install/">安裝</a></li><li><a href="/wiki/first-run/">第一次使用</a></li></ul><p class="nav-group">打字</p><ul><li><a href="/wiki/keyboard/">鍵盤排列與聲調</a></li><li><a href="/wiki/typing/">打字、選字、送出</a></li><li><a href="/wiki/abbrev/">只打第一個注音</a></li><li><a href="/wiki/punctuation/">標點符號</a></li><li><a href="/wiki/english/">英文與數字</a></li><li><a href="/wiki/stroke/">不知道讀音：筆畫查字</a></li><li><a href="/wiki/missing-initial/">漏打聲母</a></li><li><a href="/wiki/switcher/">方案選單（F4）</a></li><li><a href="/wiki/shortcuts/">按鍵一覽</a></li></ul><p class="nav-group">學習</p><ul><li><a href="/wiki/learning/">打過的會記住</a></li><li><a href="/wiki/undo/">選錯了怎麼辦</a></li><li><a href="/wiki/prediction/">聯想</a></li></ul><p class="nav-group">讀音與詞典</p><ul><li><a href="/wiki/readings/">讀音：蓬萊音、中州音、兼收並蓄</a></li><li><a href="/wiki/dictionary/">詞典從哪來</a></li><li><a href="/wiki/custom-words/">加自己的詞</a></li></ul><p class="nav-group">設定</p><ul><li><a href="/wiki/settings/">蓬萊設定</a></li><li><a href="/wiki/yaml/" aria-current="page">自己改設定檔</a></li><li><a href="/wiki/all-settings/">全部設定</a></li><li><a href="/wiki/user-data/">學習紀錄、備份與同步</a></li></ul><p class="nav-group">其他</p><ul><li><a href="/wiki/faq/">常見問題</a></li><li><a href="/wiki/glossary/">名詞解釋</a></li></ul></aside>
+<main class="wiki-main">
+<p class="crumb"><a href="/wiki/">說明書</a> › 設定<a class="to-toc" href="#toc">目錄</a></p>
+<article><h1>自己改設定檔</h1>
+<p class="lede">給習慣改 YAML 的人。蓬萊設定做得到的事不用來這裡；這一頁講檔案在哪、怎麼寫、蓬萊多了哪些設定。每一個設定的說明見<a href="/wiki/all-settings/">全部設定</a>。</p>
+
+<h2>使用者資料夾</h2>
+<p>所有個人的東西都在 <code>~/Library/Rime</code>。在 Finder 按 <kbd>⇧⌘G</kbd>，輸入這個路徑就能打開。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">檔案</th><th scope="col">放什麼</th></tr></thead>
+<tbody>
+<tr><td><code>penglai_zhuyin.custom.yaml</code></td><td>蓬萊注音這個方案的個人設定：讀音、學習、漏打聲母、聯想……</td></tr>
+<tr><td><code>default.custom.yaml</code></td><td>不分方案的設定：方案清單、每頁候選數、方案選單的快速鍵。</td></tr>
+<tr><td><code>sable.custom.yaml</code></td><td>貂毫前端的設定：選字窗的樣式、配色、字級。</td></tr>
+<tr><td><code>custom_phrase.txt</code></td><td><a href="/wiki/custom-words/">自訂短語</a>。</td></tr>
+<tr><td><code>penglai_hidden.txt</code></td><td><a href="/wiki/undo/">藏起來的詞</a>，一行一個。</td></tr>
+<tr><td><code>penglai_zhuyin.userdb</code></td><td>學習紀錄（資料夾）。不要手動改。</td></tr>
+<tr><td><code>penglai_predict.db</code></td><td>自己的<a href="/wiki/prediction/">聯想</a>資料（選用，沒有就用貂毫附的）。</td></tr>
+</tbody>
+</table></div>
+<p>方案檔 <code>penglai_zhuyin.schema.yaml</code> 和詞典 <code>penglai_zhuyin.dict.yaml</code> 不要直接改，個人的設定一律寫在 <code>.custom.yaml</code>。</p>
+
+<h2>custom 檔怎麼寫</h2>
+<p><code>.custom.yaml</code> 只寫「跟預設不一樣的地方」，全部放在 <code>patch:</code> 底下。鍵用斜線寫出完整路徑，加上引號：</p>
+<pre><code>patch:
+  "translator/revert_learning_seconds": 30   # 撤銷學習的時限改成 30 秒
+  "switches/@3/reset": 2                     # 讀音預設用兼收並蓄</code></pre>
+<p>幾個規則：</p>
+<ul>
+<li>值是清單時，寫出來就是整份換掉，不是加在後面。要加在清單後面，鍵的最後寫 <code>/+</code>（例如 <code>"engine/filters/+"</code>）。</li>
+<li>清單裡的第幾項用 <code>@</code> 加數字，從 0 算起：<code>switches/@3</code> 是方案 <code>switches</code> 清單的第四項（讀音）。</li>
+<li>縮排用空白，不要用 Tab。</li>
+</ul>
+<p>存檔之後要<b>重新部署</b>才會生效：輸入法選單的「重新部署」，或蓬萊設定「變更紀錄」頁的「重新部署」。</p>
+<div class="tip"><p>蓬萊設定也是改這幾個檔，而且只改那一個值所在的那一行，你手寫的其他內容不會被動到。兩邊可以混著用。</p></div>
+
+<h2>貂毫的外觀</h2>
+<p>選字窗的樣式寫在 <code>sable.custom.yaml</code>，鍵的名稱跟鼠鬚管的 <code>squirrel.yaml</code> 一樣，只是檔名換成貂毫的。例如字級：</p>
+<pre><code>patch:
+  "style/font_point": 18</code></pre>
+<p>從鼠鬚管換過來的人，可以把 <code>squirrel.custom.yaml</code> 的內容抄到 <code>sable.custom.yaml</code>。</p>
+
+<h2>蓬萊多了哪些設定</h2>
+<p>下面幾個常用的只有蓬萊的引擎會讀，官方的 librime 會忽略。都寫在 <code>penglai_zhuyin.custom.yaml</code>，括號裡是預設值。中英混輸、數字這些也是蓬萊才有的，<a href="/wiki/all-settings/">全部設定</a>裡標著<span class="badge">蓬萊</span>。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">鍵</th><th scope="col">作用</th></tr></thead>
+<tbody>
+<tr><td><code>translator/max_user_phrase_syllables</code>（10）</td><td>整句可以用的學習紀錄最長幾個字。Rime 原本寫死 5。</td></tr>
+<tr><td><code>translator/revert_learning_seconds</code>（15）</td><td>送出後幾秒內按 ⌫ 撤銷學習。Rime 原本寫死 3。</td></tr>
+<tr><td><code>translator/forget_last_code</code>（<code>"77"</code>）</td><td>打這組鍵忘掉上一筆。空字串＝關掉。</td></tr>
+<tr><td><code>translator/forget_last_history</code>（10）</td><td>連續忘掉最多往前幾筆。</td></tr>
+<tr><td><code>translator/dictionary_exclude_file</code>（<code>penglai_hidden.txt</code>）</td><td>藏起來的詞記在哪個檔。空字串＝關掉，刪除候選照 Rime 原本的做法（只刪學習紀錄）。</td></tr>
+<tr><td><code>switches/@3/reset</code>（0）</td><td>讀音：0 蓬萊音、1 中州音、2 兼收並蓄。</td></tr>
+<tr><td><code>switches/@4/reset</code>（0）</td><td>聯想：0 關、1 開。</td></tr>
+<tr><td><code>predictor/max_candidates</code>（0）</td><td>聯想每次最多列幾個，0＝資料裡有幾個列幾個。</td></tr>
+<tr><td><code>predictor/max_iterations</code>（0）</td><td>選了聯想之後最多再接著聯想幾次，0＝不限。</td></tr>
+<tr><td><code>predictor/max_context_chars</code>（16）</td><td>聯想時往前看幾個已送出的字。</td></tr>
+</tbody>
+</table></div>
+<p>另外兩個是 Rime 1.17 起才有、蓬萊改了預設值的：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">鍵</th><th scope="col">作用</th></tr></thead>
+<tbody>
+<tr><td><code>translator/max_sentences</code>（5）</td><td>整句候選列幾種。Rime 預設 1。</td></tr>
+<tr><td><code>translator/sentence_cutoff_threshold</code>（100）</td><td>整句候選的截斷門檻，100 等於不截斷。</td></tr>
+</tbody>
+</table></div>
+
+<h2>關掉筆畫查字</h2>
+<p>蓬萊設定「輸入」頁的「筆畫查字」就是改這一行：</p>
+<pre><code>patch:
+  "recognizer/patterns/reverse_lookup": ""</code></pre>
+
+<h2>其他設定</h2>
+<p>蓬萊認得的設定，包括 Rime 本身的，都整理在<a href="/wiki/all-settings/">全部設定</a>：每一項的作用、寫在哪個檔、預設值、蓬萊設定裡點不點得到，蓬萊注音用不到的也列出來。別處的 Rime 教學寫 <code>squirrel.custom.yaml</code> 的地方，在貂毫要換成 <code>sable.custom.yaml</code>。</p>
+</article><nav class="pager" aria-label="上一頁、下一頁"><a class="prev" href="/wiki/settings/"><small>上一頁</small>蓬萊設定</a><a class="next" href="/wiki/all-settings/"><small>下一頁</small>全部設定</a></nav>
+</main>
+</div>
+<footer>
+  <div class="wrap foot">
+    <p><svg class="mark" aria-hidden="true"><use href="#glyph"/></svg> 蓬萊韻 · penglai.im</p>
+    <p>以 <a href="https://rime.im/">RIME 中州韻輸入法引擎</a>為基礎。</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,40 @@
+<h1>選錯了怎麼辦</h1>
+<p class="lede">選錯的字一送出就會被記住。看你什麼時候發現，有四種補救方法。</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">情況</th><th scope="col">怎麼做</th></tr></thead>
+<tbody>
+<tr><td>剛送出，馬上發現</td><td>15 秒內按 <kbd>⌫</kbd></td></tr>
+<tr><td>已經過了一陣子，還沒打別的</td><td>打 <kbd>7</kbd><kbd>7</kbd>，再按 <kbd>空白</kbd></td></tr>
+<tr><td>某個學錯的詞一直排在前面</td><td>反白移到它，按 <kbd>⇧Delete</kbd> 或 <kbd>Control</kbd>＋<kbd>K</kbd></td></tr>
+<tr><td>詞典裡有個詞老是擋路</td><td>同上，沒學過的詞會被藏起來</td></tr>
+</tbody>
+</table></div>
+
+<h2>送出後 15 秒內按 ⌫</h2>
+<p>送出之後 15 秒內按 <kbd>⌫</kbd>：文件裡照常刪掉最後一個字，同時這次送出的學習取消，就像沒選過一樣。剩下的字自己刪掉重打。</p>
+<div class="ex" data-keys="rup wu0 wu0 fu4cp3cl3{space}{Return}|{BackSpace}|rwwfcc" data-label="ㄐㄧㄣˉ ㄊㄧㄢˉ ㄊㄧㄢˉ ㄑㄧˋ ㄏㄣˇ ㄏㄠˇ 空白 Return|⌫|ㄐ ㄊ ㄊ ㄑ ㄏ ㄏ">送出「今天天氣很好」後馬上按 ⌫，再只打首注音：沒有學到，第一個候選跟沒打過時一樣。</div>
+<p>超過時限之後的 ⌫ 只是一般的刪字，學習留著。時限在蓬萊設定「輸入」頁的「撤銷學習的時限」改（3～30 秒，Rime 原本是 3 秒）。</p>
+
+<h2>打 77 忘掉上一筆</h2>
+<p>送出之後，接著打 <kbd>7</kbd><kbd>7</kbd>（兩個輕聲鍵）。選字窗出現一個空白的候選，旁邊寫〔忘掉：…〕，「…」是上一筆送出的字：</p>
+<div class="ex" data-keys="xu3{S-4}{Return}|77" data-label="ㄌ ㄧ ˇ ⇧4 Return|7 7">送出 ㄌㄧˇ 的第四個候選「理」之後打 77。</div>
+<p>按 <kbd>空白</kbd>、<kbd>⇧1</kbd> 或 <kbd>Return</kbd> 確認，上一筆寫進的學習紀錄就刪掉了，不會送出任何文字。不想忘就按 <kbd>⌫</kbd> 或 <kbd>Esc</kbd>。</p>
+<ul>
+<li>再打一次 77，會再往前忘一筆，最多往前 10 筆。</li>
+<li>整句送出時，句子裡你自己一個一個選過的詞會留著，只忘掉整句。</li>
+</ul>
+
+<h2>刪掉某個詞的學習紀錄</h2>
+<p>某個學錯的詞一直排在前面時，在選字窗把反白移到它，按 <kbd>⇧Delete</kbd> 或 <kbd>Control</kbd>＋<kbd>K</kbd>。它的學習紀錄刪掉，回到詞典原本的位置。</p>
+<div class="ex" data-keys="rw{S-2}{Return}|rw|{clear}rw{S-Delete}" data-label="ㄐ ㄊ ⇧2 Return|ㄐ ㄊ|ㄐ ㄊ ⇧Delete">選過「具體」之後它排第一；反白在它身上按 ⇧Delete，回到第二。</div>
+
+<h2>藏起詞典裡的詞</h2>
+<p>沒學過、本來就在詞典裡的詞，用同樣的按鍵（<kbd>⇧Delete</kbd> 或 <kbd>Control</kbd>＋<kbd>K</kbd>）會被藏起來：查詞、組句都不再用它，整句會重新組成不含它的。</p>
+<div class="ex" data-keys="rw|{clear}rw{S-Delete}" data-label="ㄐ ㄊ|ㄐ ㄊ ⇧Delete">反白在「今天」上按 ⇧Delete：「今天」不見了。</div>
+<ul>
+<li>只對兩個字以上的詞有用，單字藏不起來。最少幾個字可以在蓬萊設定「進階 › 組句與學習 › 學習」改。</li>
+<li>藏起來的詞記在使用者資料夾（<code>~/Library/Rime</code>）的 <code>penglai_hidden.txt</code>，一行一個詞，後面是藏起來的時間。</li>
+<li>要找回來，用文字編輯器打開這個檔，刪掉那一行存檔，就恢復了，不用重新部署。</li>
+</ul>
+<div class="tip"><p>按之前看清楚反白在哪一個。藏錯了只能去改 <code>penglai_hidden.txt</code>。</p></div>

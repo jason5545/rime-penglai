@@ -1,0 +1,43 @@
+<h1>英文與數字</h1>
+<p class="lede">句子裡夾幾個英文單字、打一串電話號碼，不用切換，直接在中文狀態打。整段都是英文時，再切到西文。</p>
+
+<h2>中文裡夾英文單字</h2>
+<p>在中文狀態直接打英文字母。輸入裡有一段字母剛好是英文單字時，蓬萊會多組一句「中文＋英文＋中文」，跟原本的中文組合比哪個通順，通順就排第一：</p>
+<div class="ex" data-keys="ji3m/4pythonvu,3" data-label="ㄨㄛˇ ㄩㄥˋ p y t h o n ㄒㄧㄝˇ" data-files="penglai_en.txt penglai_judge.tbl">「我用 python 寫」：python 用字母打，前後的注音照打。</div>
+<div class="ex" data-keys="meeting" data-label="m e e t i n g" data-files="penglai_en.txt penglai_judge.tbl">整段只有一個英文單字也可以。</div>
+<p>組字區裡英文那段顯示字母，前後的中文顯示注音。英文照打的樣子送出（小寫），中間不加空白。</p>
+<p>中文組得通的時候照舊出中文。只打第一個注音的中文（ㄐ ㄊ → 今天）也不會被當成英文：</p>
+<div class="ex" data-keys="rw" data-files="penglai_en.txt penglai_judge.tbl">ㄐ ㄊ 照樣是「今天」。</div>
+<p>不在英文單字表裡的字母串（名字、縮寫），中文明顯組不起來時，也會照按的字母當一個候選：</p>
+<div class="ex" data-keys="elvie" data-label="e l v i e" data-files="penglai_en.txt penglai_judge.tbl">elvie 不是常見單字，中文又組不通，就照打的字母排第一。</div>
+
+<h2>數字</h2>
+<p>整段都是數字鍵時，第一個候選就是那串數字，按 <kbd>Return</kbd> 送出：</p>
+<div class="ex" data-keys="0912345678|{Return}" data-label="0 9 1 2 3 4 5 6 7 8|Return" data-files="penglai_en.txt penglai_judge.tbl">電話號碼。中間的 3 4 6 7 平常是聲調鍵，整段是數字時也一起收進來。</div>
+<div class="ex" data-keys="30" data-label="3 0" data-files="penglai_en.txt penglai_judge.tbl">聲調鍵開頭的數字也可以。</div>
+<ul>
+<li>選了數字不會寫進學習紀錄。</li>
+<li>數字後面接著打注音，數字自己成一段，中文接在後面選。</li>
+<li>整段數字剛好組得成常用的詞時，詞排在前面。例如 2026 在大千鍵盤上是 ㄉㄢ ㄉˊ，第一個候選是「單獨」。這種時候切到西文打。</li>
+</ul>
+<div class="ex" data-keys="2026" data-label="2 0 2 6" data-files="penglai_en.txt penglai_judge.tbl">2026 組成「單獨」。</div>
+
+<h2>開關</h2>
+<p>在<a href="/wiki/settings/">蓬萊設定</a>的「輸入」頁「中英混輸」（預設開）。關掉時，英文單字、字母串、數字一起停，數字鍵和字母鍵都只當注音。</p>
+
+<h2>切換中文、西文</h2>
+<p>整段都是英文、程式碼、網址時，切到西文比較快。<b>沒在打字的時候</b>（組字區是空的），按一下 <kbd>Shift</kbd>，左右都可以，就在中文和西文之間切換。選單列的「中／西」圖示會跟著變。</p>
+<p>西文狀態下，按鍵直接打進文件，跟沒有輸入法一樣。再按一下 Shift 回到中文。也可以從<a href="/wiki/switcher/">方案選單（F4）</a>切換「中文／西文」。</p>
+
+<h2>打到一半按了 Shift</h2>
+<div class="tip"><p>組字區裡還有注音時按<b>左</b> Shift，已經打的注音不會變成中文，而是變回按鍵上的英文字母，後面打的也接成英文。</p></div>
+<div class="ex" data-keys="rw{LShift}abc|{Return}" data-label="ㄐ ㄊ 左Shift a b c|Return">打了 ㄐ ㄊ 之後按左 Shift，再打 abc：組字區變成 rwabc，按 Return 送出的也是 rwabc。</div>
+<p>遇到這種情況，按 <kbd>Esc</kbd> 清掉重打。先把中文送出，再按 Shift 切西文，就不會這樣。</p>
+
+<h2>大寫字母開頭的英文</h2>
+<p>在中文狀態下，按住 Shift 打一個大寫字母開頭，後面接著打的都當英文：</p>
+<div class="ex" data-keys="Hello|{Return}" data-label="⇧H e l l o|Return">⇧H 開頭，ello 接成英文，Return 送出 Hello。</div>
+<p>適合打大寫開頭的名字、句首的英文。</p>
+
+<h2>Caps Lock</h2>
+<p>按 Caps Lock 會切到西文。蓬萊設定「進階 › 按鍵」有一項「Caps Lock 也鎖大寫」（預設開），開著時同時鎖定大寫，跟沒有輸入法時一樣。</p>

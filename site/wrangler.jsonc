@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/wrangler/config-schema.json",
+  "name": "penglai-site",
+  "compatibility_date": "2026-10-29",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "404-page"
+  },
+  // 正式網址 penglai.im；workers.dev 的網址先留著
+  "routes": [{ "pattern": "penglai.im", "custom_domain": true }],
+  "workers_dev": true
+}

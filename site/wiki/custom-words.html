@@ -1,0 +1,22 @@
+<!-- partial -->
+<h1>加自己的詞</h1>
+<p class="lede">常打的詞、名字、縮寫，可以自己指定一組按鍵。寫在使用者資料夾的 <code>custom_phrase.txt</code>，一行一個。</p>
+
+<h2>自訂短語：custom_phrase.txt</h2>
+<ol>
+<li>打開使用者資料夾：在 Finder 按 <kbd>⇧⌘G</kbd>，輸入 <code>~/Library/Rime</code>。</li>
+<li>用文字編輯器打開 <code>custom_phrase.txt</code>（沒有就新建一個，存成 UTF-8 純文字）。</li>
+<li>一行寫一個：<b>要打出的字</b>、Tab 鍵、<b>按鍵</b>。</li>
+<li>存檔之後重新部署：輸入法選單的「重新部署」，或蓬萊設定「變更紀錄」頁的「重新部署」。</li>
+</ol>
+<p>按鍵寫的是鍵盤上實際按的英文字母，不是注音。例如「蓬萊韻」想用 ㄆ ㄌ ㄩ 叫出來，大千鍵盤上是 <kbd>q</kbd> <kbd>x</kbd> <kbd>m</kbd>：</p>
+<pre><code>蓬萊韻	qxm</code></pre>
+<p>中間是 Tab，不是空白。寫好之後：</p>
+<div class="ex" data-keys="qxm" data-label="ㄆ ㄌ ㄩ" data-files="custom_phrase.txt">只打 ㄆ ㄌ ㄩ，「蓬萊韻」排第一。這時組字區顯示按鍵的英文字母。</div>
+<ul>
+<li>只有整段輸入剛好是這組按鍵時才會出現。它不會組進句子裡，前後接了別的字就叫不出來。</li>
+<li>它會排在同一組按鍵的其他候選前面。按鍵太短（一兩個鍵）的話，會擋住常用詞，挑一組不常撞到的。</li>
+</ul>
+
+<h2>讓自己的詞也能組進句子</h2>
+<p class="todo">還沒寫：用擴充詞典把詞加進整句的組合裡。</p>

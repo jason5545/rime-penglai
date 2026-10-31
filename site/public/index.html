@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>蓬萊韻｜注音為根的 Rime 輸入法</title>
+<meta name="description" content="蓬萊韻是注音為根的 Rime 輸入法：詞典直接存注音，各地讀音都收，打過的句子下次每個字只按第一個注音就叫得回來。macOS 版貂毫開發中。">
+<meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#161613" media="(prefers-color-scheme: dark)">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://penglai.im/">
+<meta property="og:title" content="蓬萊韻｜注音為根的 Rime 輸入法">
+<meta property="og:description" content="詞典直接存注音，各地讀音都收。打過的句子，下次每個字只按第一個注音。">
+<meta property="og:image" content="https://penglai.im/img/og.png">
+<meta property="og:image:width" content="1344">
+<meta property="og:image:height" content="768">
+<meta name="twitter:card" content="summary_large_image">
+<meta property="og:locale" content="zh_TW">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="stylesheet" href="/style.css">
+<script src="/demo.js" defer></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="glyph" viewBox="0 0 1024 1024"><g transform="matrix(28.2094,0,0,28.2094,0,0)"><path d="M11.633,13.700L11.287,14.300L8.169,12.500L12.208,5.500L16.364,5.500L13.710,10.100L28.291,10.100L27.232,13.037L27.019,13.582L26.792,14.123L26.552,14.659L26.297,15.191L26.030,15.719L25.749,16.243L25.456,16.763L25.151,17.278L24.833,17.790L24.504,18.298L24.163,18.802L23.811,19.302L23.449,19.798L23.075,20.291L22.692,20.781L22.298,21.267L21.894,21.750L21.481,22.230L21.301,22.433L30.799,31.200L25.491,31.200L18.818,25.040L18.339,25.505L17.857,25.961L17.368,26.416L16.872,26.868L16.368,27.317L15.858,27.765L15.342,28.210L14.819,28.652L14.289,29.093L13.754,29.532L13.214,29.968L12.667,30.403L12.116,30.836L11.646,31.200L5.601,31.200L6.592,30.486L7.156,30.073L8.270,29.246L8.819,28.830L9.364,28.414L9.902,27.997L10.435,27.579L10.962,27.160L11.482,26.739L11.996,26.318L12.504,25.895L13.004,25.472L13.497,25.047L13.983,24.621L14.461,24.194L14.931,23.766L15.393,23.337L15.847,22.906L16.168,22.594L11.107,17.923L13.549,15.277L18.655,19.990L19.149,19.421L19.518,18.980L19.876,18.537L20.224,18.094L20.560,17.650L20.885,17.204L21.199,16.758L21.502,16.310L21.793,15.861L22.072,15.412L22.339,14.961L22.594,14.509L22.837,14.055L23.017,13.700Z"/></g></symbol>
+</svg>
+
+<header class="top">
+  <a class="brand" href="/" aria-label="蓬萊韻 首頁">
+    <svg class="mark" aria-hidden="true"><use href="#glyph"/></svg>
+    <span>蓬萊韻</span>
+  </a>
+  <nav aria-label="主選單">
+    <a href="#demo">示範</a>
+    <a href="#reading">讀音</a>
+    <a href="#features">功能</a>
+    <a href="#names">名稱</a>
+    <a href="#status">進度</a>
+    <a href="/wiki/">說明書</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="evo" aria-hidden="true">
+      <figure class="evo-item">
+        <div class="tile ghost"><span>ㄓ</span></div>
+        <figcaption>中州韻</figcaption>
+      </figure>
+      <div class="evo-dots"><i></i><i></i><i></i></div>
+      <figure class="evo-item">
+        <div class="tile"><svg><use href="#glyph"/></svg></div>
+        <figcaption>蓬萊韻</figcaption>
+      </figure>
+    </div>
+    <p class="eyebrow">蓬萊韻 · Penglai</p>
+    <h1>注音為根的 <span class="nb">Rime 輸入法</span></h1>
+    <p class="lead">詞典直接存注音，各地的讀音都收。打過一次的句子，下次每個字只按第一個注音，就叫得回來。</p>
+    <p class="en" lang="en">Penglai — Rime, rooted in Zhuyin.</p>
+    <p class="status-chip"><span class="dot" aria-hidden="true"></span>開發中：macOS 版「貂毫」先做，還沒開放下載。</p>
+  </section>
+
+  <section id="demo" class="band">
+    <div class="wrap">
+      <h2>少按幾個鍵</h2>
+      <p class="section-lead">下面每一格畫面都是引擎真的輸出：公開版的預設設定，學習紀錄從空的開始，一鍵一鍵錄下來。鍵盤是大千式排列。</p>
+
+      <div class="ime" data-ime>
+        <div class="ime-tabs" role="tablist" aria-label="示範步驟">
+          <button role="tab" data-scene="0" aria-selected="true"><b>1</b>第一次，只打首注音</button>
+          <button role="tab" data-scene="1" aria-selected="false"><b>2</b>打一次全碼</button>
+          <button role="tab" data-scene="2" aria-selected="false"><b>3</b>之後，只打首注音</button>
+        </div>
+
+        <div class="ime-screen">
+          <div class="ime-doc" aria-live="polite"><span class="ime-committed"></span><span class="caret" aria-hidden="true"></span></div>
+          <div class="ime-panel" hidden>
+            <div class="ime-preedit"></div>
+            <ol class="ime-cands"></ol>
+          </div>
+        </div>
+
+        <div class="kbd" aria-hidden="true"></div>
+
+        <div class="ime-foot">
+          <p class="ime-count">按鍵 <b>0</b></p>
+          <p class="ime-caption"></p>
+          <button class="ime-replay" type="button">重播</button>
+        </div>
+        <noscript><p class="ime-caption">打字示範需要 JavaScript。結果：沒學過時打 ㄐㄊㄊㄑㄏㄏ 第一候選是「今天碳氫化合」；全碼送出一次「今天天氣很好」之後，同樣 6 個鍵第一候選就是「今天天氣很好」。</p></noscript>
+      </div>
+    </div>
+  </section>
+
+  <section id="reading">
+    <div class="wrap split">
+      <div>
+        <h2>讀音都收，只決定誰先出</h2>
+        <p>同一個字，各地的讀法有時不同。蓬萊注音把各種讀音都收進詞典，再用「讀音」這個設定決定排序：</p>
+        <ul class="plain">
+          <li><b>蓬萊音</b>（預設）：「期」先出 ㄑㄧˊ。</li>
+          <li><b>中州音</b>：「期」先出 ㄑㄧ。</li>
+          <li><b>兼收並蓄</b>：兩種讀音並列，不分先後。</li>
+        </ul>
+        <p>打字時隨時可以換，不用重新產生詞典，已經學過的字詞也不受影響。</p>
+      </div>
+      <figure class="shot">
+        <img src="/img/onboarding.webp" width="1200" height="904" loading="lazy" alt="貂毫第一次啟動時的引導畫面：讀音二選一，蓬萊音的「期」先出ㄑㄧˊ，中州音先出ㄑㄧ。">
+        <figcaption>第一次啟動，先選讀音。之後在蓬萊設定裡改。</figcaption>
+      </figure>
+    </div>
+    <div class="wrap">
+      <div class="readings" data-readings>
+        <table>
+          <caption>同一組鍵，三種讀音各自的前三個候選</caption>
+          <thead><tr><th scope="col">按的注音</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <p class="note">打 ㄌㄜˋ ㄙㄜˋ，三種都是「垃圾」；差別在打 ㄌㄚ ㄐㄧ 的時候誰排第一。兼收並蓄給兩種讀音同樣的比重，誰先出就看字詞本身多常用。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="band">
+    <div class="wrap">
+      <h2>其他改了什麼</h2>
+      <div class="cards">
+        <article>
+          <h3>整句記得更長</h3>
+          <p>10 字以內的句子打過一次，下次按首注音就能整句叫回來。原版 librime 只用得到 5 字以內的整句紀錄。</p>
+        </article>
+        <article>
+          <h3>選錯了收得回來</h3>
+          <p>送出後 15 秒內按 <kbd>⌫</kbd>，剛才選的字就不會被記住（原版是 3 秒）。打 <kbd>77</kbd> 可以忘掉上一筆。</p>
+        </article>
+        <article data-extra="missing_initial" data-hl="謝謝">
+          <h3>漏打聲母也找得到詞</h3>
+          <p>打了聲調、漏掉聲母時，會試著補回來。打 ㄧㄝˋ ㄒㄧㄝ˙（少了 ㄒ），「謝謝」就在前幾個。單字比較難救：補回來的字分數打了很重的折扣，常輸給本來就讀那個音的字。不想要可以在蓬萊設定裡關掉。</p>
+          <ol class="mini-cands" aria-label="打 ㄧㄝˋ ㄒㄧㄝ˙ 的前五個候選"></ol>
+        </article>
+        <article>
+          <h3>一次看五種整句</h3>
+          <p>整句候選一次列出 5 種組合，第一個不對，往後看通常就有。</p>
+        </article>
+        <article>
+          <h3>筆畫查字</h3>
+          <p>不知道讀音的字，先按 <kbd>`</kbd>，再用 <kbd>h</kbd><kbd>s</kbd><kbd>p</kbd><kbd>n</kbd><kbd>z</kbd> 打橫、豎、撇、點、折。</p>
+        </article>
+        <article>
+          <h3>聯想（預設關）</h3>
+          <p>送出之後列出接下來可能要打的詞。附 Rime 官方的聯想資料，也可以換成自己的。</p>
+        </article>
+        <article>
+          <h3>設定不用碰檔案</h3>
+          <p>蓬萊設定照 macOS 系統設定的樣子做，改了馬上套用、可以復原。習慣改 YAML 的人照樣可以自己改。</p>
+        </article>
+      </div>
+      <figure class="shot wide">
+        <img src="/img/settings-colors.webp" width="1200" height="999" loading="lazy" alt="蓬萊設定的配色頁：左側是選字窗、配色、輸入、讀音、輸入方案、進階、變更紀錄，右側是二十多種選字窗配色的預覽。">
+        <figcaption>蓬萊設定的配色頁。淺色、深色模式各選一個。</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section id="names">
+    <div class="wrap">
+      <h2>名稱</h2>
+      <p class="section-lead">照 Rime 自己的命名規律取。Rime 最初在中原寫成，引擎叫中州韻；前端借毛筆命名，有鼠鬚管、小狼毫。蓬萊是臺灣的雅稱。</p>
+      <table class="names">
+        <thead><tr><th scope="col"></th><th scope="col">Rime</th><th scope="col">蓬萊</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">引擎</th><td>中州韻</td><td><b>蓬萊韻</b></td></tr>
+          <tr><th scope="row">輸入方案</th><td>地球拼音、注音、倉頡……</td><td><b>蓬萊注音</b></td></tr>
+          <tr><th scope="row">macOS 前端</th><td>鼠鬚管 Squirrel</td><td><b>貂毫 Sable</b></td></tr>
+          <tr><th scope="row">圖示</th><td class="zy">ㄓ</td><td class="zy"><b>ㄆ</b></td></tr>
+        </tbody>
+      </table>
+      <p>貂毫是用貂毛做的毛筆，英文 sable 就是貂。圖示用注音的第二個符號 ㄆ，也是「蓬」的聲母；字形自己畫，筆寬和比例照鼠鬚管的 ㄓ。</p>
+    </div>
+  </section>
+
+  <section id="status" class="band">
+    <div class="wrap">
+      <h2>進度</h2>
+      <dl class="status">
+        <dt>現在</dt>
+        <dd>macOS 版每天拿來打字，還沒開放下載。</dd>
+        <dt>接下來</dt>
+        <dd>打錯鍵、多打一鍵的容錯，還有漏打聲母時的單字，特別是每個字只打第一個注音的時候。</dd>
+        <dt>公開時</dt>
+        <dd>引擎和前端的修改、詞典產生器、建置腳本一起放出來。引擎以 <a href="https://github.com/rime/librime">librime</a>（BSD-3-Clause）為基礎，前端改自<a href="https://github.com/rime/squirrel">鼠鬚管</a>（GPL-3.0），前端原始碼照 GPL-3.0 公開。</dd>
+        <dt>做法</dt>
+        <dd>不 fork 整個上游歷史：鎖定上游的版本，套上自己的修改，一鍵建置。上游更新時換版本號、重套修改就好。</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap foot">
+    <p><svg class="mark" aria-hidden="true"><use href="#glyph"/></svg> 蓬萊韻 · penglai.im</p>
+    <p>以 <a href="https://rime.im/">RIME 中州韻輸入法引擎</a>為基礎。</p>
+  </div>
+</footer>
+</body>
+</html>

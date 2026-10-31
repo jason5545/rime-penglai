@@ -1,0 +1,69 @@
+<h1>打字、選字、送出</h1>
+<p class="lede">打注音時，注音先出現在游標處（組字區），旁邊的選字窗列出候選。選好之後按 Return 送出，字才真的進到文件裡。</p>
+
+<h2>組字區和候選</h2>
+<div class="ex" data-keys="rw" data-top="9">打 ㄐ ㄊ，組字區顯示注音，選字窗列出候選。第一個候選反白，是現在按 Return 會送出的那一個。</div>
+<p>候選前面的數字對應 <kbd>⇧1</kbd>～<kbd>⇧9</kbd>。每頁幾個候選可以在<a href="/wiki/settings/">蓬萊設定</a>的「選字窗」頁改（5～9 個）。</p>
+
+<h2>選字</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">想做的事</th><th scope="col">按鍵</th></tr></thead>
+<tbody>
+<tr><td>選第 N 個候選</td><td><kbd>⇧</kbd>＋數字；或先按 <kbd>↓</kbd> 再按數字；或用滑鼠點</td></tr>
+<tr><td>反白往下、往上移</td><td><kbd>↓</kbd> <kbd>↑</kbd>，或 <kbd>Tab</kbd></td></tr>
+<tr><td>下一頁、上一頁</td><td><kbd>=</kbd> 下一頁；翻過頁之後 <kbd>-</kbd> 回上一頁。<kbd>PageDown</kbd> <kbd>PageUp</kbd> 也可以</td></tr>
+<tr><td>送出反白的候選</td><td><kbd>Return</kbd></td></tr>
+</tbody>
+</table></div>
+<div class="ex" data-keys="rw{S-2}">按 ⇧2 選第二個。選完還沒送出，組字區換成選好的字。</div>
+<div class="ex" data-keys="r{Down}{Return}">按 ↓ 把反白移到第二個，再按 Return，直接送出反白的那一個。</div>
+<h3>先按 ↓，再按數字</h3>
+<p>不想按 Shift 的話，先按一下 <kbd>↓</kbd>，組字區後面出現〔選字：按數字〕，候選前面的 ⇧1… 換成 1…。這時直接按數字選字：</p>
+<div class="ex" data-keys="rw{Down}">按 ↓：反白移到第二個，同時進入「按數字選字」。</div>
+<div class="ex" data-keys="rw{Down}3">再按 3：選第三個「鏡頭」，蓋住整段就直接送出。</div>
+<ul>
+<li>選的候選只蓋住前面一段時，只選它，後面的留著，可以接著按數字選下一段。</li>
+<li>這時按 <kbd>↑</kbd> <kbd>↓</kbd> 照舊移反白；按其他鍵（Return、⌫、注音）就回到平常，那個鍵照原本處理。</li>
+<li>沒按 ↓ 的時候，數字鍵照舊是注音（1 是 ㄅ、3 是 ˇ）。</li>
+</ul>
+<p>用 ⇧數字選字時，選完還要按 <kbd>Return</kbd> 才會送出。這樣一整句可以分好幾段慢慢選，全部選對再一次送出。</p>
+<p><kbd>-</kbd> 平常是 ㄦ，只有翻過頁之後才當「上一頁」。<kbd>=</kbd> 在選字窗開著時都是「下一頁」。</p>
+
+<h2>空白鍵：一聲、選字、補標點</h2>
+<p>空白鍵有三個用途，看打到哪裡：</p>
+<ul>
+<li>最後一個注音還能加聲調時，空白鍵是<b>一聲</b>。</li>
+<li>已經打了聲調，空白鍵是<b>選字</b>：選反白的那個候選，平常就是第一個。選完還沒送出。</li>
+<li>中文送出之後、組字區空著時，空白鍵是<b>補標點</b>：補上「，」，像問句時補「？」，見<a href="/wiki/punctuation/#space-punct">送出之後按空白補標點</a>。</li>
+</ul>
+<div class="ex" data-keys="rw{space}">只打 ㄐ ㄊ 就按空白鍵：ㄊ 被當成一聲（ㄊˉ），候選跟著變。</div>
+<div class="ex" data-keys="rup wu0 wu0 fu4cp3cl3{space}|{Return}" data-top="5" data-label="ㄐㄧㄣˉ ㄊㄧㄢˉ ㄊㄧㄢˉ ㄑㄧˋ ㄏㄣˇ ㄏㄠˇ 空白|Return">每個音都打了聲調，空白鍵選第一個候選，再按 Return 送出。</div>
+
+<h2>整句候選</h2>
+<p>一次打好幾個字時，選字窗最前面是整句的組合，蓬萊一次列出 5 種，後面才是比較短的詞：</p>
+<div class="ex" data-keys="rwwfcc{Down}{Down}{Down}{Down}{Down}" data-top="7">ㄐ ㄊ ㄊ ㄑ ㄏ ㄏ：前五個是整句，第六個起是只蓋住前面一段的詞。</div>
+<p>這句是「今天天氣很好」，但還沒學過，第一個候選是「今天碳氫化合」。打過一次之後就會排第一，見<a href="/wiki/abbrev/">只打第一個注音</a>和<a href="/wiki/learning/">打過的會記住</a>。整句候選列幾種可以在蓬萊設定的「輸入」頁改（1、3、5）。</p>
+
+<h2>只選前面一段</h2>
+<p>整句不對，常常只是後半段錯。這時先選對前面那一段，後面的會留下來接著選：</p>
+<ol>
+<li>按 <kbd>←</kbd> 把游標往前移，選字窗只列游標前面那一段的候選。</li>
+<li>選一個候選，前面那段就定下來了。</li>
+<li>後面那段的候選接著出現，繼續選。</li>
+</ol>
+<div class="ex" data-keys="rwwfcc{Left}{Left}{S-1}">按兩次 ← 只看前四個注音，⇧1 選「今天提前」，後面的 ㄏ ㄏ 換成自己的候選。</div>
+<p>直接選一個比較短的候選（例如上面整句候選的第六個以後）也一樣：只蓋住前面一段，後面留著接著選。</p>
+
+<h2>改錯</h2>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">想做的事</th><th scope="col">按鍵</th></tr></thead>
+<tbody>
+<tr><td>刪掉最後一個按鍵</td><td><kbd>⌫</kbd></td></tr>
+<tr><td>整段不要了</td><td><kbd>Esc</kbd></td></tr>
+<tr><td>在組字區裡移動游標</td><td><kbd>←</kbd> <kbd>→</kbd></td></tr>
+<tr><td>照現在反白的候選送出</td><td><kbd>Return</kbd></td></tr>
+</tbody>
+</table></div>
+<div class="ex" data-keys="rwwfcc{BackSpace}">⌫ 刪掉最後一個 ㄏ，候選跟著重算。</div>
+<p>按 <kbd>Return</kbd> 送出的是反白的那個候選，不是按鍵本身。要送出英文字母，先切到西文，見<a href="/wiki/english/">英文與數字</a>。</p>
+<p>送出之後才發現選錯，見<a href="/wiki/undo/">選錯了怎麼辦</a>。</p>

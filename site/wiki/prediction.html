@@ -1,0 +1,26 @@
+<!-- partial -->
+<h1>聯想</h1>
+<p class="lede">送出一段字之後，選字窗馬上列出接下來可能要打的詞，選了就直接送出。預設關著。</p>
+
+<h2>打開</h2>
+<p>在<a href="/wiki/settings/">蓬萊設定</a>的「輸入」頁打開「聯想」。開著的輸入框馬上生效。打開之後，<a href="/wiki/switcher/">方案選單（F4）</a>也會多一項「聯想」。</p>
+
+<h2>怎麼用</h2>
+<div class="ex" data-keys="rw{S-1}{Return}" data-opts="prediction" data-top="6">送出「今天」之後，選字窗列出接在「今天」後面常見的詞。</div>
+<p>要用就按 <kbd>⇧</kbd>＋數字、先按 <kbd>↓</kbd> 再按數字，或用滑鼠點，選了直接送出，接著又列出下一輪：</p>
+<div class="ex" data-keys="rw{S-1}{Return}|{S-1}" data-opts="prediction" data-top="6" data-label="ㄐ ㄊ ⇧1 Return|⇧1">選第一個「的」，送出之後又接著聯想。</div>
+<div class="ex" data-keys="rw{S-1}{Return}|{Down}2" data-opts="prediction" data-top="6" data-label="ㄐ ㄊ ⇧1 Return|↓ 2">先按 ↓ 再按 2，選第二個「是」。</div>
+
+<h2>不要的時候</h2>
+<p>不用特別關掉選單，照平常打字就好。聯想選單開著時：</p>
+<ul>
+<li>打注音、標點，或按 <kbd>Return</kbd>、<kbd>空白</kbd>、<kbd>⌫</kbd>：先收掉聯想，再照平常處理這個鍵。</li>
+<li><kbd>Esc</kbd>：只收掉聯想。</li>
+<li>按一下 <kbd>Shift</kbd>：收掉聯想，照常切換中西文。</li>
+</ul>
+<p>送出標點、或是按鍵原樣送出的英文字母之後，不會跳出聯想。</p>
+
+<h2>聯想的資料</h2>
+<p>貂毫附了 Rime 官方的聯想資料（<a href="https://github.com/rime/librime-predict/releases/tag/data-1.0">librime-predict data-1.0</a>，從 Rime 的八股文詞頻和語言模型資料做成，LGPL-3.0）。這份資料是一般的文章用語，跟你自己平常打的內容不一定接得上。</p>
+<p>可以換成自己的資料：在使用者資料夾（<code>~/Library/Rime</code>）放一份同名的 <code>penglai_predict.db</code>，貂毫會用這份，不用附的那份。換掉之後要讓貂毫重新啟動才會讀到新的（登出再登入最簡單）。</p>
+<p class="todo">自己做聯想資料的方法還沒寫。</p>

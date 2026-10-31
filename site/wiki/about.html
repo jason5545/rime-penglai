@@ -1,0 +1,41 @@
+<h1>蓬萊是什麼</h1>
+<p class="lede">蓬萊韻是注音為根的 Rime 輸入法。詞典直接存注音，各地的讀音都收；打過一次的句子，下次每個字只按第一個注音就叫得回來。</p>
+
+<h2>三個名字</h2>
+<p>蓬萊照 Rime 自己的命名規律取名。Rime 的引擎叫中州韻，macOS 前端叫鼠鬚管；蓬萊這邊各有一個對應的名字：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col"></th><th scope="col">Rime</th><th scope="col">蓬萊</th><th scope="col">是什麼</th></tr></thead>
+<tbody>
+<tr><th scope="row">引擎</th><td>中州韻（librime）</td><td><b>蓬萊韻</b></td><td>負責查詞、組句、記住你打過的字。</td></tr>
+<tr><th scope="row">輸入方案</th><td>地球拼音、注音、倉頡……</td><td><b>蓬萊注音</b></td><td>大千式排列的注音輸入，詞典和學習紀錄都存注音。</td></tr>
+<tr><th scope="row">macOS 前端</th><td>鼠鬚管 Squirrel</td><td><b>貂毫 Sable</b></td><td>你在輸入法選單看到、會跳出選字窗的那個程式。</td></tr>
+</tbody>
+</table></div>
+<p>這份說明書講的都是「在貂毫裡用蓬萊注音」。</p>
+
+<h2>跟 Rime 內建的注音差在哪</h2>
+<p>Rime 本來就有注音方案。蓬萊注音從它改來，鍵盤、選字、標點照舊，另外改了這些：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">項目</th><th scope="col">Rime 內建</th><th scope="col">蓬萊</th></tr></thead>
+<tbody>
+<tr><td>詞典的碼</td><td>地球拼音，部署時才轉成注音</td><td>直接存注音（柏 ㄅㄛˊ）</td></tr>
+<tr><td>讀音</td><td>照地球拼音的比重</td><td>三個來源的讀音都收，<a href="/wiki/readings/">「讀音」設定</a>決定先出哪一種</td></tr>
+<tr><td>只打第一個注音</td><td>聲母可以</td><td>韻母開頭的字（我、要）也可以，見<a href="/wiki/abbrev/">只打第一個注音</a></td></tr>
+<tr><td>記住整句</td><td>5 個字以內</td><td>10 個字以內，見<a href="/wiki/learning/">打過的會記住</a></td></tr>
+<tr><td>整句候選</td><td>1 種</td><td>一次列出 5 種組合</td></tr>
+<tr><td>送出後撤銷學習</td><td>3 秒內按 ⌫</td><td>15 秒內按 ⌫，另外有<a href="/wiki/undo/">打 77 忘掉上一筆、藏起詞典裡的詞</a></td></tr>
+<tr><td>中英夾雜</td><td>要切西文</td><td>英文單字、整段數字在中文狀態直接打，見<a href="/wiki/english/">英文與數字</a></td></tr>
+<tr><td>漏打聲母</td><td>找不到</td><td>打了聲調的詞找得到，見<a href="/wiki/missing-initial/">漏打聲母</a></td></tr>
+<tr><td>聯想</td><td>要自己準備資料、改方案設定</td><td>附 Rime 官方的聯想資料，在設定裡打開就能用，見<a href="/wiki/prediction/">聯想</a></td></tr>
+<tr><td>設定</td><td>改 YAML 檔、重新部署</td><td><a href="/wiki/settings/">蓬萊設定</a>視窗，點一下就套用，可以復原</td></tr>
+</tbody>
+</table></div>
+<p>引擎以 <a href="https://github.com/rime/librime">librime</a>（BSD-3-Clause）為基礎，前端改自<a href="https://github.com/rime/squirrel">鼠鬚管</a>（GPL-3.0）。改動的方式是鎖定上游的版本、套上自己的修改，上游更新時換版本號、重套修改。</p>
+
+<h2>適合誰</h2>
+<ul>
+<li>用大千式排列打注音的人。</li>
+<li>想少按幾個鍵的人：每個字只打第一個注音，打過的句子會越打越準。</li>
+<li>在意讀音排序的人：同一個字的幾種讀音，可以選哪一種先出。</li>
+</ul>
+<p>目前只有 macOS 版（貂毫），還沒開放下載，見<a href="/wiki/install/">安裝</a>。</p>

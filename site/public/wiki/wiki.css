@@ -1,0 +1,150 @@
+/* 說明書：在 /style.css 之後載入，顏色、字型都用它的變數。頁面由 tools/gen_wiki.py 產生 */
+
+.wiki {
+  max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem;
+  display: grid; grid-template-columns: 14.5rem minmax(0, 1fr); gap: 3.5rem;
+  align-items: start;
+}
+.wiki-main { min-width: 0; max-width: 46rem; }
+.wiki-main section { padding: 0; }
+
+/* 側欄目錄：桌面固定在左邊；窄螢幕排到內文後面，頁首有「目錄」連結跳過去 */
+.wiki-nav {
+  position: sticky; top: 4.5rem;
+  max-height: calc(100vh - 5.5rem); overflow-y: auto;
+  font-size: .93rem; padding-right: .5rem;
+}
+.wiki-nav ul { list-style: none; margin: 0 0 1rem; padding: 0; }
+.wiki-nav li { margin: 0; }
+.wiki-nav a {
+  display: block; padding: .28rem .7rem; border-radius: 8px;
+  color: var(--ink); text-decoration: none; line-height: 1.45;
+}
+.wiki-nav a:hover { background: var(--bg-band); }
+.wiki-nav a[aria-current="page"] { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+.wiki-nav li .badge { margin: -.1rem 0 .2rem .7rem; }
+.nav-home { margin: 0 0 .8rem; font-weight: 600; }
+.nav-group { margin: 0 0 .25rem .7rem; font: 700 .82rem var(--serif); color: var(--muted); letter-spacing: .12em; }
+.crumb { margin: 0 0 .6rem; font-size: .9rem; color: var(--muted); }
+.crumb a { color: var(--muted); }
+.to-toc { display: none; float: right; }
+@media (max-width: 900px) {
+  .wiki { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-top: 1.5rem; }
+  .wiki-main { max-width: none; }
+  .wiki-nav { order: 2; position: static; max-height: none; border-top: 1px solid var(--line); padding-top: 1.5rem; }
+  .to-toc { display: inline; }
+}
+
+/* 內文 */
+.wiki-main h1 { font-size: clamp(1.8rem, 4vw, 2.4rem); margin: 0 0 .8rem; }
+.wiki-main h2 { font-size: 1.45rem; margin: 2.6rem 0 .7rem; }
+.wiki-main h3 { font-size: 1.12rem; margin: 1.8rem 0 .5rem; }
+.wiki-main p, .wiki-main li { max-width: 42em; }
+.wiki-main ul, .wiki-main ol { padding-left: 1.3rem; }
+.wiki-main li { margin: .25rem 0; }
+.lede { font-size: 1.12rem; color: var(--muted); margin: 0 0 1.8rem; }
+.wiki-main code {
+  font: .86em ui-monospace, "SF Mono", Menlo, monospace;
+  background: var(--bg-band); border-radius: 5px; padding: .1em .35em;
+}
+.wiki-main pre {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: .9rem 1.1rem; overflow-x: auto; line-height: 1.55;
+}
+.wiki-main pre code { background: none; padding: 0; font-size: .88rem; }
+.wiki-main table { margin: 1rem 0 1.5rem; font-size: .95rem; }
+.wiki-main th, .wiki-main td { padding: .55rem .7rem; }
+.wiki-main thead th { white-space: nowrap; }
+.table-wrap { overflow-x: auto; }
+.zy { font-size: 1.1em; letter-spacing: .04em; }
+
+.tip, .todo {
+  margin: 1.4rem 0; padding: .85rem 1.1rem; border-radius: 12px; font-size: .97rem;
+}
+.tip { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--accent); }
+.tip > :first-child { margin-top: 0; }
+.tip > :last-child { margin-bottom: 0; }
+.todo { border: 1px dashed var(--line); color: var(--muted); }
+.badge {
+  display: inline-block; vertical-align: .1em; margin-left: .45rem;
+  font-size: .72rem; font-weight: 600; line-height: 1.5; white-space: nowrap;
+  padding: 0 .5rem; border-radius: 999px;
+  color: var(--muted); border: 1px solid var(--line);
+}
+.wiki-main .shot { margin: 1.6rem 0; }
+.wiki-main .shot img { max-width: 720px; margin: 0 auto; border-radius: 12px; }
+
+/* 例子：選字窗的畫面（gen_wiki.py 在公開沙盒實打錄的） */
+.ex {
+  margin: 1.4rem 0 1.8rem; padding: .3rem 1.1rem;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+}
+.ex-row {
+  display: grid; grid-template-columns: minmax(7rem, max-content) minmax(0, 1fr); gap: .5rem 1.2rem;
+  align-items: start; padding: .8rem 0;
+}
+.ex-row + .ex-row { border-top: 1px solid var(--line); }
+.ex-keys { display: flex; flex-wrap: wrap; gap: .25rem; padding-top: .35rem; max-width: 16rem; }
+.ex-keys kbd { margin: 0; font-family: var(--sans); font-weight: 500; font-size: .92rem; }
+.ex-out { min-width: 0; }
+.ex .ime-panel { margin-top: 0; box-shadow: none; }
+.ex .ime-cands { font-size: 1.12rem; }
+.ex .ime-cands li:first-child { background: none; color: inherit; }
+.ex .ime-cands li:first-child .n { color: var(--muted); opacity: 1; }
+.ex .ime-cands li.hl { background: var(--accent); color: var(--hit-ink); }
+.ex .ime-cands li.hl .n, .ex .ime-cands li.hl .c { color: inherit; opacity: .85; }
+.ex .ime-cands .c { font-size: .72em; color: var(--muted); margin-left: .3em; }
+.ex-commit { margin: .3rem 0; }
+.ex-commit b { font-weight: 600; font-size: 1.1rem; }
+.ex-find { margin: .5rem 0 0; color: var(--muted); font-size: .92rem; }
+.muted { color: var(--muted); }
+.ex figcaption { color: var(--muted); font-size: .92rem; padding: .2rem 0 .8rem; border-top: 1px solid var(--line); padding-top: .7rem; }
+@media (max-width: 560px) {
+  .ex-row { grid-template-columns: minmax(0, 1fr); }
+  .ex-keys { max-width: none; }
+}
+
+/* 大千鍵盤對照（沿用首頁 .kbd 的格子） */
+.kbd-map { --u: min(3.3rem, calc((100vw - 3.5rem) / 12.6)); margin: 1.4rem 0 1.8rem; }
+@media (min-width: 901px) { .kbd-map { --u: min(3.3rem, calc((100vw - 25rem) / 12.6)); } }
+.kbd-map .row:nth-child(4) { padding-left: calc(var(--u) * 1.25); }
+.kbd-map .k.tone { background: var(--accent-soft); }
+.kbd-map .k.space .z { font-size: .8rem; color: var(--ink); }
+
+/* 說明書首頁的目錄 */
+.toc-group h2 { margin-top: 2.4rem; }
+.wiki-main .toc { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: .7rem; }
+.wiki-main .toc li { margin: 0; max-width: none; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: .75rem .95rem; }
+.toc a { font-weight: 600; text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.toc p { margin: .25rem 0 0; color: var(--muted); font-size: .9rem; line-height: 1.6; }
+
+/* 上一頁、下一頁 */
+.pager { display: flex; justify-content: space-between; gap: 1rem; margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--line); }
+.pager a {
+  display: flex; flex-direction: column; max-width: 48%;
+  padding: .6rem .9rem; border: 1px solid var(--line); border-radius: 10px; text-decoration: none; color: var(--ink);
+}
+.pager a:hover { border-color: var(--accent); }
+.pager small { color: var(--muted); font-size: .8rem; }
+.pager .next { text-align: right; margin-left: auto; }
+
+/* 名詞解釋 */
+.glossary { margin: 1.5rem 0; }
+.glossary dt { font: 700 1.05rem var(--serif); margin-top: 1.3rem; }
+.glossary dd { margin: .2rem 0 0; max-width: 42em; }
+.wiki-main kbd { white-space: nowrap; }
+
+/* 全部設定：一項一塊，路徑、寫在哪個檔、預設值一行，說明，在蓬萊設定的哪裡 */
+.set-toc ul { display: flex; flex-wrap: wrap; gap: .4rem; list-style: none; padding: 0; margin: 1.2rem 0 0; }
+.wiki-main .set-toc li { margin: 0; max-width: none; }
+.set-toc a { display: inline-block; padding: .2rem .7rem; border: 1px solid var(--line); border-radius: 999px; font-size: .9rem; text-decoration: none; }
+.set-toc a:hover { border-color: var(--accent); }
+.set { padding: .9rem 0 .8rem; border-top: 1px solid var(--line); }
+.set h4 { margin: 0 0 .3rem; font-size: 1.02rem; }
+.set p { margin: .3rem 0; }
+.set-meta { font-size: .88rem; color: var(--muted); line-height: 1.9; }
+.set-meta code { color: var(--ink); }
+.set-note { font-size: .92rem; color: var(--muted); }
+.set-where { font-size: .88rem; color: var(--accent); }
+.set-group { margin: 1.6rem 0 .2rem; font: 700 .9rem var(--serif); color: var(--muted); letter-spacing: .08em; }
