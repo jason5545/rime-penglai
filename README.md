@@ -14,3 +14,7 @@
 - 部署：`cd site && npx wrangler deploy`
 
 說明書的頁面由 `site/wiki/` 的 HTML 片段產生，頁面上的選字窗例子是在只放公開檔案的沙盒裡逐鍵實打錄下來的（`site/wiki/examples.json`）。產生器和錄例子的工具還沒搬過來。
+
+## 授權
+
+程式和網站以 GNU GPL 第 3 版釋出，全文在 `LICENSE`。詞典與讀音資料（LGPL-3.0）、各上游元件和資料來源的出處標示，會跟著詞典產生器和引擎一起搬過來。
