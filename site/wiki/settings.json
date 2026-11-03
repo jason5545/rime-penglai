@@ -224,7 +224,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 70
+    "order": 71
    }
   },
   {
@@ -239,7 +239,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 68
+    "order": 69
    }
   },
   {
@@ -254,7 +254,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 74
+    "order": 75
    }
   },
   {
@@ -269,7 +269,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 69
+    "order": 70
    }
   },
   {
@@ -297,7 +297,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 71
+    "order": 72
    }
   },
   {
@@ -312,7 +312,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 72
+    "order": 73
    }
   },
   {
@@ -327,7 +327,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 73
+    "order": 74
    }
   },
   {
@@ -393,7 +393,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 75
+    "order": 76
    }
   },
   {
@@ -1145,7 +1145,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 106
+    "order": 107
    }
   },
   {
@@ -1160,7 +1160,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 107
+    "order": 108
    }
   },
   {
@@ -1175,7 +1175,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 108
+    "order": 109
    }
   },
   {
@@ -1203,7 +1203,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 109
+    "order": 110
    }
   },
   {
@@ -1218,7 +1218,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 111
+    "order": 112
    }
   },
   {
@@ -1233,7 +1233,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 110
+    "order": 111
    }
   },
   {
@@ -1345,7 +1345,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 59
+    "order": 60
    }
   },
   {
@@ -1361,7 +1361,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 60
+    "order": 61
    }
   },
   {
@@ -1376,7 +1376,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 61
+    "order": 62
    }
   },
   {
@@ -1546,7 +1546,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 102
+    "order": 103
    }
   },
   {
@@ -1566,7 +1566,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 101
+    "order": 102
    }
   },
   {
@@ -1687,7 +1687,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 43
+    "order": 44
    }
   },
   {
@@ -1782,7 +1782,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 57
+    "order": 58
    }
   },
   {
@@ -1805,7 +1805,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 99
+    "order": 100
    }
   },
   {
@@ -1828,7 +1828,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 100
+    "order": 101
    }
   },
   {
@@ -1848,7 +1848,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 98
+    "order": 99
    }
   },
   {
@@ -1863,7 +1863,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 41
+    "order": 42
    }
   },
   {
@@ -1878,7 +1878,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 40
+    "order": 41
    }
   },
   {
@@ -1887,7 +1887,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "string",
    "title": "中英混輸：判斷表",
-   "desc": "判斷中文那句通不通的表：使用者資料夾的 <名字>.tbl，從教育部辭典和 wordfreq 產生，約 40 MB，用 mmap 讀、不另外常駐。英文句和原本的第一候選都打分：中文每個字接不接得上前兩個字（字三元），英文那段像不像英文（字母三元）。找不到表時英文句只排第二、不排第一。只有蓬萊版引擎認得。",
+   "desc": "判斷中文那句通不通的表：<名字>.tbl，先找使用者資料夾，沒有就用貂毫附的那份（從教育部辭典和 wordfreq 產生，約 39 MB），用 mmap 讀、不另外常駐。英文句和原本的第一候選都打分：中文每個字接不接得上前兩個字（字三元），英文那段像不像英文（字母三元）。找不到表時英文句只排第二、不排第一。只有蓬萊版引擎認得。",
    "value": "penglai_judge",
    "builtin": null,
    "options": [
@@ -1919,7 +1919,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 78
+    "order": 79
    }
   },
   {
@@ -1942,7 +1942,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 77
+    "order": 78
    }
   },
   {
@@ -1966,7 +1966,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 76
+    "order": 77
    }
   },
   {
@@ -1975,7 +1975,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "string",
    "title": "單字表以外的英文另外給候選",
-   "desc": "按鍵層語言辨識表：使用者資料夾的 <名字>.tbl，從教育部辭典（中文注音鍵）和 wordfreq（英文字母）產生，約 27 MB，用 mmap 讀、不另外常駐。同一串按鍵比「當中文注音鍵」跟「當英文字母」哪個像，找出單字表以外的英文段（首符號的中文鍵黏在英文旁邊也找得到），另外組成候選，排在第 english_keylid_position 個起、到那一頁結束；前面的候選不動，也不排第一。選過一次會寫進學習紀錄，下次打同一串就排第一。找不到表時不出。要先開中英混輸、有判斷表才有作用，只有蓬萊版引擎認得。",
+   "desc": "按鍵層語言辨識表：<名字>.tbl，先找使用者資料夾，沒有就用貂毫附的那份（從教育部辭典（中文注音鍵）和 wordfreq（英文字母）產生，約 27 MB），用 mmap 讀、不另外常駐。同一串按鍵比「當中文注音鍵」跟「當英文字母」哪個像，找出單字表以外的英文段（首符號的中文鍵黏在英文旁邊也找得到），另外組成候選，排在第 english_keylid_position 個起、到那一頁結束；前面的候選不動，也不排第一。選過一次會寫進學習紀錄，下次打同一串就排第一。找不到表時不出。要先開中英混輸、有判斷表才有作用，只有蓬萊版引擎認得。",
    "value": "penglai_keylid",
    "builtin": null,
    "options": [
@@ -1990,7 +1990,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 90
+    "order": 91
    }
   },
   {
@@ -2014,7 +2014,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 97
+    "order": 98
    }
   },
   {
@@ -2037,7 +2037,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 94
+    "order": 95
    }
   },
   {
@@ -2060,7 +2060,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 95
+    "order": 96
    }
   },
   {
@@ -2083,7 +2083,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 92
+    "order": 93
    }
   },
   {
@@ -2106,7 +2106,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 93
+    "order": 94
    }
   },
   {
@@ -2129,7 +2129,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 91
+    "order": 92
    }
   },
   {
@@ -2153,7 +2153,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 96
+    "order": 97
    }
   },
   {
@@ -2176,7 +2176,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 88
+    "order": 89
    }
   },
   {
@@ -2199,7 +2199,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 89
+    "order": 90
    }
   },
   {
@@ -2208,8 +2208,8 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
    "title": "單字表以外的字母串也試",
-   "desc": "整串連續的小寫字母（頭尾各少 0–english_letter_trim 個）不在單字表裡也當成英文候選，交給判斷表；比前幾個中文讀法裡最通順的還通順才排第一（elvie 的中文是「高興哦給」這種組不起來的句子，要的是英文），整段剛好是一個詞（敏捷開發、特色功能）時不換。程式預設關，蓬萊注音的方案檔打開。要先打開中英混輸。要有判斷表才有作用，只有蓬萊版引擎認得。",
-   "value": "true",
+   "desc": "整串連續的小寫字母（頭尾各少 0–english_letter_trim 個）不在單字表裡也當成英文候選，交給判斷表；比前幾個中文讀法裡最通順的還通順才排第一（elvie 的中文是「高興哦給」這種組不起來的句子，要的是英文），整段剛好是一個詞（敏捷開發、特色功能）時不換。程式和蓬萊注音的方案檔都預設關：貂毫附的判斷表只有教育部辭典的書面語，分不太出「一串首符號」和「沒見過的英文字」，打開時常把只打第一個注音的中文換成字母串；單字表以外的英文改由「單字表以外的英文另外給候選」放在第一頁。判斷表加了自己平常打的語料時再打開。要先打開中英混輸。要有判斷表才有作用，只有蓬萊版引擎認得。",
+   "value": "false",
    "builtin": "false",
    "options": [
     true,
@@ -2219,7 +2219,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 86
+    "order": 87
    }
   },
   {
@@ -2242,7 +2242,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 87
+    "order": 88
    }
   },
   {
@@ -2251,7 +2251,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "string",
    "title": "中英混輸",
-   "desc": "打開時，輸入裡連續的小寫字母有一段是英文單字，就多組一句「前後照常組中文、英文照字面」；判斷表（english_judge）說這句比原本的第一候選通順就排第一，不然排第二。這是總開關：關掉時，單字表以外的字母串（english_letter_runs，elvie）、整段數字鍵（digit_runs，09353）也一起停。關掉＝這一行寫空字串，打字結果跟沒有這個功能時一樣。方案預設打開；值是使用者資料夾裡單字表的檔名（不含 .txt）。只有蓬萊版引擎認得。",
+   "desc": "打開時，輸入裡連續的小寫字母有一段是英文單字，就多組一句「前後照常組中文、英文照字面」；判斷表（english_judge）說這句比原本的第一候選通順就排第一，不然排第二。這是總開關：關掉時，單字表以外的字母串（english_letter_runs，elvie）、整段數字鍵（digit_runs，09353）也一起停。關掉＝這一行寫空字串，打字結果跟沒有這個功能時一樣。方案預設打開；值是單字表的檔名（不含 .txt），先找使用者資料夾，沒有就用貂毫附的那份（wordfreq 的英文單字）。只有蓬萊版引擎認得。",
    "value": "penglai_en",
    "builtin": null,
    "options": [
@@ -2285,7 +2285,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 82
+    "order": 83
    }
   },
   {
@@ -2308,7 +2308,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 80
+    "order": 81
    }
   },
   {
@@ -2331,7 +2331,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 81
+    "order": 82
    }
   },
   {
@@ -2353,7 +2353,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 79
+    "order": 80
    }
   },
   {
@@ -2373,7 +2373,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 84
+    "order": 85
    }
   },
   {
@@ -2382,13 +2382,14 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "int",
    "title": "後面有空白時最短幾個字母",
-   "desc": "〔要先開 english_space〕英文後面按了空白時，整串字母剛好是單字表裡的詞，可以短到這麼多個字母（AI、PR 接空白也算英文）；長串字母裡的一小段照舊至少「最短幾個字母」個（auto 空白不會拆出 to）。比預設最短長度短的英文沒被判斷排第一時，排在比較後面，不擠掉第二名的中文。0＝跟「最短幾個字母」一樣。只有蓬萊版引擎認得。",
-   "value": "2",
+   "desc": "〔要先開 english_space〕英文後面按了空白時，整串字母剛好是單字表裡的詞，可以短到這麼多個字母（AI、PR 接空白也算英文）；長串字母裡的一小段照舊至少「最短幾個字母」個（auto 空白不會拆出 to）。比預設最短長度短的英文沒被判斷排第一時，排在比較後面，不擠掉第二名的中文。0＝跟「最短幾個字母」一樣。蓬萊注音的方案檔設 4（跟「最短幾個字母」一樣，短的英文接空白不收）：完整注音的一聲字就是幾個字母鍵加空白（ㄧㄣˉ 是 up 空白、ㄇㄠˉ 是 al 空白），設 2、3 時這種字可能被當成英文，只打完整注音的人會打錯。常打 AI、PR 這種縮寫、又不太打完整注音的人可以改成 2。只有蓬萊版引擎認得。",
+   "value": "4",
    "builtin": "0",
    "options": [
     0,
     2,
-    3
+    3,
+    4
    ],
    "min": 0,
    "max": 10,
@@ -2396,7 +2397,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 85
+    "order": 86
    }
   },
   {
@@ -2414,7 +2415,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 83
+    "order": 84
    }
   },
   {
@@ -2434,7 +2435,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 44
+    "order": 45
    }
   },
   {
@@ -2460,7 +2461,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 119
+    "order": 120
    }
   },
   {
@@ -2478,7 +2479,7 @@
    "where": {
     "section": "shortcuts",
     "segment": "details",
-    "order": 35
+    "order": 36
    }
   },
   {
@@ -2516,7 +2517,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 47
+    "order": 48
    }
   },
   {
@@ -2531,7 +2532,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 103
+    "order": 104
    }
   },
   {
@@ -2567,7 +2568,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 56
+    "order": 57
    }
   },
   {
@@ -2624,7 +2625,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 48
+    "order": 49
    }
   },
   {
@@ -2648,7 +2649,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 49
+    "order": 50
    }
   },
   {
@@ -2692,7 +2693,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 54
+    "order": 55
    }
   },
   {
@@ -2716,7 +2717,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 50
+    "order": 51
    }
   },
   {
@@ -2739,7 +2740,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 51
+    "order": 52
    }
   },
   {
@@ -2763,7 +2764,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 52
+    "order": 53
    }
   },
   {
@@ -2787,7 +2788,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 53
+    "order": 54
    }
   },
   {
@@ -2828,7 +2829,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 45
+    "order": 46
    }
   },
   {
@@ -2850,7 +2851,7 @@
    "where": {
     "section": "composing",
     "segment": "typing_style",
-    "order": 46
+    "order": 47
    }
   },
   {
@@ -2983,7 +2984,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 66
+    "order": 67
    }
   },
   {
@@ -2998,7 +2999,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 63
+    "order": 64
    }
   },
   {
@@ -3039,7 +3040,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 67
+    "order": 68
    }
   },
   {
@@ -3054,7 +3055,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 64
+    "order": 65
    }
   },
   {
@@ -3069,7 +3070,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 65
+    "order": 66
    }
   },
   {
@@ -3084,7 +3085,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 62
+    "order": 63
    }
   },
   {
@@ -3268,7 +3269,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 116
+    "order": 117
    }
   },
   {
@@ -3283,7 +3284,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 37
+    "order": 38
    }
   },
   {
@@ -3443,7 +3444,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 118
+    "order": 119
    }
   },
   {
@@ -3461,7 +3462,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 58
+    "order": 59
    }
   },
   {
@@ -3502,7 +3503,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 114
+    "order": 115
    }
   },
   {
@@ -3517,7 +3518,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 39
+    "order": 40
    }
   },
   {
@@ -3532,7 +3533,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 113
+    "order": 114
    }
   },
   {
@@ -3547,7 +3548,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 55
+    "order": 56
    }
   },
   {
@@ -3562,7 +3563,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 112
+    "order": 113
    }
   },
   {
@@ -3577,7 +3578,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 105
+    "order": 106
    }
   },
   {
@@ -3593,7 +3594,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 117
+    "order": 118
    }
   },
   {
@@ -3609,7 +3610,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 38
+    "order": 39
    }
   },
   {
@@ -3747,7 +3748,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 104
+    "order": 105
    }
   },
   {
@@ -3762,7 +3763,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 115
+    "order": 116
    }
   },
   {
@@ -3777,7 +3778,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 42
+    "order": 43
    }
   },
   {
@@ -3870,6 +3871,21 @@
    "where": {
     "section": "shortcuts",
     "segment": "details",
+    "order": 35
+   }
+  },
+  {
+   "id": "lua:penglai_space/foreign",
+   "path": "penglai_space/foreign",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "游標前是別處的字也補標點",
+   "desc": "游標前的字不是剛用這個輸入法送出的（貼上的、語音輸入的、原本就在文件裡的）時，按空白也照前後文補標點。組字區空著時按空白，先看游標前一個字：不是中文、英文字母或數字（空白、標點、換行），或游標前沒有字時，照舊出空白。是字的話看游標前後同一句（到換行或句號、問號、驚嘆號為止）：英文詞佔八成以上（一個英文詞、一個漢字各算一個）補「, 」，不然補「，」，像問句時補「？」（跟「送出之後按空白補標點」同一套判斷）。剛送出字（英文、數字、標點也算）之後，到按 BackSpace、方向鍵、Return、Command 組合鍵、點滑鼠、切中西文之前，空白照舊，中英混打時英文中間的空白不會變成標點；中文送出之後照原本的補標點。補了之後緊接著的空白、Return 跟原本一樣：再按空白換成空白，Return 把「，」換成「。」、「, 」換成「.」。讀不到游標前後文字的程式（例如終端機）、選取了一段文字時，照舊出空白。要先開「送出之後按空白補標點」。",
+   "value": null,
+   "builtin": "false",
+   "where": {
+    "section": "keys",
+    "segment": "space_punct",
     "order": 34
    }
   },
@@ -3879,7 +3895,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
    "title": "補了「，」之後按 Return 換成「。」",
-   "desc": "送出之後按空白補了「，」，緊接著按 Return 時，「，」換成「。」，Return 照樣交給程式（換行、送出訊息）。句子打完直接按 Return，結尾就是句號。補的是「？」時不換；中間按過別的鍵也不換。少數讀不到游標前面文字的程式（例如終端機）換不了，照舊是「，」。要先開「送出之後按空白補標點」。",
+   "desc": "送出之後按空白補了「，」，緊接著按 Return 時，「，」換成「。」，Return 照樣交給程式（換行、送出訊息）。句子打完直接按 Return，結尾就是句號。照游標前後的字補了英文的「, 」時換成「.」。補的是「？」時不換；中間按過別的鍵也不換。少數讀不到游標前面文字的程式（例如終端機）換不了，照舊是「，」。要先開「送出之後按空白補標點」。",
    "value": null,
    "builtin": "true",
    "where": {
@@ -3894,7 +3910,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
    "title": "送出之後按空白補標點",
-   "desc": "中文送出之後按空白，不出空白，直接送出猜的標點：句子像問句（結尾是嗎、呢、對吧，或句中有什麼、怎麼、好不好這類）時是「？」，不然是「，」。要空白：緊接著再按一次空白，剛補的標點換成空白（「補了標點之後再按空白換成空白」，可以關），再按就是一般的空白。要別的標點直接按標點鍵。送出的是英文、數字、標點，或送出之後按過 BackSpace、方向鍵、Return、Command 組合鍵、點過滑鼠、切過中西文時，空白照舊。關掉時送出之後按空白照舊出空白。",
+   "desc": "中文送出之後按空白，不出空白，直接送出猜的標點：句子像問句（結尾是嗎、呢、對吧，或句中有什麼、怎麼、好不好這類）時是「？」，不然是「，」。要空白：緊接著再按一次空白，剛補的標點換成空白（「補了標點之後再按空白換成空白」，可以關），再按就是一般的空白。要別的標點直接按標點鍵。送出的是英文、數字、標點，或送出之後按過 BackSpace、方向鍵、Return、Command 組合鍵、點過滑鼠、切過中西文時，空白照舊（打開「游標前是別處的字也補標點」時，按過這些鍵之後改看游標前後的字）。關掉時送出之後按空白照舊出空白。",
    "value": null,
    "builtin": "true",
    "where": {
@@ -3947,7 +3963,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 119
+    "order": 120
    }
   },
   {
