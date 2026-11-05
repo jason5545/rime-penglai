@@ -55,6 +55,7 @@
 .wiki-main table { margin: 1rem 0 1.5rem; font-size: .95rem; }
 .wiki-main th, .wiki-main td { padding: .55rem .7rem; }
 .wiki-main thead th { white-space: nowrap; }
+.wiki-main td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .table-wrap { overflow-x: auto; }
 .zy { font-size: 1.1em; letter-spacing: .04em; }
 

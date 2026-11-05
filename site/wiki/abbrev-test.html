@@ -1,0 +1,74 @@
+<h1>只打第一個注音省多少</h1>
+<p class="lede">同一段文章，分別用只打第一個注音和完整注音打出來，數按鍵和看候選的次數。打沒打過的文章時，只打第一個注音省不到一成的按鍵，看候選的次數卻多好幾倍；打過一遍之後，按鍵才真的少一半。</p>
+
+<h2>結論</h2>
+<ul>
+<li><b>新文章，完整注音比較快。</b>只打第一個注音每個字少按兩三個鍵，但候選太多，往下找、縮小範圍、選錯重來也都是按鍵。換成一般人打字的速度，完整注音大約快一倍。</li>
+<li><b>打過的內容，只打第一個注音按鍵少一半。</b>時間跟完整注音差不多；每按一鍵花的時間越長，只打第一個注音越划算。</li>
+<li><b>混著打落在中間。</b>常用字只打第一個注音、少見的字打完整，比全部只打第一個注音快，時間還是完整注音的兩倍左右。</li>
+</ul>
+<p>所以剛開始用，建議照平常打完整注音；常打的句子學起來之後，再改成只打第一個注音。打法見<a href="/wiki/abbrev/">只打第一個注音</a>。</p>
+
+<h2>剛裝好，還沒有學習紀錄</h2>
+<p>一篇介紹蓬萊的文章，前 360 個漢字。用公開版的預設設定、空的學習紀錄，在沙盒裡讓引擎逐鍵打出來，送出的字跟原文一字不差。標點都在送出後按空白補。2026/11/5 用當時的版本跑：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">打法</th><th scope="col">按鍵</th><th scope="col">看候選</th><th scope="col">熟練打字者</th><th scope="col">一般人</th></tr></thead>
+<tbody>
+<tr><td>完整注音</td><td class="num">1,321</td><td class="num">87</td><td class="num">6.4 分</td><td class="num">8.1 分</td></tr>
+<tr><td>混著打（三組平均）</td><td class="num">1,431</td><td class="num">394</td><td class="num">13.6 分</td><td class="num">15.5 分</td></tr>
+<tr><td>只打第一個注音，每四個字選一次</td><td class="num">1,362</td><td class="num">592</td><td class="num">17.9 分</td><td class="num">19.7 分</td></tr>
+<tr><td>只打第一個注音，整段打完再選</td><td class="num">1,930</td><td class="num">1,043</td><td class="num">29.9 分</td><td class="num">32.5 分</td></tr>
+</tbody>
+</table></div>
+<ul>
+<li>「混著打」照下面實測的比例：38% 的字只打第一個注音、36% 打完整不帶聲調、26% 打完整帶聲調，常用字只打第一個注音、少見的字打完整。哪幾個字用哪種打法由亂數決定，跑了三組，時間在 12.9 到 14.1 分之間。</li>
+<li>只打第一個注音時，一整段打完再選，第一個候選常常整句都不對，要縮好幾次範圍、翻好幾頁；每四個字選一次，看候選的次數少很多。</li>
+</ul>
+
+<h2>實際打一次</h2>
+<p>2026/10/31，開發者自己在貂毫打同一段文章，網頁記下每一個按鍵。用的是自己用了一陣子的學習紀錄，盡量只打第一個注音，標點按空白補。同一段另外用模擬打一次完整注音，學習紀錄用開打前複製的同一份。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">打法</th><th scope="col">按鍵</th><th scope="col">看候選</th><th scope="col">熟練打字者</th><th scope="col">一般人</th></tr></thead>
+<tbody>
+<tr><td>實測：盡量只打第一個注音</td><td class="num">1,182</td><td class="num">約 377</td><td class="num">12.4 分</td><td class="num">14.0 分</td></tr>
+<tr><td>模擬：完整注音</td><td class="num">1,285</td><td class="num">68</td><td class="num">5.8 分</td><td class="num">7.5 分</td></tr>
+<tr><td>模擬：只打第一個注音，每四個字選一次</td><td class="num">1,273</td><td class="num">496</td><td class="num">15.4 分</td><td class="num">17.1 分</td></tr>
+</tbody>
+</table></div>
+<p>實測的按鍵裡，注音 636 下、聲調 80 下、方向鍵 232 下（多半是 ↓ 往下看候選、← 縮小範圍）、Return 129 下、空白 63 下、退格 25 下。按住方向鍵自動重複的 77 下沒算進去。按鍵只比完整注音少 8%，看候選的次數是 5.5 倍。</p>
+<p>把按鍵對回原文的讀音，看每個字實際按了什麼（挑沒有退格、全是漢字的段落，共 255 字）：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">這個字</th><th scope="col">字數</th><th scope="col">只打第一個注音</th><th scope="col">完整，不帶聲調</th><th scope="col">完整，帶聲調</th></tr></thead>
+<tbody>
+<tr><td>有聲母，同一個聲母裡最常用的</td><td class="num">29</td><td class="num">55%</td><td class="num">24%</td><td class="num">21%</td></tr>
+<tr><td>有聲母，排第 2–5</td><td class="num">36</td><td class="num">39%</td><td class="num">33%</td><td class="num">28%</td></tr>
+<tr><td>有聲母，排第 6 以後</td><td class="num">143</td><td class="num">37%</td><td class="num">38%</td><td class="num">24%</td></tr>
+<tr><td>韻母開頭，排第 1–5</td><td class="num">10</td><td class="num">80%</td><td class="num">10%</td><td class="num">10%</td></tr>
+<tr><td>韻母開頭，排第 6 以後</td><td class="num">37</td><td class="num">8%</td><td class="num">49%</td><td class="num">43%</td></tr>
+<tr><th scope="row">全部</th><td class="num">255</td><td class="num">37%</td><td class="num">36%</td><td class="num">27%</td></tr>
+</tbody>
+</table></div>
+<p>就算想全部只打第一個注音，實際上還是混著打：常用字只打一個鍵，ㄧ、ㄨ、ㄩ 開頭的少見字幾乎都打完整，因為同一個注音開頭的字太多。只打聲母加聲調（ㄋˇ）、打一半（ㄐㄧ 當 ㄐㄧㄠ）都沒有出現過。</p>
+
+<h2>打過一遍之後</h2>
+<p>同一份學習紀錄，模擬把整篇文章（712 個漢字）連續打兩遍，第二遍就是「打過的內容」：</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">打法</th><th scope="col">第一遍</th><th scope="col">第二遍</th><th scope="col">第二遍，熟練打字者</th></tr></thead>
+<tbody>
+<tr><td>完整注音</td><td class="num">2,482 鍵／看 125 次</td><td class="num">2,372 鍵／看 89 次</td><td class="num">9.9 分</td></tr>
+<tr><td>只打第一個注音，每四個字選一次</td><td class="num">2,515 鍵／看 1,006 次</td><td class="num">1,153 鍵／看 249 次</td><td class="num">9.4 分</td></tr>
+</tbody>
+</table></div>
+<p>第二遍只打第一個注音的按鍵不到完整注音的一半，多看 160 次候選。照熟練打字者每鍵 0.20 秒算，兩種打法的時間差不多；每按一鍵超過大約 0.18 秒，只打第一個注音就比較快。按鍵吃力的人（打字慢、只用一兩根手指、用替代鍵盤），打過的內容只打第一個注音最省力。</p>
+
+<h2>怎麼算的</h2>
+<ul>
+<li><b>按鍵：</b>注音、聲調、空白、Return、方向鍵、退格、選字都算。用 Shift＋數字選字算兩鍵。</li>
+<li><b>看候選：</b>每次 Return、選字、翻頁、按方向鍵各算一次，連續退格算一次。實測和模擬用同一套算法。</li>
+<li><b>時間：</b>用 KLM（Card, Moran &amp; Newell, 1980）換算，不是實際碼錶。每按一鍵，熟練打字者 0.20 秒、一般人 0.28 秒；每看一次候選、決定怎麼選，1.35 秒。</li>
+<li><b>模擬的打法：</b>一段是兩個標點之間的字。第一個候選就是剩下的字就按 Return；不是就找按鍵最少的選法，可以先按 ← 縮小範圍、翻頁。怎麼縮、怎麼翻都找不到，就退格，把下一個字改打完整注音重來。每一步都知道最省鍵的選法，是理想值，真人通常會多看幾次。</li>
+<li><b>讀音：</b>每個字照臺灣的讀音標注，完整注音全部打得出來。</li>
+</ul>
+<div class="tip">
+<p>限制：只測了一篇文章、一位測試者，實測只有一次。學習紀錄會讓結果差很多：同一段完整注音，空的學習紀錄看 87 次候選，用過一陣子的（10/31）看 68 次。</p>
+</div>
