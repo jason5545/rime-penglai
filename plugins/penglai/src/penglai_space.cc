@@ -1,5 +1,6 @@
 #include "penglai_space.h"
 
+#include <cstring>
 #include <set>
 #include <unordered_set>
 #include <rime/config.h>
@@ -25,6 +26,20 @@ const char* const kWords[] = {"什麼", "怎麼", "為什麼", "為何", "哪", 
                               "要不要", "會不會", "能不能", "可不可以", "對不對", "好不好"};
 // 規則另外看的詞（不是模型的特徵，加了不用重新訓練）：口語語料和公開語料（Tatoeba、Common Voice）兩邊都多半是問句的才收
 const char* const kRuleWords[] = {"幹嘛", "多久", "多大", "了沒", "難道", "多遠"};
+// 疑問詞不是在問的三種用法（11/5；gen_punct.py 的 negations 同一套，tools/punct_check.py 逐句比）：
+//   任指：疑問詞後面 0–4 個字內接「都／也」（什麼都可以、誰也不知道）
+//   虛指：沒（有）／不＋什麼、誰、哪，點什麼、些什麼，結尾「什麼的」（沒什麼區別、吃點什麼、買菜什麼的）
+//   嵌入：前面是不知道、看看、不管…，後面才出現疑問詞、正反問（我不知道他去哪、看看怎麼做）
+// 規則：句中疑問詞判成問句、又有這三種之一時不算問句（句尾是嗎、呢、對吧、是吧照舊算）；模型：n:任指 這種特徵
+const char* const kNegWh[] = {"什麼", "怎麼", "誰", "哪", "多少", "為什麼", "幾"};
+const char* const kNegAnyTail[] = {"都", "也"};
+const char* const kNegSome[] = {"沒什麼", "沒誰", "沒哪", "沒有什麼", "沒有誰", "沒有哪",
+                                "不什麼", "不誰",   "不哪", "點什麼",   "些什麼"};
+const char* const kNegEmbedVerbs[] = {"不知道", "看看", "問問", "想想", "不管", "無論", "不論", "忘了", "記得",
+                                      "決定",   "研究", "討論", "商量", "告訴我", "告訴你", "說明", "解釋"};
+const char* const kNegEmbedTargets[] = {"什麼", "怎麼", "誰", "哪", "多少", "為什麼", "幾",
+                                        "是不是", "有沒有", "要不要", "會不會", "能不能"};
+const char* const kNegKeepEnds[] = {"嗎", "呢", "對吧", "是吧"};
 const uint32_t kBu = 0x4e0d;   // 不
 const uint32_t kMei = 0x6c92;  // 沒
 
@@ -46,7 +61,50 @@ bool Contains(const string& text, const char* word) {
   return text.find(word) != string::npos;
 }
 
-bool Rule(const string& text, const vector<uint32_t>& cps) {
+// UTF-8 一個字的位元組數（text 是解得開的 UTF-8）
+size_t Utf8Len(unsigned char lead) {
+  return lead < 0x80 ? 1 : lead < 0xe0 ? 2 : lead < 0xf0 ? 3 : 4;
+}
+
+// 疑問詞的非疑問用法（gen_punct.py 的 negations）：回傳「任指」「虛指」「嵌入」裡有的，照這個順序。
+// 用位元組找：UTF-8 不會從一個字的中間對到另一個字，找到的位置一定是字的開頭
+vector<string> Negations(const string& text) {
+  vector<string> out;
+  bool any = false;
+  for (const char* w : kNegWh) {
+    size_t len = strlen(w);
+    for (size_t p = text.find(w); p != string::npos && !any; p = text.find(w, p + 1)) {
+      size_t q = p + len;
+      for (int k = 0; k < 5 && q < text.size() && !any; ++k) {
+        for (const char* t : kNegAnyTail) {
+          if (text.compare(q, strlen(t), t) == 0)
+            any = true;
+        }
+        q += Utf8Len(static_cast<unsigned char>(text[q]));
+      }
+    }
+  }
+  if (any)
+    out.push_back("任指");
+  bool some = EndsWith(text, "什麼的");
+  for (const char* w : kNegSome)
+    some = some || Contains(text, w);
+  if (some)
+    out.push_back("虛指");
+  bool embed = false;
+  for (const char* v : kNegEmbedVerbs) {
+    size_t p = text.find(v);   // 最前面那個：後面有的話，從更前面開始找一定也有
+    if (p == string::npos)
+      continue;
+    for (const char* t : kNegEmbedTargets)
+      embed = embed || text.find(t, p + strlen(v)) != string::npos;
+  }
+  if (embed)
+    out.push_back("嵌入");
+  return out;
+}
+
+bool RuleHit(const string& text, const vector<uint32_t>& cps) {
   for (const char* e : kEnds) {
     if (EndsWith(text, e))
       return true;
@@ -63,6 +121,17 @@ bool Rule(const string& text, const vector<uint32_t>& cps) {
       return true;
   }
   return false;
+}
+
+// 公開版（沒有模型）：像問句，而且不是疑問詞的非疑問用法（句尾是嗎、呢、對吧、是吧照舊算問句）
+bool Rule(const string& text, const vector<uint32_t>& cps) {
+  if (!RuleHit(text, cps))
+    return false;
+  for (const char* e : kNegKeepEnds) {
+    if (EndsWith(text, e))
+      return true;
+  }
+  return Negations(text).empty();
 }
 
 bool EndsWithHan(const string& text) {
@@ -205,6 +274,10 @@ string ForeignPunct(const string& before, const string& after, const SortedTable
   CountWords(all, start, end, &english, &han);
   if (MostlyEnglish(english, han))
     return ", ";
+  // 游標後面緊接著是開引號（「『“）：引語前面用冒號（教育部《重訂標點符號手冊》：冒號用於總起下文、引語）。
+  // 11/5：引號一個鍵就打得出來，游標移到引號前面按空白就補「：」（他說｜「明天見」→ 他說：「明天見」）
+  if (caret < all.size() && (all[caret] == 0x300c || all[caret] == 0x300e || all[caret] == 0x201c))
+    return "：";
   // 中文標點：問句看游標前、最後一個標點（或換行）之後那一段，跟送出之後補標點看的範圍一樣
   size_t from = caret;
   while (from > 0 && !IsNewline(all[from - 1]) && !(IsPunct(all[from - 1]) && !InWord(all, from - 1)))
@@ -238,6 +311,8 @@ double QuestionScore(const string& text, const vector<string>& chars, const Sort
     if (Contains(text, w))
       add(string("w:") + w);
   }
+  for (const string& k : Negations(text))
+    add("n:" + k);
   for (size_t i = 0; i < n; ++i)
     add("u:" + chars[i]);
   for (size_t i = 0; i + 1 < n; ++i)

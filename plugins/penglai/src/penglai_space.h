@@ -12,12 +12,14 @@
 // 游標前是別處的字（penglai_space/foreign，沒寫時關）：貼上的、語音輸入的、原本就在文件裡的字，貂毫沒送出過。組字區空著時
 //   按空白，貂毫先讀游標前後的字（各最多 100 個 UTF-16）放進 context 的 penglai_space_before、penglai_space_after，這裡照它決定
 //   （ForeignPunct）：游標前一個不是字（漢字、英文字母、數字以外，或沒有字）照舊出空白；「這一句」（游標前後到換行、句末標點）
-//   英文詞佔八成以上補「, 」，不然補「，」或「？」。補了之後緊接著的空白、Return 跟上面一樣（「, 」換成空白、換成「.」）。
+//   英文詞佔八成以上補「, 」；游標後面緊接著是開引號（「『“）補「：」（引語前面，11/5）；不然補「，」或「？」。補了之後緊接著的空白、Return 跟上面一樣（「, 」換成空白、換成「.」）。
 //   原本的補標點優先；剛送出過字（英文、數字也算）、之後還沒斷掉時照舊出空白，中英混打中間的空白不受影響（這件事不看游標前的字：
 //   web view 給的文字會落後）。讀不到文字的 App（終端機）、有選取範圍時貂毫給空字串，照舊出空白
 // 問句：有 penglai_punct_data.tbl（使用者自己的資料，App 不附）時照它的分數，
 //   特徵跟 gen_punct.py 的 feats 同一套；沒有時（公開版）用規則：結尾是 kEnds 裡的（嗎、呢、對吧…），結尾是「X 不 X」「X 沒 X」，
-//   或句中有 kWords、kRuleWords 裡的詞（docs/findings.md〈送出之後按空白補標點〉）
+//   或句中有 kWords、kRuleWords 裡的詞（docs/findings.md〈送出之後按空白補標點〉）；
+//   再扣掉疑問詞不是在問的用法（任指「什麼都可以」、虛指「沒什麼區別」、嵌入「不知道他去哪」），句尾是嗎、呢、對吧、是吧的不扣
+//   （11/5，docs/findings.md〈疑問詞的非疑問用法〉）。模型把這三種當特徵（n:任指、n:虛指、n:嵌入）
 //
 // 掛法：engine/processors 的 speller 前面（penglai_numsel 後面）。方案檔照舊寫 lua_processor@*penglai_space@penglai_space
 // （librime patch 0020 導到這個元件），也可以直接寫 penglai_space。
@@ -38,7 +40,7 @@ namespace penglai {
 bool IsQuestion(const string& text, const SortedTable* model);
 // 模型的分數（gen_punct.py 的 feats，同一個特徵只算一次，照這個順序加總）
 double QuestionScore(const string& text, const vector<string>& chars, const SortedTable& model);
-// 游標前是別處的字時按空白補什麼：before、after 是游標前後的字（UTF-8）。回傳「，」「？」「, 」，空字串＝照舊出空白
+// 游標前是別處的字時按空白補什麼：before、after 是游標前後的字（UTF-8）。回傳「，」「？」「：」「, 」，空字串＝照舊出空白
 string ForeignPunct(const string& before, const string& after, const SortedTable* model);
 
 class PenglaiSpace : public rime::Processor {
