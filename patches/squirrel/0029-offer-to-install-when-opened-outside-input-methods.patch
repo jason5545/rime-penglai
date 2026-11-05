@@ -11,8 +11,8 @@ flag, registers, enables both the bundle-level source and the .Hant mode, and se
 always launched by the system from its input-method folder, so it never reaches this.
 
 --self-install [--to DIR] [--yes] [--no-tis] [--no-select] does the same from the command line for testing
-(tools/install_test.sh). A Mac that never added Sable ignores TISEnableInputSource; it then reports that a logout is
-needed (exit 3) instead of failing.
+(tools/install_test.sh). On a Mac that never enabled Sable, macOS opens System Settings and asks the user to allow it;
+the installer waits for that without covering it, and exits 3 if it is not allowed in time.
 ---
  Squirrel.xcodeproj/project.pbxproj | 4 ++++
  sources/Main.swift                 | 9 +++++++++
@@ -83,8 +83,8 @@ index 1b45213..89bab2e 100644
    --enable-input-source [source id...]  input source list optional
    --disable-input-source [source id...] input source list optional
    --select-input-source [source id]     input source optional
-+  --self-install [--to DIR] [--yes] [--no-tis] [--no-select]  copy this app into ~/Library/Input Methods (or DIR), then
-+                                        register, enable and select it; exit 3 = installed, needs logout; opening it elsewhere asks
++  --self-install [--to DIR] [--yes] [--no-tis] [--no-select] [--wait SEC]  copy into ~/Library/Input Methods (or DIR),
++                                        register, enable (macOS asks the user to allow) and select; exit 3 = not allowed in time
  """
  }
 -- 
