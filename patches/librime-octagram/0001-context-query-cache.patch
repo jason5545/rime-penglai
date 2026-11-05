@@ -1,0 +1,184 @@
+From e8a49c745eff4c45b30abe0366a98e62174c77c3 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Sat, 31 Oct 2026 12:48:33 +0800
+Subject: [PATCH] =?UTF-8?q?=E8=93=AC=E8=90=8A=E9=9F=BB=EF=BC=9A=E5=90=8C?=
+ =?UTF-8?q?=E4=B8=80=E5=80=8B=E5=89=8D=E6=96=87=E7=9A=84=E7=B7=A8=E7=A2=BC?=
+ =?UTF-8?q?=E5=92=8C=20trie=20=E7=AF=80=E9=BB=9E=E5=8F=AA=E7=AE=97?=
+ =?UTF-8?q?=E4=B8=80=E6=AC=A1=EF=BC=88=E7=B4=94=E6=95=88=E8=83=BD=EF=BC=8C?=
+ =?UTF-8?q?=E8=BC=B8=E5=87=BA=E4=B8=8D=E8=AE=8A=EF=BC=89?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Poet 造句時對同一個前文（上一條路最後兩個詞）連續查很多個詞，Octagram::Query 每次都把前文最後 n 個字重新編碼、
+每個後綴都從 trie 的根走一遍（GramDb::Lookup），再找詞。前文相同時這兩步的結果相同：GramDb::Lookup 拆成
+Traverse（走完前文，走不完回傳 false）和 LookupFrom（從那個節點 commonPrefixSearch），Octagram 把每個前文的
+編碼和每個後綴走到的節點記在 contexts_（最多 256 個前文，滿了清掉；連續查同一個前文時直接用上一個）。
+走不完的後綴原本 Lookup 回傳 0 筆，這裡跳過；其他照原本的順序算，結果逐位元相同。
+---
+ src/gram_db.cc  | 17 ++++++++++++++++
+ src/gram_db.h   |  5 +++++
+ src/octagram.cc | 54 ++++++++++++++++++++++++++++++++++++-------------
+ src/octagram.h  | 17 ++++++++++++++++
+ 4 files changed, 79 insertions(+), 14 deletions(-)
+
+diff --git a/src/gram_db.cc b/src/gram_db.cc
+index d88a8a5..57417b4 100644
+--- a/src/gram_db.cc
++++ b/src/gram_db.cc
+@@ -102,6 +102,23 @@ bool GramDb::Build(const vector<pair<string, double>>& data) {
+   return true;
+ }
+ 
++bool GramDb::Traverse(const string& context, size_t* node_pos) {
++  size_t node = 0;
++  size_t key_pos = 0;
++  trie_->traverse(context.c_str(), node, key_pos);
++  if (key_pos != context.length())
++    return false;
++  *node_pos = node;
++  return true;
++}
++
++int GramDb::LookupFrom(size_t node_pos,
++                       const string& word,
++                       Match results[kMaxResults]) {
++  return trie_->commonPrefixSearch(word.c_str(), results, kMaxResults, 0,
++                                   node_pos);
++}
++
+ int GramDb::Lookup(const string& context,
+                    const string& word,
+                    Match results[kMaxResults]) {
+diff --git a/src/gram_db.h b/src/gram_db.h
+index 97842ca..d525b44 100644
+--- a/src/gram_db.h
++++ b/src/gram_db.h
+@@ -35,6 +35,11 @@ class GramDb : public MappedFile {
+   int Lookup(const string& context,
+              const string& word,
+              Match results[kMaxResults]);
++  // 蓬萊：Lookup 拆成兩步，同一個前文只走一次：先從根走完前文（走不完回傳 false），再從走到的節點找詞
++  bool Traverse(const string& context, size_t* node_pos);
++  int LookupFrom(size_t node_pos,
++                 const string& word,
++                 Match results[kMaxResults]);
+ 
+  private:
+   the<Darts::DoubleArray> trie_;
+diff --git a/src/octagram.cc b/src/octagram.cc
+index 98ace59..f3b3028 100644
+--- a/src/octagram.cc
++++ b/src/octagram.cc
+@@ -104,6 +104,36 @@ inline static bool matches_whole_query(const char* context_ptr,
+       match_length == word_query.length();
+ }
+ 
++// 蓬萊：原本每查一個詞都重新編碼前文、從根走一遍每個後綴（GramDb::Lookup）。前文相同時這兩步的結果相同，
++// 記在 contexts_；走不完的後綴原本 Lookup 回傳 0 筆，這裡直接跳過
++const Octagram::ContextQuery& Octagram::PrepareContext(const string& context,
++                                                       int n) {
++  if (last_context_ && *last_context_ == context)
++    return *last_query_;
++  auto found = contexts_.find(context);
++  if (found == contexts_.end()) {
++    if (contexts_.size() >= 256)
++      contexts_.clear();
++    ContextQuery cq;
++    int context_len = 0;
++    cq.query = grammar::encode(last_n_unicode(context, n, context_len),
++                               str_end(context));
++    for (const char* context_ptr = str_begin(cq.query); context_len > 0;
++         --context_len, context_ptr = grammar::next_unicode(context_ptr)) {
++      ContextQuery::Suffix suffix{
++          static_cast<size_t>(context_ptr - str_begin(cq.query)), context_len,
++          false, 0};
++      // 跟 Lookup(context_ptr, …) 一樣從 const char* 建字串
++      suffix.found = db_->Traverse(string(context_ptr), &suffix.node_pos);
++      cq.suffixes.push_back(suffix);
++    }
++    found = contexts_.emplace(context, std::move(cq)).first;
++  }
++  last_context_ = &found->first;
++  last_query_ = &found->second;
++  return found->second;
++}
++
+ double Octagram::Query(const string& context,
+                        const string& word,
+                        bool is_rear) {
+@@ -114,31 +144,27 @@ double Octagram::Query(const string& context,
+   GramDb::Match matches[GramDb::kMaxResults];
+   int n = (std::min)(grammar::kMaxEncodedUnicode,
+                      config_->collocation_max_length - 1);
+-  int context_len = 0;
+-  string context_query = grammar::encode(
+-      last_n_unicode(context, n, context_len),
+-      str_end(context));
++  const ContextQuery& cq = PrepareContext(context, n);
+   int word_query_len = 0;
+   string word_query = grammar::encode(
+       str_begin(word),
+       first_n_unicode(word, n, word_query_len));
+-  for (const char* context_ptr = str_begin(context_query);
+-       context_len > 0;
+-       --context_len, context_ptr = grammar::next_unicode(context_ptr)) {
+-    int num_results = db_->Lookup(context_ptr, word_query, matches);
+-    DLOG(INFO) << "Lookup(" << context_ptr << " + " << word_query << ") returns "
+-               << num_results << " results";
++  for (const auto& suffix : cq.suffixes) {
++    if (!suffix.found)
++      continue;
++    const int context_len = suffix.context_len;
++    int num_results = db_->LookupFrom(suffix.node_pos, word_query, matches);
+     for (auto i = 0; i < num_results; ++i) {
+       const auto& match(matches[i]);
+       const int match_len = grammar::unicode_length(word_query, match.length);
+-      DLOG(INFO) << "match[" << match.length << "] = "
+-                 << scale_value(match.value);
+       const int collocation_len = context_len + match_len;
++      // matches_whole_query：最長的那個後綴（整段前文）、詞也整段對上
+       if (update_result(result,
+                         scale_value(match.value) +
+                         (collocation_len >= config_->collocation_min_length ||
+-                         matches_whole_query(context_ptr, context_query,
+-                                             match.length, word_query)
++                         (suffix.offset == 0 &&
++                          static_cast<size_t>(match.length) ==
++                              word_query.length())
+                          ? config_->collocation_penalty
+                          : config_->weak_collocation_penalty))) {
+         DLOG(INFO) << "update: " << context << "[" << context_len << "] + "
+diff --git a/src/octagram.h b/src/octagram.h
+index 3fa5f73..526c48a 100644
+--- a/src/octagram.h
++++ b/src/octagram.h
+@@ -25,8 +25,25 @@ class Octagram : public Grammar {
+                bool is_rear) override;
+ 
+  private:
++  // 蓬萊：一個前文編碼後的查詢字串，和每個後綴（從最長到一個字）在 trie 上走到的節點
++  struct ContextQuery {
++    struct Suffix {
++      size_t offset;    // 在 query 裡的起點
++      int context_len;  // 這個後綴有幾個字
++      bool found;       // 走得完（GramDb::Lookup 會往下找詞）
++      size_t node_pos;
++    };
++    string query;
++    vector<Suffix> suffixes;
++  };
++  const ContextQuery& PrepareContext(const string& context, int n);
++
+   the<GrammarConfig> config_;
+   GramDb* db_ = nullptr;
++  // 蓬萊：Poet 對同一個前文連續查很多個詞：前文的編碼和走到的節點記著（只跟前文、資料庫有關）
++  hash_map<string, ContextQuery> contexts_;
++  const string* last_context_ = nullptr;
++  const ContextQuery* last_query_ = nullptr;
+ };
+ 
+ class OctagramComponent : public Grammar::Component {
+-- 
+2.56.0
+

@@ -1,0 +1,373 @@
+# Rime schema
+# encoding: utf-8
+#
+# 蓬萊注音：詞典和學習紀錄直接存注音的大千注音方案（注音為根）。
+# 從上游的 bopomofo、bopomofo_tw 方案（佛振）改來：鍵盤、選字、標點照舊，
+# 差別是碼不再是地球拼音、部署時才轉注音，而是詞典本身就寫注音（柏 ㄅㄛˊ）。
+# 詞典 penglai_zhuyin.dict.yaml 由 tools/gen_terra_tw.py 產生。
+# 個人的設定放 penglai_zhuyin.custom.yaml（patch:），不要改這個檔。
+
+schema:
+  schema_id: penglai_zhuyin
+  name: 蓬萊注音
+  version: '0.1'
+  author:
+    - 佛振 <chen.sst@gmail.com>（上游 bopomofo 方案）
+  description: |
+    注音符號輸入，採用「大千式」鍵盤排列，輸出臺灣正體字形。
+    詞典和學習紀錄直接存注音。
+
+    以 Shift+數字鍵選字，或以 Tab、方向鍵切換候選字，Return 送出。
+
+    空白鍵輸入第一聲。可以只打每個字的第一個注音（簡拼），
+    韻母開頭的字（我、要）也可以。
+
+    輸入逗號「，」句號「。」要按 Shift。
+
+    請配合 librime>=1.17 使用（整句候選多個）。
+  dependencies:
+    - stroke
+
+switches:
+  - name: ascii_mode
+    reset: 0
+    states: [ 中文, 西文 ]
+  - name: full_shape
+    states: [ 半角, 全角 ]
+  - options:
+      - zh_hant
+      - zh_hans
+      - zh_hant_tw
+    reset: 2
+    states:
+      - 傳統漢字
+      - 简化字
+      - 臺灣字形
+  # 讀音（10/29，蓬萊改過的 librime 才會讀）：詞典收的讀音三種都一樣，只差哪個先出。
+  # 蓬萊音（預設）照教育部辭典、小麥注音排；中州音照地球拼音（CC-CEDICT）原本的比重；兼收並蓄每個讀音取兩者比重大的。
+  # 部署時各編一張表（詞典檔的 weight、weight@reading_zhongzhou、weight@reading_jianshou 欄），切換即時生效、不用重新部署，
+  # 學習紀錄共用。選項名稱＝詞典檔 weight@ 後面的名字（部署出 <詞典>.reading_zhongzhou.table.bin），改名要跟產生器一起改；
+  # 都沒打開＝蓬萊音
+  - options:
+      - reading_penglai
+      - reading_zhongzhou
+      - reading_jianshou
+    reset: 0
+    states:
+      - 蓬萊音
+      - 中州音
+      - 兼收並蓄
+    abbrev: [蓬萊, 中州, 兼收]   # F4 選單摺起來那列（不寫的話中州音是「中」，跟中文／西文的「中」撞在一起）
+  # 聯想（10/29，蓬萊改過的 librime-predict 才會照下面 predictor 那段做）：送出之後在選字窗列出接下來可能要打的詞。
+  # 預設關，在蓬萊設定的輸入頁開關（寫這一組的 reset）。要有聯想資料（predictor/db，使用者資料夾裡）才會跳出來；
+  # 貂毫附官方資料，見 predictor 那段。第一個狀態留空：關著時 F4 選單不列（跟沒有這個功能時一樣），開著時收合那行顯示「聯想」
+  - name: prediction
+    reset: 0
+    states: [ "", 聯想 ]
+    abbrev: [ "", 聯想 ]
+  # 游標旁邊的提示（lua/penglai_notice.lua）：第一個狀態是空字串，F4 選單看不到；Lua 要提示時改第二個狀態的文字再打開，
+  # 貂毫在游標旁邊顯示約 1.2 秒（只在選單收起來時看得到）。快速鍵（penglai_tap.lua）用
+  - name: _penglai_notice
+    states: [ "", 提示 ]
+    abbrev: [ "", 提示 ]
+
+engine:
+  processors:
+    - predictor          # 聯想：要在 ascii_composer 前面（聯想選單開著時先收掉，Shift 才會照常切中西文）
+    - ascii_composer
+    # ↓ 之後數字鍵直接選字（lua/penglai_numsel.lua）：選單開著時按 ↓，接著按 1–9 選這一頁第 N 個；
+    # 沒按 ↓ 時數字照舊是注音。要在 speller 前面。設定視窗「聯想」的說明寫了「↓ 再按數字」，公開預設也掛上（10/29）
+    - lua_processor@*penglai_numsel@penglai_numsel
+    - recognizer
+    - key_binder
+    # 送出之後按空白補標點（lua/penglai_space.lua）：中文送出後按空白，直接送出猜的「，」或「？」
+    - lua_processor@*penglai_space@penglai_space
+    - speller
+    - punctuator
+    - selector
+    - navigator
+    - fluency_editor
+  segmentors:
+    - ascii_segmentor
+    - matcher
+    - abc_segmentor
+    - punct_segmentor
+    - fallback_segmentor
+  translators:
+    - predict_translator
+    - punct_translator
+    - table_translator@custom_phrase
+    - reverse_lookup_translator
+    - script_translator
+  filters:
+    - simplifier@zh_hans
+    - simplifier@zh_hant_tw
+    - uniquifier
+
+menu:
+  alternative_select_labels: ['⇧1', '⇧2', '⇧3', '⇧4', '⇧5', '⇧6', '⇧7', '⇧8', '⇧9', '⇧0']
+
+speller:
+  alphabet: '1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347'
+  initials: '1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/-'
+  finals: " 6347"
+  delimiter: "'"
+  use_space: true
+  # 整段都是數字鍵時，連著的聲調鍵也收（10/29，蓬萊改過的 librime 才會讀）：0912345678 的 4、7 原本不收，
+  # 變成選第 4、第 7 個候選。只在選單裡已經有那串數字當候選時收（中英混輸的 digit_runs；整段剛好是一個詞時沒有，
+  # 打完 ㄞˋ 多按一次 ˋ 照舊選第 4 個）；組字區空的時候按聲調鍵照舊。收過之後空白鍵是確認選字，不當一聲
+  digit_tones: true
+  # 聲調鍵開頭的數字（10/29，蓬萊改過的 librime 才會讀）：30、400、6912 原本開頭的 3、4、6 單獨成一段、後面當注音
+  # （3按、4暗暗、6愛不的）。整段是「聲調鍵開頭、後面都是不帶聲調的數字鍵」時收成一段，候選只有那串數字，
+  # Return 送出。後面接了別的鍵（30ㄋ、3ㄅㄞˇ 的 ˇ、空白）就拆回原本的分法；單按一個聲調鍵、77、7ㄋ 照舊。
+  # 要先開中英混輸和 digit_runs、有判斷表才有作用
+  digit_lead_tones: true
+  # 詞典的碼是注音。第一步先把注音換成 zhuyin.yaml 的中間字母、一聲補 1，後面的簡拼、容錯、鍵位規則
+  # 都照中間字母寫：xform、abbrev、derive 用 boost::regex 對位元組比對，[ㄅㄆㄇ] 這種字元集合會被拆開，不能直接寫注音。
+  # 英文假音節（ㄇ~）有 ~，不補 1，只能簡拼。
+  algebra:
+    - "xlit|ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˊˇˋ˙|bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR2345|"
+    - "xform/^([A-Za-z]+)$/${1}1/"
+    # 簡拼：只打第一個注音；韻母開頭的音（ㄨ ㄧ ㄩ ㄚ…）也可以（我＝ㄨ、要＝ㄧ），只限不打聲調：
+    # 打了聲調（ㄩˋ）就當完整音節，不再展開成 ㄩㄥˋ 等
+    - "abbrev/^([bpmfdtnlgkhjqxZCSrzcs]).+$/$1/"
+    - "abbrev/^([A-Za-z]+)\\d$/$1/"
+    - "abbrev/^([bpmfdtnlgkhjqxZCSrzcs]).+(\\d)$/$1$2/"
+    - "abbrev/^([iuvaoeEAIOUMNKGR]).+$/$1/"
+    # 漏打聲母也能對到（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）：只限打了聲調的完整音節，簡拼碰不到。容錯規則（librime 1.16）一條固定扣一折，
+    # 套兩次（先加 # 再拿掉、最後清掉帶 # 的）扣到萬分之一：一折時「ㄚ」「ㄧˊ ㄘˋ」常被拉成「他」「其次」。
+    # 單字扣完通常輸給同音的字（ㄧㄝˋ 的謝排第 57 個）。相鄰鍵糾錯（translator/enable_correction）不開：
+    # 只打第一個注音的長句改錯 112 題（10/28 基準）
+    - "derive/^([bpmfdtnlgkhjqxZCSrzcs])([iuvaoeEAIOUMNKGR][A-Za-z]*\\d)$/$2#/correction"
+    - "derive/^(.+)#$/$1/correction"
+    - "erase/^.+#$/"
+    # 大千鍵位
+    - "xlit|bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR12345|1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347|"
+
+translator:
+  dictionary: penglai_zhuyin
+  prism: penglai_zhuyin
+  # 學習紀錄固定叫 penglai_zhuyin（penglai_zhuyin.userdb）：custom 檔換成擴充詞典也不會換掉學習紀錄
+  user_dict: penglai_zhuyin
+  preedit_format:
+    - "xlit|1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347'|ㄅㄆㄇㄈㄉㄊㄋㄌㄍㄎㄏㄐㄑㄒㄓㄔㄕㄖㄗㄘㄙㄧㄨㄩㄚㄛㄜㄝㄞㄟㄠㄡㄢㄣㄤㄥㄦˉˊˇˋ˙ |"
+  max_sentences: 5                 # 整句候選數（librime 1.17.0 起；原版 1）
+  sentence_cutoff_threshold: 100   # 不截斷替代句
+  # 下面兩個只有蓬萊改過的 librime 會讀，官方 librime 會忽略
+  max_user_phrase_syllables: 10    # 整句可用的學習紀錄最長音節數（原版寫死 5）
+  revert_learning_seconds: 15      # 送出後幾秒內按 BackSpace 撤銷剛才的學習（原版寫死 3）
+  # 中英混輸（蓬萊改過的 librime 才會讀）：輸入裡連續的小寫字母有一段是英文單字時，多組一句「中文＋英文＋中文」，
+  # 判斷表說它比原本的第一候選通順才排第一，不然排第二。設定視窗打字頁「中英混輸」關掉＝ english_lexicon 寫空字串
+  # 三個表（單字表、判斷表、按鍵語言辨識表）貂毫附公開版（11/1 起在 SharedSupport，不含個人資料）；使用者資料夾有同名檔時用使用者的
+  english_lexicon: penglai_en      # 單字表 penglai_en.txt（tools/gen_en_lexicon.py 產生）；空字串＝關
+  english_judge: penglai_judge     # 判斷表 penglai_judge.tbl（tools/gen_judge.py 產生）；沒有這個檔時英文句只排第二
+  # 中文明顯組不起來時退回按鍵原本的字（10/29，蓬萊改過的 librime 才會讀，要有判斷表）：單字表以外的整串字母
+  # （elvie）、整段都是數字鍵（09353）也當候選，比前幾個中文讀法裡最通順的還通順才排第一，不然排在後面（english_letter_position）；
+  # 整段剛好是一個詞（敏捷開發、等等）時不換。打開中英混輸才有作用。
+  # 字母串方案預設關（11/1）：附的判斷表只有教育部辭典的書面語，分不太出一串首符號跟沒見過的英文字，打開時常把只打第一個注音的
+  # 中文換成字母串；單字表以外的英文改由下面的按鍵語言辨識放到第一頁。判斷表加了自己平常打的語料時可以在 custom 檔打開
+  english_letter_runs: false
+  digit_runs: true
+  # 英文後面按空白（10/30，蓬萊改過的 librime 才會讀）：空白在注音裡是一聲，agent 接空白原本變成 agen＋ㄔˉ、整段組成中文。
+  # 打開時緊接在英文字母後面的空白跟著英文那段，送出 "agent "（留著空白），一樣交給判斷排第一或排後面；選了不寫學習紀錄
+  english_space: true
+  # 後面按了空白的單字表詞可以短到幾個字母（10/30，蓬萊改過的 librime 才會讀）：設 2 時 AI、PR 接空白也算英文；沒按空白的照舊至少
+  # english_min_length（4）個。單字表以外的字母串照舊至少 english_min_length 個。
+  # 方案預設 4＝跟 english_min_length 一樣，短的英文接空白不收（11/1）：完整注音的一聲字是「字母鍵＋空白」，每個音節最多
+  # 3 個字母鍵，設 2、3 時 ㄧㄣˉ（up 空白）、ㄇㄠˉ（al 空白）這種一聲字會被當成英文，只打完整注音的人會變差；設 4 碰不到
+  english_space_min_length: 4
+  # 單字表以外的英文另外給候選（10/30，蓬萊改過的 librime 才會讀，要有判斷表）：按鍵層語言辨識表 penglai_keylid.tbl
+  # （tools/gen_keylid.py 產生）比同一串按鍵「當中文注音鍵」跟「當英文字母」哪個像，找出英文段（首符號的中文鍵黏在英文
+  # 旁邊也找得到），另外組成候選，排在第 6 個起、到這一頁結束；前五個不動、不排第一，選過一次就學起來。沒有這個檔時不出
+  english_keylid: penglai_keylid
+  # 開頭是 /、後面不是聲調鍵時，只給按鍵原字（10/30，蓬萊改過的 librime 才會讀）：大千的 / 是 ㄥ，ㄥ 開頭的音節只有
+  # 「鞥」，組不成中文；要的是斜線指令（/loop、/code-review）。選了不寫學習紀錄。/4（ㄥˋ，漏打聲母）、句子中間的 ㄥ 照舊
+  raw_lead_keys: "/"
+  # 隱藏詞典詞（蓬萊改過的 librime 才會讀）：刪除候選（Shift+Delete、Ctrl+K）碰到沒學過的詞典詞（兩個字以上）時，
+  # 寫進使用者資料夾的這個清單，之後查詞、組句都不用它（整句會重組成不含它的）；學過的詞照舊刪學習紀錄。
+  # 清單一行一個詞（後面可以接 Tab 和註記），手改不用重新部署；空字串＝關（刪除照原版）
+  dictionary_exclude_file: penglai_hidden.txt
+  # 忘掉上一筆（蓬萊改過的 librime 才會讀）：送出後打 77（兩個輕聲鍵），第一候選顯示「〔忘掉：上一筆〕」，
+  # 按空白鍵、Shift+1 或 Return 就刪掉上一筆送出寫進的學習紀錄，不送出文字；連打再往前忘（最多 forget_last_history 筆，
+  # 預設 10）。整句裡自己單獨選過的詞保留。空字串＝關
+  forget_last_code: "77"
+  # 選字時引擎決定選到的字吃幾個鍵（10/31，蓬萊改過的 librime 才會讀）：韻母開頭的字也能簡拼，ㄋㄧ 可以是一個字（你）
+  # 也可以是兩個字（你要），往回選字時游標停在 ㄋ 後面選「你」，原本只吃 ㄋ。打開時，選到的字讀音還能往後接，
+  # 就兩種吃法各組一次「這個字＋剩下的最佳整句」，取分數高的；多吃的要多贏 split_penalty（log 機率）才換
+  extend_selection: true
+  # 20（10/31 定）：沒有語言模型時每多一個詞扣約 13.8，多吃一個鍵、少一個詞的切法很佔便宜，
+  # 門檻低時只打第一個注音的「你要」（ㄋ ㄧ）常被吃成「你」；20 時說明書全文這種情況 0 錯（docs/findings.md）
+  split_penalty: 20
+  # 候選排序（10/31，蓬萊改過的 librime 才會讀；docs/optimization.md 第 4 項第 1 條）。整句候選、剛好蓋住整段的詞照舊排前面，
+  # 第一個候選一定不變；只打完整注音時幾乎碰不到（sim 完整注音逐鍵相同）。
+  # long_phrase_quota：接下來蓋不住整段的詞裡，三個音節以上的每種長度只先出幾個，其餘排到二字、一字後面
+  # （只打第一個注音時，兩個聲母對得到的二字詞上百個，常用的被長詞擠到第 3 到 6 頁）。0＝照原版（長的先）
+  long_phrase_quota: 3
+  # recent_phrase_max：學習紀錄裡最近打過的詞（兩個音節以上、蓋不住整段）最多幾個拉到整句、整段剛好的詞後面，新的先。
+  # recent_phrase_window：「最近」是最近幾次送出以內（0＝不限，照最後一次打到的先後挑）
+  recent_phrase_max: 4
+  recent_phrase_window: 0
+  # 整段剛好有一個詞時，短輸入也組整句（10/31，蓬萊改過的 librime 才會讀；docs/optimization.md 第 4 項第 4 條 4D）：
+  # ㄉ ㄧˋ ㄙ 有「第三」「第四」剛好蓋住整段，原版就不組整句，「的意思」不出來。音節最多的切法是 3 到 4 個音節時照樣組，
+  # 只留最好的一句，跟本來的第一候選比分數：多贏 short_sentence_penalty 才排第一，不然排第 short_sentence_position 個。
+  # penalty 100＝整句不會排第一（第一候選不變，只多一個整句在第 2 個）：設成負的整句比較常排第一，可是基準裡
+  # 只打第一個注音的常用詞，第一候選被擠掉的比救回來的多（docs/findings.md）。
+  # short_sentence_full_spelling: false＝只打完整注音（整段都是正常拼法）的輸入不組
+  short_sentence_min: 3
+  short_sentence_max: 4
+  short_sentence_penalty: 100
+  short_sentence_position: 2
+  short_sentence_full_spelling: false
+  # 罕用黏合音節（10/31，docs/optimization.md 第 4 項第 4 條 4C；蓬萊改過的 librime 才會讀）：簡拼的聲母接韻母開頭的完整音節
+  # （ㄐ＋ㄩㄥˋ），剛好也拼得成一個音節（ㄐㄩㄥˋ「䅃」）。整段都是正常拼法時，切音節會把簡拼的切法刪掉，只剩罕用字。
+  # 用量很低的這種音節，切音節時改成簡拼類型（拼法不變，只是類型和分數跟簡拼一樣），兩種切法都留著、交給排序。
+  # 打法是 full（只打完整注音，見下面的 typing_style）時不改，只打完整注音的人打這些音節的字名次照原本。
+  # 清單由 tools/gen_terra_tw.py 照字頻產生（--glue-ratio），音節裡有字在用的不列，不要手改；空字串＝關。
+  # 10/31 晚上以前寫成 speller/algebra 的三條規則（部署時就改），搬進引擎才能照打法開關，結果跟規則逐位元組相同
+  # >>> 罕用黏合音節（tools/gen_terra_tw.py 產生，不要手改；門檻 GLUE_RATIO）
+  # 67 個（用量不到零聲母那個的 0.001）
+  glue_syllables: "ㄅㄣ˙ ㄅㄥ˙ ㄅㄧㄠˊ ㄅㄧㄣˇ ㄆㄚˇ ㄆㄧㄥˋ ㄇㄜˋ ㄇㄣˇ ㄇㄧㄝˊ ㄇㄧㄡ ㄇㄧㄡˇ ㄇㄧㄣ ㄈㄡ ㄈㄡˋ ㄉㄧㄚ ㄉㄧㄝˇ ㄉㄧㄢˊ ㄉㄧㄣˋ ㄊㄧㄝˊ ㄋㄟˊ ㄋㄧㄚ ㄋㄧㄝˇ ㄋㄧㄤˇ ㄋㄨㄢˋ ㄋㄩˊ ㄌㄜ ㄌㄞˇ ㄌㄩㄢˇ ㄌㄩㄢ˙ ㄍㄨㄚˊ ㄍㄨㄣ ㄎㄣ ㄎㄨˊ ㄎㄨㄛˇ ㄎㄨㄞ ㄏㄜˇ ㄏㄨㄚˇ ㄐㄧㄡˊ ㄐㄩㄥˋ ㄑㄧㄡˋ ㄑㄧㄤ˙ ㄑㄩㄣˇ ㄑㄩㄥˋ ㄒㄩㄢ˙ ㄒㄩㄥˇ ㄓㄟˋ ㄓㄨㄚ˙ ㄓㄨㄤ˙ ㄔㄚ˙ ㄔㄜˊ ㄔㄨㄚˋ ㄔㄨㄟˇ ㄕㄨㄣ˙ ㄖㄢˋ ㄖㄨ ㄖㄨㄣ ㄖㄨㄣˇ ㄗㄨㄟˊ ㄘㄟˋ ㄘㄡˇ ㄘㄨㄟˊ ㄘㄨㄥˇ ㄙㄞˇ ㄙㄞˊ ㄙㄟ ㄙㄣˇ ㄙㄨˇ"
+  # <<< 罕用黏合音節
+  # 打法（10/31，蓬萊改過的 librime 才會讀；docs/optimization.md 第 6 項）：auto＝送出時數最近打的音節有多少不帶聲調
+  # （只打第一個注音、完整不帶聲調、聲母＋聲調；英文、數字不算），判成 unknown（還不夠判）、full（只打完整注音）、
+  # abbrev（簡拼、混著打），存在使用者資料夾的 penglai_typing_style.txt（只有計數，沒有文字）。現在只有罕用黏合音節照它開關。
+  # off＝不偵測、罕用黏合音節照改（跟沒有這個設定一樣）；unknown、full、abbrev＝釘住那個狀態、不偵測（測試用）
+  typing_style: auto
+
+# 聯想（librime-predict，蓬萊改過：patches/librime-predict/0001）。開關是上面的 prediction（預設關）。
+# 打開時：送出之後，拿這則訊息到目前送出的字最長、表裡有的結尾查聯想（最多 max_context_chars 個字），
+# 選字窗列出接下來可能要打的詞；Shift+數字、↓ 之後數字、右 Option（第二個）、滑鼠點選了就送出，接著再聯想。
+# 選單開著時 Return、空白鍵、BackSpace、注音鍵、聲調鍵開頭的數字、77 都照沒有選單時處理（先收掉聯想），
+# Escape 只收掉聯想。標點、按鍵原字送出之後不聯想。
+# 資料：build_predict 編的 db（「前文 詞 權重」），使用者資料夾先找、再找 App 帶的。貂毫附官方 data-1.0（LGPL-3.0，品質見 docs/findings.md）；
+# 兩邊都沒有時打開也不會跳出聯想
+predictor:
+  db: penglai_predict.db
+  max_candidates: 0        # 每次最多列幾個；0＝表裡有幾個列幾個
+  max_iterations: 0        # 選了聯想之後連續再聯想幾次；0＝不限
+  max_context_chars: 16    # 查最長結尾時最多看幾個字；0＝原版（上一筆送出的文字整段精確比對）
+
+custom_phrase:
+  dictionary: ""
+  user_dict: custom_phrase
+  db_class: stabledb
+  enable_completion: false
+  enable_sentence: false
+  initial_quality: 1
+
+# 筆畫反查：` 開頭。候選的注解是詞典的讀音，已經是注音，不用再轉
+reverse_lookup:
+  dictionary: stroke
+  enable_completion: true
+  prefix: "`"
+  suffix: "'"
+  tips: 〔筆畫〕
+  preedit_format:
+    - xlit/hspnz/一丨丿丶乙/
+
+punctuator:
+  full_shape:
+    " " : { commit: "　" }
+    "<" : { commit: "，" }
+    ">" : { commit: "。" }
+    "?" : [ ？, ／, ÷ ]
+    ":" : [ ：, ； ]
+    "'" : { pair: [ "‘", "’" ] }
+    "\"" : { pair: [ "“", "”" ] }
+    "\\" : [ 、, ＼ ]
+    "|" : [ ·, ｜, "§", "¦" ]
+    "`" : ｀
+    "~" : ～
+    "!" : { commit: ！ }
+    "@" : [ ＠, ☯ ]
+    "#" : [ ＃, ⌘ ]
+    "%" : [ ％, "°", "℃" ]
+    "$" : [ ￥, "$", "€", "£", "¥", "¢", "¤" ]
+    "^" : { commit: …… }
+    "&" : ＆
+    "*" : [ ＊, ·, ・, ×, ※, ❂ ]
+    "(" : （
+    ")" : ）
+    "_" : [ ——, － ]
+    "+" : ＋
+    "=" : ＝
+    "[" : [ 「, 【, 《, 〔, ［ ]
+    "]" : [ 」, 】, 》, 〕, ］ ]
+    "{" : [ 『, 〖, 〈, ｛ ]
+    "}" : [ 』, 〗, 〉, ｝ ]
+  half_shape:
+    "<" : { commit: "，" }
+    ">" : { commit: "。" }
+    "?" : [ ？, ／, "/", ÷ ]
+    ":" : [ ：, ； ]
+    "'" : { pair: [ "‘", "’" ] }
+    "\"" : { pair: [ "“", "”" ] }
+    "\\" : [ 、, "\\", ＼ ]
+    "|" : [ ·, "|", ｜, "§", "¦" ]
+    "`" : "`"
+    "~" : "~"
+    "!" : { commit: ！ }
+    "@" : { commit: "@" }
+    "#" : { commit: "#" }
+    "%" : [ "%", ％, "°", "℃" ]
+    "$" : [ ￥, "$", "€", "£", "¥", "¢", "¤" ]
+    "^" : { commit: …… }
+    "&" : { commit: "&" }
+    "*" : [ "*", ＊, ·, ・, ×, ※, ❂ ]
+    "(" : { commit: （ }
+    ")" : { commit: ） }
+    "_" : [ ——, －, "-" ]
+    "+" : "+"
+    "=" : "="
+    "[" : [ 「, 【, 《, 〔, ［ ]
+    "]" : [ 」, 】, 》, 〕, ］ ]
+    "{" : [ 『, 〖, 〈, ｛ ]
+    "}" : [ 』, 〗, 〉, ｝ ]
+
+editor:
+  bindings:
+    space: toggle_selection
+    Tab: toggle_selection
+
+key_binder:
+  import_preset: default
+  bindings:
+    - { when: has_menu, accept: comma, send: comma }      # ㄝ
+    - { when: has_menu, accept: period, send: period }    # ㄡ
+    - { when: has_menu, accept: minus, send: minus }      # ㄦ
+    - { when: paging, accept: minus, send: Page_Up }
+    - { when: has_menu, accept: equal, send: Page_Down }
+    - { when: has_menu, accept: Shift+exclam, send: KP_1 }
+    - { when: has_menu, accept: Shift+at, send: KP_2 }
+    - { when: has_menu, accept: Shift+numbersign, send: KP_3 }
+    - { when: has_menu, accept: Shift+dollar, send: KP_4 }
+    - { when: has_menu, accept: Shift+percent, send: KP_5 }
+    - { when: has_menu, accept: Shift+asciicircum, send: KP_6 }
+    - { when: has_menu, accept: Shift+ampersand, send: KP_7 }
+    - { when: has_menu, accept: Shift+asterisk, send: KP_8 }
+    - { when: has_menu, accept: Shift+parenleft, send: KP_9 }
+    - { when: has_menu, accept: Shift+parenright, send: KP_0 }
+
+recognizer:
+  patterns:
+    uppercase: "^[A-Z][-_+.'0-9A-Za-z]*$"
+    url: "^(www[.]|https?:|ftp:|mailto:).*$"
+    reverse_lookup: "`[a-z]*'?$"
+
+zh_hans:
+  option_name: zh_hans
+  opencc_config: t2s.json
+  tips: all
+  excluded_types: [ reverse_lookup ]
+
+zh_hant_tw:
+  option_name: zh_hant_tw
+  opencc_config: t2tw.json
+  tips: none
+  excluded_types: [ reverse_lookup ]
+
+__patch:
+  # 八股文語言模型（有 grammar.yaml 才會套）
+  - grammar:/hant?
+  # 個人設定
+  - penglai_zhuyin.custom:/patch?

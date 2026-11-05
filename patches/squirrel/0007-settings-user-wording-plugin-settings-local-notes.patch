@@ -1,0 +1,103 @@
+From 2ae1b57c37262a7a34a1965ef3fad1a2aff25376 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 28 Oct 2026 21:34:14 +0800
+Subject: [PATCH] =?UTF-8?q?Settings=20window:=20drop=20the=20Settings...?=
+ =?UTF-8?q?=20menu=20item,=20say=20=E4=BD=BF=E7=94=A8=E8=80=85=20not=20?=
+ =?UTF-8?q?=E7=94=A8=E6=88=B6,=20describe=20Lua=20plug-in=20settings,=20no?=
+ =?UTF-8?q?=20reset=20for=20reverse=20lookup?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- Menu: remove "Settings..." (用戶設定); the folder button lives in the Penglai settings window
+  (還原與進階: 打開使用者資料夾). "Sync user data" is now 同步使用者資料 / 同步使用者资料.
+- All settings: Lua plug-in keys go into their own group 外掛模組, described by catalog keys with
+  "lua" (script name) and optional "lua_ns"; documented keys are listed even when no file sets them.
+- A local catalog overlay in the user folder (penglai-settings.local.json) adds descriptions for
+  plug-ins only one machine has, so they stay out of the shipped catalog.
+- Keys marked no_reset (stroke reverse lookup) get no 改回預設 button.
+- --snapshot also captures every page of the 外掛模組 group; --script prints the plug-in rows.
+---
+ resources/Localizable.xcstrings       | 21 ++-------------------
+ sources/SquirrelInputController.swift |  7 -------
+ 2 files changed, 2 insertions(+), 26 deletions(-)
+
+diff --git a/resources/Localizable.xcstrings b/resources/Localizable.xcstrings
+index fde8d79..b341073 100644
+--- a/resources/Localizable.xcstrings
++++ b/resources/Localizable.xcstrings
+@@ -140,23 +140,6 @@
+         }
+       }
+     },
+-    "Settings..." : {
+-      "comment" : "Menu item",
+-      "localizations" : {
+-        "zh-Hans" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "用户设定..."
+-          }
+-        },
+-        "zh-Hant" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "用戶設定"
+-          }
+-        }
+-      }
+-    },
+     "Squirrel" : {
+       "comment" : "Menu title",
+       "localizations" : {
+@@ -186,13 +169,13 @@
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "同步用户数据"
++            "value" : "同步使用者资料"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "同步用戶資料"
++            "value" : "同步使用者資料"
+           }
+         }
+       }
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index f14a9e3..1b9c45d 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -268,8 +268,6 @@ final class SquirrelInputController: IMKInputController {
+     logDir.target = self
+     let penglai = NSMenuItem(title: "蓬萊設定…", action: #selector(openPenglaiSettings), keyEquivalent: "")
+     penglai.target = self
+-    let setting = NSMenuItem(title: NSLocalizedString("Settings...", comment: "Menu item"), action: #selector(openRimeFolder), keyEquivalent: "")
+-    setting.target = self
+     let wiki = NSMenuItem(title: NSLocalizedString("Rime Wiki...", comment: "Menu item"), action: #selector(openWiki), keyEquivalent: "")
+     wiki.target = self
+ 
+@@ -278,7 +276,6 @@ final class SquirrelInputController: IMKInputController {
+     menu.addItem(sync)
+     menu.addItem(logDir)
+     menu.addItem(penglai)
+-    menu.addItem(setting)
+     menu.addItem(wiki)
+ 
+     return menu
+@@ -300,10 +297,6 @@ final class SquirrelInputController: IMKInputController {
+     NSApp.squirrelAppDelegate.openLogFolder()
+   }
+ 
+-  @objc func openRimeFolder() {
+-    NSApp.squirrelAppDelegate.openRimeFolder()
+-  }
+-
+   @objc func openWiki() {
+     NSApp.squirrelAppDelegate.openWiki()
+   }
+-- 
+2.56.0
+

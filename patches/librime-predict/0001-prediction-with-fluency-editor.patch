@@ -1,0 +1,436 @@
+From d6414685123786edcabdbacc98d02916235dbb60 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Thu, 29 Oct 2026 19:18:49 +0800
+Subject: [PATCH] =?UTF-8?q?=E8=93=AC=E8=90=8A=E9=9F=BB=EF=BC=9A=E8=81=AF?=
+ =?UTF-8?q?=E6=83=B3=E5=9C=A8=20fluency=5Feditor=E3=80=81Return=20?=
+ =?UTF-8?q?=E9=80=81=E5=87=BA=E6=99=82=E8=83=BD=E7=94=A8?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+原版在蓬萊注音完全不會觸發、觸發了也選不到（docs/findings.md「librime-predict」）。
+
+- 觸發：只在送出之後聯想（原版是組字區一變空就聯想）。查詢從送出紀錄尾巴往前接，
+  跳過 Return 送出時留下的空字串 raw；最後一筆是標點、按鍵原字（raw、thru）時不聯想。
+- 查詢：predictor/max_context_chars > 0 時查這則訊息到目前送出的字最長、表裡有的結尾
+  （最多那麼多字）；0 或不設是原版（上一筆整段精確比對）。
+- 選字：選了聯想（selector、滑鼠、Lua 送的 KP_N）就送出。聯想段落長度 0，fluency_editor
+  選完不會自己送出。
+- 按鍵：聯想選單開著時只有選字（Shift+數字、KP 數字、數字選字狀態中的數字：看 context 的 penglai_numsel
+  屬性，penglai_numsel.lua 寫的；沒有這個屬性時是移過反白之後的數字）、↑↓（橫排時←→）、
+  翻頁留給選單，修飾鍵和放開不動；Escape 只收掉聯想；其他鍵先收掉聯想再照沒有選單時處理
+  （Return、空白鍵交給 App，BackSpace 刪字並撤銷學習，聲調鍵開頭的數字、77 照常）。
+  Shift 點一下也先收掉，ascii_composer 才會照沒有組字時切中西文。
+  predictor 要放在 engine/processors 最前面（ascii_composer 之前）。
+- predict_translator：max_candidates 原版多給一個。
+---
+ src/predict_engine.cc     |  39 +++++---
+ src/predict_engine.h      |   9 +-
+ src/predict_translator.cc |   3 +-
+ src/predictor.cc          | 185 +++++++++++++++++++++++++++++++-------
+ src/predictor.h           |  16 +++-
+ 5 files changed, 206 insertions(+), 46 deletions(-)
+
+diff --git a/src/predict_engine.cc b/src/predict_engine.cc
+index a90fcae..ac28789 100644
+--- a/src/predict_engine.cc
++++ b/src/predict_engine.cc
+@@ -19,23 +19,38 @@ static const ResourceType kPredictDbResourceType = {"predict_db", "", ""};
+ 
+ PredictEngine::PredictEngine(an<PredictDb> db,
+                              int max_iterations,
+-                             int max_candidates)
++                             int max_candidates,
++                             int max_context_chars)
+     : db_(db),
+       max_iterations_(max_iterations),
+-      max_candidates_(max_candidates) {}
++      max_candidates_(max_candidates),
++      max_context_chars_(max_context_chars) {}
+ 
+ PredictEngine::~PredictEngine() {}
+ 
+ bool PredictEngine::Predict(Context* ctx, const string& context_query) {
+   DLOG(INFO) << "PredictEngine::Predict [" << context_query << "]";
+-  if (const auto* candidates = db_->Lookup(context_query)) {
+-    query_ = context_query;
+-    candidates_ = candidates;
+-    return true;
+-  } else {
+-    Clear();
+-    return false;
++  // 蓬萊：從最長的結尾（最多 max_context_chars_ 個字）往短的查，第一個查得到的就用
++  vector<size_t> starts{0};
++  if (max_context_chars_ > 0) {
++    starts.clear();
++    for (size_t i = 0; i < context_query.length(); ++i) {
++      if ((static_cast<unsigned char>(context_query[i]) & 0xc0) != 0x80)
++        starts.push_back(i);
++    }
++    if (starts.size() > size_t(max_context_chars_))
++      starts.erase(starts.begin(), starts.end() - max_context_chars_);
++  }
++  for (size_t start : starts) {
++    string key = context_query.substr(start);
++    if (const auto* candidates = db_->Lookup(key)) {
++      query_ = key;
++      candidates_ = candidates;
++      return true;
++    }
+   }
++  Clear();
++  return false;
+ }
+ 
+ void PredictEngine::Clear() {
+@@ -81,6 +96,7 @@ PredictEngine* PredictEngineComponent::Create(const Ticket& ticket) {
+   string db_name = "predict.db";
+   int max_candidates = 0;
+   int max_iterations = 0;
++  int max_context_chars = 0;
+   if (auto* schema = ticket.schema) {
+     auto* config = schema->config();
+     if (config->GetString("predictor/db", &db_name)) {
+@@ -92,10 +108,13 @@ PredictEngine* PredictEngineComponent::Create(const Ticket& ticket) {
+     if (!config->GetInt("predictor/max_iterations", &max_iterations)) {
+       LOG(INFO) << "predictor/max_iterations is not set in schema";
+     }
++    // 蓬萊：查送出文字最長、表裡有的結尾，最多看幾個字；0 或不設＝原版（上一筆送出的文字整段精確比對）
++    config->GetInt("predictor/max_context_chars", &max_context_chars);
+   }
+   if (auto db = db_pool_.GetDb(db_name)) {
+     if (db->IsOpen() || db->Load()) {
+-      return new PredictEngine(db, max_iterations, max_candidates);
++      return new PredictEngine(db, max_iterations, max_candidates,
++                               max_context_chars);
+     } else {
+       LOG(ERROR) << "failed to load predict db: " << db_name;
+     }
+diff --git a/src/predict_engine.h b/src/predict_engine.h
+index ae62eeb..faf96f9 100644
+--- a/src/predict_engine.h
++++ b/src/predict_engine.h
+@@ -14,9 +14,14 @@ class Translation;
+ 
+ class PredictEngine : public Class<PredictEngine, const Ticket&> {
+  public:
+-  PredictEngine(an<PredictDb> db, int max_iterations, int max_candidates);
++  PredictEngine(an<PredictDb> db,
++                int max_iterations,
++                int max_candidates,
++                int max_context_chars = 0);
+   virtual ~PredictEngine();
+ 
++  // 蓬萊：max_context_chars > 0 時查 context_query 最長、表裡有的結尾（最多那麼多字），
++  // 0 是原版（整段精確比對）
+   bool Predict(Context* ctx, const string& context_query);
+   void Clear();
+   void CreatePredictSegment(Context* ctx) const;
+@@ -24,6 +29,7 @@ class PredictEngine : public Class<PredictEngine, const Ticket&> {
+ 
+   int max_iterations() const { return max_iterations_; }
+   int max_candidates() const { return max_candidates_; }
++  int max_context_chars() const { return max_context_chars_; }
+   const string& query() const { return query_; }
+   int num_candidates() const { return candidates_ ? candidates_->size : 0; }
+   string candidate(size_t i) const {
+@@ -34,6 +40,7 @@ class PredictEngine : public Class<PredictEngine, const Ticket&> {
+   an<PredictDb> db_;
+   int max_iterations_;  // prediction times limit
+   int max_candidates_;  // prediction candidate count limit
++  int max_context_chars_;  // 蓬萊：查最長結尾時最多看幾個字；0＝原版整段精確比對
+   string query_;        // cache last query
+   const predict::Candidates* candidates_ = nullptr;  // cache last result
+ };
+diff --git a/src/predict_translator.cc b/src/predict_translator.cc
+index 5768baa..3f63d35 100644
+--- a/src/predict_translator.cc
++++ b/src/predict_translator.cc
+@@ -33,7 +33,8 @@ an<Translation> PredictTranslator::Query(const string& input,
+     for (int i = 0; i < num_candidates; ++i) {
+       translation->Append(New<SimpleCandidate>("prediction", end, end,
+                                                predict_engine_->candidate(i)));
+-      if (max_candidates > 0 && i >= max_candidates)
++      // 蓬萊：原版多給一個（i 從 0 起算，比完才 break）
++      if (max_candidates > 0 && i + 1 >= max_candidates)
+         break;
+     }
+     return translation;
+diff --git a/src/predictor.cc b/src/predictor.cc
+index 84190fc..abdff63 100644
+--- a/src/predictor.cc
++++ b/src/predictor.cc
+@@ -14,6 +14,45 @@
+ 
+ namespace rime {
+ 
++// 蓬萊：聯想只在送出之後跳出，查的是送出紀錄尾巴接起來的那一段（這則訊息到目前送出的字）。
++// 跳過 Return 送出時留下的空 raw（fluency_editor 送出時組字區尾巴是一個空段落）；
++// 遇到標點、按鍵原字（raw、thru）就停，最後一筆就是這種時不聯想（同原版）。
++// last_type 是最後一筆真的送出的紀錄的類型。
++static string RecentText(const CommitHistory& history,
++                         size_t max_chars,
++                         string* last_type) {
++  last_type->clear();
++  string text;
++  size_t chars = 0;
++  for (auto it = history.rbegin(); it != history.rend(); ++it) {
++    if (it->type == "raw" && it->text.empty())
++      continue;
++    if (last_type->empty())
++      *last_type = it->type;
++    if (it->type == "punct" || it->type == "raw" || it->type == "thru")
++      break;
++    text = it->text + text;
++    chars = 0;
++    for (unsigned char c : text) {
++      if ((c & 0xc0) != 0x80)
++        ++chars;
++    }
++    if (max_chars == 0 || chars >= max_chars)
++      break;
++  }
++  return text;
++}
++
++static bool is_modifier(int keycode) {
++  return (keycode >= XK_Shift_L && keycode <= XK_Hyper_R &&
++          keycode != XK_Caps_Lock && keycode != XK_Shift_Lock) ||
++         keycode == XK_ISO_Level3_Shift || keycode == XK_Mode_switch;
++}
++
++static bool is_shift(int keycode) {
++  return keycode == XK_Shift_L || keycode == XK_Shift_R;
++}
++
+ Predictor::Predictor(const Ticket& ticket, an<PredictEngine> predict_engine)
+     : Processor(ticket), predict_engine_(predict_engine) {
+   // update prediction on context change.
+@@ -22,74 +61,156 @@ Predictor::Predictor(const Ticket& ticket, an<PredictEngine> predict_engine)
+       [this](Context* ctx) { OnSelect(ctx); });
+   context_update_connection_ = context->update_notifier().connect(
+       [this](Context* ctx) { OnContextUpdate(ctx); });
++  commit_connection_ = context->commit_notifier().connect(
++      [this](Context* ctx) { OnCommit(ctx); });
+ }
+ 
+ Predictor::~Predictor() {
+   select_connection_.disconnect();
+   context_update_connection_.disconnect();
++  commit_connection_.disconnect();
++}
++
++bool Predictor::PredictionShown(Context* ctx) const {
++  return ctx && ctx->input().empty() && !ctx->composition().empty() &&
++         ctx->composition().back().HasTag("prediction");
++}
++
++void Predictor::Dismiss(Context* ctx) {
++  predict_engine_->Clear();
++  iteration_counter_ = 0;
++  navigating_ = false;
++  ctx->Clear();
++}
++
++// 蓬萊：聯想選單開著時，留給選單的鍵。其他鍵一律先收掉聯想，再照沒有選單時處理
++// （Return 交給 App、空白鍵打空白、BackSpace 刪前一個字並撤銷學習、聲調鍵開頭的數字、77…）。
++bool Predictor::KeepsMenu(const KeyEvent& key_event, Context* ctx) const {
++  int ch = key_event.keycode();
++  if (key_event.ctrl() || key_event.alt() || key_event.super())
++    return false;
++  // Shift+數字（key_binder 換成 KP_1…）、KP 數字：選字
++  if (key_event.shift()) {
++    static const string kShiftedDigits = "!@#$%^&*()";
++    return ch < 0x80 && kShiftedDigits.find(char(ch)) != string::npos;
++  }
++  if (ch >= XK_KP_0 && ch <= XK_KP_9)
++    return true;
++  // 移反白、翻頁
++  switch (ch) {
++    case XK_Up:
++    case XK_Down:
++    case XK_KP_Up:
++    case XK_KP_Down:
++    case XK_Page_Up:
++    case XK_Page_Down:
++    case XK_KP_Page_Up:
++    case XK_KP_Page_Down:
++      return true;
++    case XK_Left:
++    case XK_Right:
++    case XK_KP_Left:
++    case XK_KP_Right:
++      // 橫排選字窗：左右鍵移反白
++      return ctx->get_option("_linear") && !ctx->get_option("_vertical");
++  }
++  // 數字選字（penglai_numsel.lua）狀態中，數字鍵選這一頁第 N 個。Lua 把狀態寫在 context 的
++  // penglai_numsel 屬性（on／off），觸發鍵可以換（↓ 或修飾鍵點一下），照屬性判斷；
++  // 沒掛 penglai_numsel（沒有這個屬性）時照原本：移過反白之後數字鍵選字
++  if (ch < '1' || ch > '9')
++    return false;
++  string numsel = ctx->get_property("penglai_numsel");
++  return numsel.empty() ? navigating_ : numsel == "on";
+ }
+ 
+ ProcessResult Predictor::ProcessKeyEvent(const KeyEvent& key_event) {
+   if (!engine_ || !predict_engine_)
+     return kNoop;
+-  auto keycode = key_event.keycode();
+-  if (keycode == XK_BackSpace || keycode == XK_Escape) {
+-    last_action_ = kDelete;
+-    predict_engine_->Clear();
+-    iteration_counter_ = 0;
+-    auto* ctx = engine_->context();
+-    if (!ctx->composition().empty() &&
+-        ctx->composition().back().HasTag("prediction")) {
+-      ctx->Clear();
+-      return kAccepted;
+-    }
+-  } else {
+-    last_action_ = kUnspecified;
++  auto* ctx = engine_->context();
++  int ch = key_event.keycode();
++  bool shift_tap = is_shift(ch) && key_event.release() && shift_armed_;
++  if (is_shift(ch))
++    shift_armed_ = !key_event.release();
++  else
++    shift_armed_ = false;
++  if (!PredictionShown(ctx))
++    return kNoop;
++  // Shift 點一下：收掉聯想，ascii_composer 照沒有組字時切中西文
++  // （組字中左 Shift 只是暫時打英文、右 Shift 會確認反白的聯想）
++  if (shift_tap) {
++    Dismiss(ctx);
++    return kNoop;
+   }
+-  return kNoop;
++  // 修飾鍵（右 Option、右 Command、Control 點一下是 penglai_tap.lua 的快速鍵，鍵可以換）、放開：不動
++  if (key_event.release() || is_modifier(ch))
++    return kNoop;
++  if (KeepsMenu(key_event, ctx)) {
++    if (ch == XK_Up || ch == XK_Down || ch == XK_KP_Up || ch == XK_KP_Down ||
++        ch == XK_Left || ch == XK_Right || ch == XK_KP_Left ||
++        ch == XK_KP_Right)
++      navigating_ = true;
++    return kNoop;
++  }
++  // Escape：只收掉聯想；其他鍵收掉之後照常處理
++  bool escape = ch == XK_Escape && key_event.modifier() == 0;
++  Dismiss(ctx);
++  return escape ? kAccepted : kNoop;
+ }
+ 
++// 蓬萊：選了聯想（Shift+N、↓ 之後數字、右 Option、滑鼠點）就直接送出。
++// 聯想段落長度 0，fluency_editor 選完不會自己送出（express_editor 才會），原版選了等於沒選
+ void Predictor::OnSelect(Context* ctx) {
+-  last_action_ = kSelect;
++  if (!ctx || ctx->composition().empty())
++    return;
++  const auto& seg = ctx->composition().back();
++  if (!seg.HasTag("prediction") || seg.status < Segment::kSelected ||
++      !ctx->input().empty())
++    return;
++  navigating_ = false;
++  ctx->Commit();
++}
++
++void Predictor::OnCommit(Context* ctx) {
++  just_committed_ = true;
+ }
+ 
+ void Predictor::OnContextUpdate(Context* ctx) {
+-  if (self_updating_ || !predict_engine_ || !ctx ||
+-      !ctx->composition().empty() || !ctx->get_option("prediction") ||
+-      last_action_ == kDelete) {
++  if (self_updating_)
+     return;
+-  }
+-  LOG(INFO) << "Predictor::OnContextUpdate";
+-  if (ctx->commit_history().empty()) {
+-    PredictAndUpdate(ctx, "$");
++  // 蓬萊：只在送出之後聯想（原版是組字區變空就聯想：Control 複製清掉、77 忘掉之後也會跳出來）
++  bool just_committed = just_committed_;
++  just_committed_ = false;
++  if (!just_committed || !predict_engine_ || !ctx ||
++      !ctx->composition().empty() || !ctx->get_option("prediction")) {
+     return;
+   }
+-  auto last_commit = ctx->commit_history().back();
+-  if (last_commit.type == "punct" || last_commit.type == "raw" ||
+-      last_commit.type == "thru") {
++  LOG(INFO) << "Predictor::OnContextUpdate";
++  string last_type;
++  string query = RecentText(ctx->commit_history(),
++                            predict_engine_->max_context_chars(), &last_type);
++  if (query.empty() || last_type == "punct" || last_type == "raw" ||
++      last_type == "thru") {
+     predict_engine_->Clear();
+     iteration_counter_ = 0;
+     return;
+   }
+-  if (last_commit.type == "prediction") {
++  if (last_type == "prediction") {
+     int max_iterations = predict_engine_->max_iterations();
+     iteration_counter_++;
+     if (max_iterations > 0 && iteration_counter_ >= max_iterations) {
+       predict_engine_->Clear();
+       iteration_counter_ = 0;
+-      auto* ctx = engine_->context();
+-      if (!ctx->composition().empty() &&
+-          ctx->composition().back().HasTag("prediction")) {
+-        ctx->Clear();
+-      }
+       return;
+     }
++  } else {
++    iteration_counter_ = 0;
+   }
+-  PredictAndUpdate(ctx, last_commit.text);
++  PredictAndUpdate(ctx, query);
+ }
+ 
+ void Predictor::PredictAndUpdate(Context* ctx, const string& context_query) {
+   if (predict_engine_->Predict(ctx, context_query)) {
++    navigating_ = false;
+     predict_engine_->CreatePredictSegment(ctx);
+     self_updating_ = true;
+     ctx->update_notifier()(ctx);
+diff --git a/src/predictor.h b/src/predictor.h
+index 655c8cf..9cb3767 100644
+--- a/src/predictor.h
++++ b/src/predictor.h
+@@ -19,17 +19,29 @@ class Predictor : public Processor {
+  protected:
+   void OnContextUpdate(Context* ctx);
+   void OnSelect(Context* ctx);
++  void OnCommit(Context* ctx);
+   void PredictAndUpdate(Context* ctx, const string& context_query);
++  // 蓬萊：聯想選單開著（組字區只剩聯想那一段）
++  bool PredictionShown(Context* ctx) const;
++  // 蓬萊：收掉聯想（不送出任何字）
++  void Dismiss(Context* ctx);
++  // 蓬萊：聯想選單開著時，這個鍵留給選單（選字、移反白、翻頁）
++  bool KeepsMenu(const KeyEvent& key_event, Context* ctx) const;
+ 
+  private:
+-  enum Action { kUnspecified, kSelect, kDelete };
+-  Action last_action_ = kUnspecified;
+   bool self_updating_ = false;
++  // 蓬萊：剛送出（commit_notifier 之後、清掉組字區的那一次 update 之前）
++  bool just_committed_ = false;
++  // 蓬萊：聯想選單開著時按過 ↑↓（移過反白），之後的數字鍵留給選單（蓬萊的「↓ 之後數字選字」）
++  bool navigating_ = false;
++  // 蓬萊：按下 Shift 之後還沒按別的鍵；放開時收掉聯想，讓 ascii_composer 照沒有組字時切中西文
++  bool shift_armed_ = false;
+   int iteration_counter_ = 0;  // times has been predicted
+ 
+   an<PredictEngine> predict_engine_;
+   connection select_connection_;
+   connection context_update_connection_;
++  connection commit_connection_;
+ };
+ 
+ class PredictorComponent : public Predictor::Component {
+-- 
+2.56.0
+

@@ -1,0 +1,390 @@
+#include "penglai_space.h"
+
+#include <set>
+#include <unordered_set>
+#include <rime/config.h>
+#include <rime/engine.h>
+#include <rime/key_event.h>
+#include <rime/schema.h>
+
+namespace penglai {
+
+using namespace rime;
+
+namespace {
+
+// 告訴貂毫這次送出的是什麼（punct／foreign／replace／period），下一個鍵清掉；不能用 _ 開頭（貂毫當成保留給前端的）
+const char kProperty[] = "penglai_space";
+// penglai_space/foreign：開著時元件建好就寫成方案 id，貂毫看到跟目前的方案相同才在空白之前讀游標前後的字，
+// 寫進 penglai_space_before、penglai_space_after（各最多 100 個 UTF-16，讀不到是空字串）；這裡下一個鍵讀了就清掉
+const char kForeignProperty[] = "penglai_space_foreign";
+const char kBeforeProperty[] = "penglai_space_before";
+const char kAfterProperty[] = "penglai_space_after";
+const char* const kEnds[] = {"嗎", "麼", "呢", "誰", "哪", "多少", "如何", "對吧", "是吧"};
+const char* const kWords[] = {"什麼", "怎麼", "為什麼", "為何", "哪", "誰", "多少", "如何", "是不是", "有沒有",
+                              "要不要", "會不會", "能不能", "可不可以", "對不對", "好不好"};
+// 規則另外看的詞（不是模型的特徵，加了不用重新訓練）：口語語料和公開語料（Tatoeba、Common Voice）兩邊都多半是問句的才收
+const char* const kRuleWords[] = {"幹嘛", "多久", "多大", "了沒", "難道", "多遠"};
+const uint32_t kBu = 0x4e0d;   // 不
+const uint32_t kMei = 0x6c92;  // 沒
+
+bool IsModifier(int code) {
+  static const std::set<int> modifiers = {0xffe1, 0xffe2, 0xffe3, 0xffe4, 0xffe5, 0xffe7,
+                                          0xffe8, 0xffe9, 0xffea, 0xffeb, 0xffec};
+  return modifiers.count(code) > 0;
+}
+
+bool IsHan(uint32_t cp) {
+  return (cp >= 0x3400 && cp <= 0x9fff) || (cp >= 0xf900 && cp <= 0xfaff) || (cp >= 0x20000 && cp <= 0x3ffff);
+}
+
+bool EndsWith(const string& text, const string& suffix) {
+  return text.size() >= suffix.size() && text.compare(text.size() - suffix.size(), suffix.size(), suffix) == 0;
+}
+
+bool Contains(const string& text, const char* word) {
+  return text.find(word) != string::npos;
+}
+
+bool Rule(const string& text, const vector<uint32_t>& cps) {
+  for (const char* e : kEnds) {
+    if (EndsWith(text, e))
+      return true;
+  }
+  size_t n = cps.size();
+  if (n >= 3 && cps[n - 1] == cps[n - 3] && (cps[n - 2] == kBu || cps[n - 2] == kMei))
+    return true;
+  for (const char* w : kWords) {
+    if (Contains(text, w))
+      return true;
+  }
+  for (const char* w : kRuleWords) {
+    if (Contains(text, w))
+      return true;
+  }
+  return false;
+}
+
+bool EndsWithHan(const string& text) {
+  vector<uint32_t> cps;
+  return DecodeUtf8(text, &cps) && !cps.empty() && IsHan(cps.back());
+}
+
+bool IsAsciiLetter(uint32_t cp) {
+  return (cp >= 'A' && cp <= 'Z') || (cp >= 'a' && cp <= 'z');
+}
+
+bool IsAsciiAlnum(uint32_t cp) {
+  return IsAsciiLetter(cp) || (cp >= '0' && cp <= '9');
+}
+
+// 英文詞（[A-Za-z][A-Za-z0-9'’-]* 連續一段）裡、字母開頭之後的字
+bool InEnglishWord(uint32_t cp) {
+  return IsAsciiAlnum(cp) || cp == '\'' || cp == 0x2019 || cp == '-';
+}
+
+// [begin, end) 裡的英文詞數和漢字數
+void CountWords(const vector<uint32_t>& cps, size_t begin, size_t end, size_t* english, size_t* han) {
+  *english = *han = 0;
+  for (size_t i = begin; i < end;) {
+    if (IsAsciiLetter(cps[i])) {
+      ++*english;
+      for (++i; i < end && InEnglishWord(cps[i]); ++i) {
+      }
+    } else {
+      *han += IsHan(cps[i]) ? 1 : 0;
+      ++i;
+    }
+  }
+}
+
+// 補英文的「, 」：英文詞至少兩個、佔八成以上（英文詞 ÷（英文詞＋漢字）≥ 0.8）。只有一個英文詞（縮寫、單字）補中文標點
+bool MostlyEnglish(size_t english, size_t han) {
+  return english >= 2 && english >= 4 * han;
+}
+
+// 結尾是英文詞（最後一段 [A-Za-z0-9'’-] 是字母開頭）：數字結尾（0912345678）、空白結尾（「agent 」）不算
+bool EndsWithEnglish(const string& text) {
+  vector<uint32_t> cps;
+  if (!DecodeUtf8(text, &cps) || cps.empty() || !IsAsciiAlnum(cps.back()))
+    return false;
+  size_t i = cps.size();
+  while (i > 0 && InEnglishWord(cps[i - 1]))
+    --i;
+  while (i < cps.size() && !IsAsciiLetter(cps[i]))
+    ++i;
+  return i < cps.size();
+}
+
+// 「字」：漢字、英文字母、數字（全形的字母、數字也算）。游標前一個不是字時照舊出空白
+bool IsWordChar(uint32_t cp) {
+  return IsHan(cp) || IsAsciiAlnum(cp) || (cp >= 0xff10 && cp <= 0xff19) || (cp >= 0xff21 && cp <= 0xff3a) ||
+         (cp >= 0xff41 && cp <= 0xff5a);
+}
+
+bool IsNewline(uint32_t cp) {
+  return cp == '\n' || cp == '\r' || cp == 0x0b || cp == 0x0c || cp == 0x85 || cp == 0x2028 || cp == 0x2029;
+}
+
+// 標點（全形、半形）：問句只看最後一個標點之後的那一段
+bool IsPunct(uint32_t cp) {
+  return (cp >= 0x21 && cp <= 0x2f) || (cp >= 0x3a && cp <= 0x40) || (cp >= 0x5b && cp <= 0x60) ||
+         (cp >= 0x7b && cp <= 0x7e) || (cp >= 0xa1 && cp <= 0xbf) || (cp >= 0x2010 && cp <= 0x205e) ||
+         (cp >= 0x3001 && cp <= 0x3004) || (cp >= 0x3008 && cp <= 0x301f) || cp == 0x3030 || cp == 0x30fb ||
+         (cp >= 0xfe10 && cp <= 0xfe19) || (cp >= 0xfe30 && cp <= 0xfe6b) || (cp >= 0xff01 && cp <= 0xff0f) ||
+         (cp >= 0xff1a && cp <= 0xff20) || (cp >= 0xff3b && cp <= 0xff40) || (cp >= 0xff5b && cp <= 0xff65);
+}
+
+// 半形標點夾在英文字母、數字中間（3.5、Node.js、don't、e-mail）不算切開；「!」「?」夾在中間照樣切開（OK!hello）
+bool InWord(const vector<uint32_t>& cps, size_t i) {
+  return cps[i] < 0x80 && cps[i] != '!' && cps[i] != '?' && i > 0 && i + 1 < cps.size() &&
+         IsAsciiAlnum(cps[i - 1]) && IsAsciiAlnum(cps[i + 1]);
+}
+
+// 句子的界線：換行，或句末的「。．！？｡」「. ! ?」（半形的夾在英文、數字中間不算）
+bool IsSentenceEnd(const vector<uint32_t>& cps, size_t i) {
+  uint32_t c = cps[i];
+  if (IsNewline(c) || c == 0x3002 || c == 0xff0e || c == 0xff01 || c == 0xff1f || c == 0xff61)
+    return true;
+  return (c == '.' || c == '!' || c == '?') && !InWord(cps, i);
+}
+
+string EncodeUtf8(const vector<uint32_t>& cps, size_t begin, size_t end) {
+  string out;
+  for (size_t i = begin; i < end; ++i) {
+    uint32_t c = cps[i];
+    if (c < 0x80) {
+      out += static_cast<char>(c);
+    } else if (c < 0x800) {
+      out += static_cast<char>(0xc0 | (c >> 6));
+      out += static_cast<char>(0x80 | (c & 0x3f));
+    } else if (c < 0x10000) {
+      out += static_cast<char>(0xe0 | (c >> 12));
+      out += static_cast<char>(0x80 | ((c >> 6) & 0x3f));
+      out += static_cast<char>(0x80 | (c & 0x3f));
+    } else {
+      out += static_cast<char>(0xf0 | (c >> 18));
+      out += static_cast<char>(0x80 | ((c >> 12) & 0x3f));
+      out += static_cast<char>(0x80 | ((c >> 6) & 0x3f));
+      out += static_cast<char>(0x80 | (c & 0x3f));
+    }
+  }
+  return out;
+}
+
+bool IsSpace(uint32_t cp) {
+  return cp == ' ' || cp == '\t' || cp == 0xa0 || cp == 0x3000 || (cp >= 0x2000 && cp <= 0x200b);
+}
+
+// 讀了就清掉（只清有值的，沒值時不動 context）
+string TakeProperty(Context* ctx, const char* name) {
+  string value = ctx->get_property(name);
+  if (!value.empty())
+    ctx->set_property(name, "");
+  return value;
+}
+
+}  // namespace
+
+string ForeignPunct(const string& before, const string& after, const SortedTable* model) {
+  vector<uint32_t> all, tail;
+  if (!DecodeUtf8(before, &all) || all.empty() || !IsWordChar(all.back()))
+    return "";
+  size_t caret = all.size();
+  if (DecodeUtf8(after, &tail))
+    all.insert(all.end(), tail.begin(), tail.end());
+  // 這一句：游標前後各到換行、句末標點為止
+  size_t start = caret;
+  while (start > 0 && !IsSentenceEnd(all, start - 1))
+    --start;
+  size_t end = caret;
+  while (end < all.size() && !IsSentenceEnd(all, end))
+    ++end;
+  // 英文詞（[A-Za-z][A-Za-z0-9'’-]* 連續一段算一個）跟漢字（一個字算一個）的比
+  size_t english, han;
+  CountWords(all, start, end, &english, &han);
+  if (MostlyEnglish(english, han))
+    return ", ";
+  // 中文標點：問句看游標前、最後一個標點（或換行）之後那一段，跟送出之後補標點看的範圍一樣
+  size_t from = caret;
+  while (from > 0 && !IsNewline(all[from - 1]) && !(IsPunct(all[from - 1]) && !InWord(all, from - 1)))
+    --from;
+  while (from < caret && IsSpace(all[from]))
+    ++from;
+  return IsQuestion(EncodeUtf8(all, from, caret), model) ? "？" : "，";
+}
+
+double QuestionScore(const string& text, const vector<string>& chars, const SortedTable& model) {
+  std::unordered_set<string> seen;
+  double z = 0;
+  auto add = [&](const string& k) {
+    if (!seen.insert(k).second)
+      return;
+    double w;
+    if (model.FindFloat(k, &w))
+      z = z + w;
+  };
+  add("b");
+  size_t n = chars.size();
+  for (size_t k = 1; k <= 3; ++k) {
+    if (n >= k) {
+      string s = "s" + std::to_string(k) + ":";
+      for (size_t i = n - k; i < n; ++i)
+        s += chars[i];
+      add(s);
+    }
+  }
+  for (const char* w : kWords) {
+    if (Contains(text, w))
+      add(string("w:") + w);
+  }
+  for (size_t i = 0; i < n; ++i)
+    add("u:" + chars[i]);
+  for (size_t i = 0; i + 1 < n; ++i)
+    add("g:" + chars[i] + chars[i + 1]);
+  return z;
+}
+
+bool IsQuestion(const string& text, const SortedTable* model) {
+  vector<uint32_t> cps;
+  if (!DecodeUtf8(text, &cps))
+    return false;
+  if (model) {
+    vector<string> chars;
+    SplitUtf8(text, &chars);
+    return QuestionScore(text, chars, *model) > 0;
+  }
+  return Rule(text, cps);
+}
+
+PenglaiSpace::PenglaiSpace(const Ticket& ticket) : Processor(ticket) {
+  Config* config = engine_->schema()->config();
+  bool value;
+  if (config->GetBool(name_space_ + "/punct", &value) && !value)
+    on_ = false;
+  if (config->GetBool(name_space_ + "/replace", &value) && !value)
+    replace_ = false;
+  if (config->GetBool(name_space_ + "/period", &value) && !value)
+    period_ = false;
+  if (config->GetBool(name_space_ + "/foreign", &value) && value)
+    foreign_ = on_;   // 要先開 punct
+  if (config->GetBool(name_space_ + "/english", &value) && value)
+    english_ = on_;   // 要先開 punct
+  model_ = PunctTable();
+  Context* ctx = engine_->context();
+  // 告訴貂毫要不要在空白之前讀游標前後的字：值是方案 id，換到沒有這個元件的方案時貂毫看得出來不是同一個
+  string announce = foreign_ ? engine_->schema()->schema_id() : "";
+  if (ctx->get_property(kForeignProperty) != announce)
+    ctx->set_property(kForeignProperty, announce);
+  commit_connection_ = ctx->commit_notifier().connect([this](Context* c) {
+    string text = c->GetCommitText();
+    mark_.reset();   // 滑鼠點候選也會送出，不經過按鍵
+    if (!text.empty())
+      fresh_ = true;
+    // penglai_space/english：結尾是英文詞也接著算這一句（例如「CTO」之後按空白也補標點；要空白就按兩下）
+    if (EndsWithHan(text) || (english_ && EndsWithEnglish(text)))
+      clause_ = clause_.value_or("") + text;
+    else
+      clause_.reset();
+  });
+  option_connection_ = ctx->option_update_notifier().connect([this](Context* c, const string& name) {
+    if (name == "ascii_mode") {
+      clause_.reset();
+      mark_.reset();
+      fresh_ = false;
+    }
+  });
+}
+
+PenglaiSpace::~PenglaiSpace() {
+  commit_connection_.disconnect();
+  option_connection_.disconnect();
+}
+
+ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
+  if (!on_)
+    return kNoop;
+  // 貂毫補送的 VoidSymbol 放開事件：
+  //   patches/squirrel/0001：放開修飾鍵前，上次修飾鍵變化之後有任何按鍵或滑鼠點擊就補送，帶著還按著的修飾鍵。
+  //     Shift、Control、Option 的組合鍵 librime 自己收得到（Shift＋字母、Shift＋數字選字也會補送），不算；
+  //     只有 Command 組合鍵被貂毫直接交給 App（貼上、移游標…）
+  //   patches/squirrel/0022：送下一個鍵之前，上一鍵之後有交給 App 的 Command 組合鍵，或在選字窗以外點過滑鼠，就先補送一個帶 Command 的
+  // 帶 Command 的才當成輸入框已經變了，「剛送出的中文」不算了，剛補的標點也不換了
+  if (key.keycode() == 0xffffff) {
+    if (key.super()) {
+      clause_.reset();
+      mark_.reset();
+      fresh_ = false;
+    }
+    return kNoop;
+  }
+  if (key.release() || IsModifier(key.keycode()))
+    return kNoop;
+  Context* ctx = engine_->context();
+  if (!ctx->get_property(kProperty).empty())
+    ctx->set_property(kProperty, "");
+  // 貂毫在這個空白之前給的游標前後文：只給這一鍵用
+  string before, after;
+  if (foreign_) {
+    before = TakeProperty(ctx, kBeforeProperty);
+    after = TakeProperty(ctx, kAfterProperty);
+  }
+  int code = key.keycode();
+  bool plain = !(key.shift() || key.ctrl() || key.alt() || key.super());
+  bool composing = ctx->IsComposing();
+  auto mark = mark_;
+  mark_.reset();
+  // 補了「，」之後緊接著按 Return：標成 period，Return 照舊交給 App（換段、送出）；貂毫先把「，」換成「。」
+  // （「, 」換成「.」），換不了的 App 照舊是「，」。「？」不換
+  if (code == 0xff0d && plain && !composing && period_ && mark && (*mark == "，" || *mark == ", ")) {
+    ctx->set_property(kProperty, "period");
+    clause_.reset();
+    fresh_ = false;
+    return kNoop;
+  }
+  if (code == 0x20 && plain && !composing && !ctx->get_option("ascii_mode")) {
+    if (mark && replace_) {
+      // 緊接著再按一次空白：標成 replace，空白照原本的路走（半形沒人收、交給貂毫，全形是 punctuator 送出「　」），
+      // 貂毫用它換掉剛補的標點；換不了就照舊交給 App。再按就沒有 mark、也沒有 clause
+      ctx->set_property(kProperty, "replace");
+      fresh_ = false;
+      return kNoop;
+    }
+    if (clause_) {
+      // 這一句是貂毫送出的字：english 開著時英文詞至少兩個、佔八成以上補「, 」，不然照問句補「？」或「，」
+      vector<uint32_t> cps;
+      size_t english = 0, han = 0;
+      if (english_ && DecodeUtf8(*clause_, &cps))
+        CountWords(cps, 0, cps.size(), &english, &han);
+      string punct = MostlyEnglish(english, han) ? ", " : IsQuestion(*clause_, model_.get()) ? "？" : "，";
+      clause_.reset();
+      mark_ = punct;
+      fresh_ = true;
+      ctx->set_property(kProperty, "punct");
+      engine_->CommitText(punct);
+      return kAccepted;
+    }
+    // 游標前是別處的字（penglai_space/foreign）：剛送出過字、之後還沒斷掉時不算（中英混打「Claude Code」中間的空白），
+    // 照貂毫給的游標前後文決定；不是字、沒給（讀不到）就照舊出空白。標成 foreign：貂毫核對的是剛給的前文，不是上一筆送出的字
+    if (foreign_ && !fresh_) {
+      string punct = ForeignPunct(before, after, model_.get());
+      if (!punct.empty()) {
+        mark_ = punct;
+        fresh_ = true;
+        ctx->set_property(kProperty, "foreign");
+        engine_->CommitText(punct);
+        return kAccepted;
+      }
+    }
+  }
+  // 組字區空著時按了會交給 App 的鍵（BackSpace、方向鍵、Return、空白、Control 組合鍵…）就斷掉；
+  // 組字中的鍵、開始組字的鍵（注音、數字）不算。標點鍵送出標點時 commit_notifier 會斷掉（剛送出的還算）
+  bool printable = code >= 0x21 && code <= 0x7e && !(key.ctrl() || key.alt() || key.super());
+  if (!composing && !printable) {
+    clause_.reset();
+    fresh_ = false;
+  }
+  return kNoop;
+}
+
+}  // namespace penglai

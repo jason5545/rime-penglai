@@ -1,0 +1,181 @@
+# terra_pinyin 上游有、3 月手改的副本刪掉的行（大陸機構、用語），整行比對。gen_terra_tw.py 讀
+並行程序	bing4 xing2 cheng2 xu4
+中信銀行	zhong1 xin4 yin2 hang2
+中共中央宣傳部	zhong1 gong4 zhong1 yang1 xuan1 chuan2 bu4
+中共中央紀委監察部	zhong1 gong4 zhong1 yang1 ji4 wei3 jian1 cha2 bu4
+中國人民解放軍空軍	zhong1 guo2 ren2 min2 jie3 fang4 jun1 kong1 jun1
+中國人民銀行	zhong1 guo2 ren2 min2 yin2 hang2
+中國伊斯蘭教協會	zhong1 guo2 yi1 si1 lan2 jiao4 xie2 hui4
+中國保險監督管理委員會	zhong1 guo2 bao3 xian3 jian1 du1 guan3 li3 wei3 yuan2 hui4
+中國光大銀行	zhong1 guo2 guang1 da4 yin2 hang2
+中國共產黨中央委員會宣傳部	zhong1 guo2 gong4 chan3 dang3 zhong1 yang1 wei3 yuan2 hui4 xuan1 chuan2 bu4
+中國國家地震局	zhong1 guo2 guo2 jia1 di4 zhen4 ju2
+中國地震局	zhong1 guo2 di4 zhen4 ju2
+中國天主教愛國會	zhong1 guo2 tian1 zhu3 jiao4 ai4 guo2 hui4
+中國少年先鋒隊	zhong1 guo2 shao3 nian2 xian1 feng1 dui4
+中國工商銀行	zhong1 guo2 gong1 shang1 yin2 hang2
+中國建設銀行	zhong1 guo2 jian4 she4 yin2 hang2
+中國教育和科研計算機網	zhong1 guo2 jiao4 yu4 he2 ke1 yan2 ji4 suan4 ji1 wang3
+中國民用航空局	zhong1 guo2 min2 yong4 hang2 kong1 ju2
+中國石油和化學工業協會	zhong1 guo2 shi2 you2 he2 hua4 xue2 gong1 ye4 xie2 hui4
+中國航空工業公司	zhong1 guo2 hang2 kong1 gong1 ye4 gong1 si1
+中國航空運輸協會	zhong1 guo2 hang2 kong1 yun4 shu1 xie2 hui4
+中國船舶重工集團公司	zhong1 guo2 chuan2 bo2 zhong4 gong1 ji2 tuan2 gong1 si1
+中國證券監督管理委員會	zhong1 guo2 zheng4 quan4 jian1 du1 guan3 li3 wei3 yuan2 hui4
+中國證監會	zhong1 guo2 zheng4 jian4 hui4
+中國農業銀行	zhong1 guo2 nong2 ye4 yin2 hang2
+中國進出口銀行	zhong1 guo2 jin4 chu1 kou3 yin2 hang2
+中國遊藝機遊樂園協會	zhong1 guo2 you2 yi4 ji1 you2 le4 yuan2 xie2 hui4
+中國銀行	zhong1 guo2 yin2 hang2
+中國銀行業監督管理委員會	zhong1 guo2 yin2 hang2 ye4 jian1 du1 guan3 li3 wei3 yuan2 hui4
+中國長城工業公司	zhong1 guo2 chang2 cheng2 gong1 ye4 gong1 si1
+中央宣傳部	zhong1 yang1 xuan1 chuan2 bu4
+中央音樂學院	zhong1 yang1 yin1 yue4 xue2 yuan4
+串行口	chuan4 xing2 kou3
+串行點陣打印機	chuan4 xing2 dian3 zhen4 da3 yin4 ji1
+五年計劃	wu3 nian2 ji4 hua4
+人民銀行	ren2 min2 yin2 hang2
+企業用戶帳號	qi4 ye4 yong4 hu4 zhang4 hao4
+信息	xin4 xi2
+信息與通訊技術	xin4 xi1 yu3 tong1 xun4 ji4 shu4
+個人數字助理	ge4 ren2 shu4 zi4 zhu4 li3
+傳感器	chuan2 gan3 qi4
+充值卡	chong1 zhi2 ka3
+光纖分佈式數據介面	guang1 xian1 fen1 bu4 shi4 shu4 ju4 jie4 mian4
+光纖分佈數據接口	guang1 xian1 fen1 bu4 shu4 ju4 jie1 kou3
+全局模塊	quan2 ju2 mo2 kuai4
+分佈式	fen1 bu4 shi4
+分佈式拒絕服務	fen1 bu4 shi4 ju4 jue2 fu2 wu4
+分佈式環境	fen1 bu4 shi4 huan2 jing4
+分佈式結構	fen1 bu4 shi4 jie2 gou4
+分佈式網絡	fen1 bu4 shi4 wang3 luo4
+分布連結網絡	fen1 bu4 lian2 jie2 wang3 luo4
+分辨率	fen1 bian4 lv4
+分銷網絡	fen1 xiao1 wang3 luo4
+切分信息	qie4 fen1 xin4 xi1
+功能模塊	gong1 neng2 mo2 kuai4
+博客圈	bo2 ke4 quan1
+和諧社會	he2 xie2 she4 hui4
+因特網提供商	yin1 te4 wang3 ti2 gong1 shang1
+國務院國有資產監督管理委員會	guo2 wu4 yuan4 guo2 you3 zi1 chan3 jian1 du1 guan3 li3 wei3 yuan2 hui4
+國有資產監督管理委員會	guo2 you3 zi1 chan3 jian1 du1 guan3 li3 wei3 yuan2 hui4
+地稅	di4 shui4
+多模塊	duo1 mo2 kuai4
+大屏幕電視	da4 ping2 mu4 dian4 shi4
+子網屏蔽碼	zi3 wang3 ping2 bi4 ma3
+字節數	zi4 jie2 shu4
+宣傳部	xuan1 chuan2 bu4
+少先隊	shao4 xian1 dui4
+少先隊員	shao4 xian1 dui4 yuan2
+居民消費價格指數	ju1 min2 xiao1 fei4 jia4 ge2 zhi3 shu4
+屏幕	ping2 mu4
+屏幕保護程序	ping2 mu4 bao3 hu4 cheng2 xu4
+庫模塊	ku4 mo2 kuai4
+應用軟件	ying4 yong4 ruan3 jian4
+截屏	jie2 ping2
+戶口制度	hu4 kou3 zhi4 du4
+戶口校正	hu4 kou3 jiao4 zheng4
+戶口調查	hu4 kou3 diao4 cha2
+手機充值卡	shou3 ji1 chong1 zhi2 ka3
+打印子	da3 yin4 zi5
+掃描儀	sao3 miao2 yi2
+接口模塊	jie1 kou3 mo2 kuai4
+搜索結果	sou1 suo3 jie2 guo3
+操作系統	cao1 zuo4 xi4 tong3
+數字信號	shu4 zi4 xin4 hao4
+數字化	shu4 zi4 hua4
+數字唱片	shu4 zi4 chang4 pian4
+數字導覽設施	shu4 zi4 dao3 lan3 she4 shi1
+數字時鐘	shu4 zi4 shi2 zhong1
+數字版權管理	shu4 zi4 ban3 quan2 guan3 li3
+數字網	shu4 zi4 wang3
+數字訂購線路	shu4 zi4 ding4 gou4 xian4 lu4
+數字通信	shu4 zi4 tong1 xin4
+數字鐘	shu4 zi4 zhong1
+數字電視	shu4 zi4 dian4 shi4
+數字電路	shu4 zi4 dian4 lu4
+數據介面	shu4 ju4 jie4 mian4
+數據傳輸	shu4 ju4 chuan2 shu1
+數據卡	shu4 ju4 ka3
+數據壓縮	shu4 ju4 ya1 suo1
+數據專線	shu4 ju4 zhuan1 xian4
+數據庫	shu4 ju4 ku4
+數據庫軟件	shu4 ju4 ku4 ruan3 jian4
+數據挖掘	shu4 ju4 wa1 jue2
+數據接口	shu4 ju4 jie1 kou3
+數據段	shu4 ju4 duan4
+數據流	shu4 ju4 liu2
+數據網絡	shu4 ju4 wang3 luo4
+數據總線	shu4 ju4 zong3 xian4
+數據處理	shu4 ju4 chu3 li3
+數據通信	shu4 ju4 tong1 xin4
+數據通訊	shu4 ju4 tong1 xun4
+數據鏈路	shu4 ju4 lian4 lu4
+數據鏈路層	shu4 ju4 lian4 lu4 ceng2
+數據鏈路連接識別碼	shu4 ju4 lian4 lu4 lian2 jie1 shi2 bie2 ma3
+數碼	shu4 ma3
+數碼化	shu4 ma3 hua4
+數碼掃描	shu4 ma3 sao3 miao2
+數碼港	shu4 ma3 gang3
+數碼照相機	shu4 ma3 zhao4 xiang4 ji1
+數碼相機	shu4 ma3 xiang4 ji1
+數碼通	shu4 ma3 tong1
+文本編輯器	wen2 ben3 bian1 ji2 qi2
+杳無信息	yao3 wu2 xin4 xi2
+模塊	mo2 kuai4
+模塊化	mo2 kuai4 hua4
+模塊化理論	mo2 kuai4 hua4 li3 lun4
+模塊單元	mo2 kuai4 dan1 yuan2
+模塊式	mo2 kuai4 shi4
+模塊板	mo2 kuai4 ban3
+模擬信號	mo2 ni3 xin4 hao4
+流氓軟件	liu2 mang2 ruan3 jian4
+激活擴散網絡	ji1 huo2 kuo4 san4 wang3 luo4
+激活整合模型	ji1 huo2 zheng3 he2 mo2 xing2
+生物傳感器	sheng1 wu4 chuan2 gan3 qi4
+用戶創造內容	yong4 hu4 chuang4 zao4 nei4 rong2
+用戶數據	yong4 hu4 shu4 ju4
+百度	bai3 du4
+百度十大神獸	bai3 du4 shi2 da4 shen2 shou4
+百度幣	bai3 du4 bi4
+百度百科	bai3 du4 bai3 ke1
+百度知道	bai3 du4 zhi1 dao5
+百度貼吧	bai3 du4 tie1 ba5
+空間站	kong1 jian1 zhan4
+素質差	su4 zhi2 cha4
+素質差	su4 zhi4 cha4
+素質教育	su4 zhi2 jiao4 yu4
+素質教育	su4 zhi4 jiao4 yu4
+綜合服務數位網絡	zong1 he2 fu2 wu4 shu4 wei4 wang3 luo4
+綜合業務數字網	zong1 he2 ye4 wu4 shu4 zi4 wang3
+網卡	wang3 ka3
+網吧	wang3 ba5
+網絡應用	wang3 luo4 ying4 yong4
+網絡操作系統	wang3 luo4 cao1 zuo4 xi4 tong3
+網絡空間	wang3 luo4 kong1 jian1
+網絡規劃人員	wang3 luo4 gui1 hua4 ren2 yuan2
+聲卡	sheng1 ka3
+臨時的本地管理接口	lin2 shi2 de5 ben3 di4 guan3 li3 jie1 kou3
+芯片	xin1 pian4
+芯片組	xin1 pian4 zu3
+華爲	hua2 wei4
+街道辦事處	jie1 dao4 ban4 shi4 chu4
+觸摸屏幕	chu4 mo1 ping2 mu4
+訪問量	fang3 wen4 liang4
+証監會	zheng4 jian4 hui4
+調試	tiao2 shi4
+貼吧	tie1 ba5
+軟件市場	ruan3 jian4 shi4 chang3
+載人軌道空間站	zai4 ren2 gui3 dao4 kong1 jian1 zhan4
+通用串行總線	tong1 yong4 chuan4 xing2 zong3 xian4
+運行方式	yun4 xing2 fang1 shi4
+運行時	yun4 xing2 shi2
+運行時錯誤	yun4 xing2 shi2 cuo4 wu4
+運行狀況	yun4 xing2 zhuang4 kuang4
+遺傳信息	yi2 chuan2 xin4 xi1
+配置廣播	pei4 zhi4 guang3 bo4
+間諜軟件	jian4 die2 ruan3 jian4
+非對稱式數據用戶線	fei1 dui4 chen4 shi4 shu4 ju4 yong4 hu4 xian4
+顯卡	xian3 ka3
+高清數字電視	gao1 qing1 shu4 zi4 dian4 shi4
+黨校	dang3 xiao4

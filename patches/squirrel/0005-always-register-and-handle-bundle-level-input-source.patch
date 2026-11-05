@@ -1,0 +1,73 @@
+From 254d73f6691321d9ec484e8e7dc1d2fb44765edf Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 28 Oct 2026 21:00:57 +0800
+Subject: [PATCH] Always register; enable and disable the bundle-level input
+ source
+
+Found switching a Mac from Squirrel to Sable (10/28):
+
+- register() returned early ("User already registered") because the .Hant
+  mode was already enabled, left over from an earlier copy of the bundle.
+  The installed copy was never registered, the bundle-level source
+  im.penglai.inputmethod.Sable stayed disabled, and TISSelectInputSource on
+  .Hant failed with -50. Register unconditionally; TISRegisterInputSource
+  is safe to repeat.
+- enable() now also enables the bundle-level source, which selecting a mode
+  requires.
+- disable() with no modes also disables the bundle-level source: Squirrel's
+  .Hant kept reading enabled=1 after TISDisableInputSource returned noErr,
+  while disabling the bundle-level source did take effect.
+---
+ sources/InputSource.swift | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
+
+diff --git a/sources/InputSource.swift b/sources/InputSource.swift
+index f1a0d6b..60ba4c4 100644
+--- a/sources/InputSource.swift
++++ b/sources/InputSource.swift
+@@ -39,16 +39,25 @@ final class SquirrelInstaller {
+   }
+ 
+   func register() {
+-    let enabledInputModes = enabledModes()
+-    if !enabledInputModes.isEmpty {
+-      print("User already registered Squirrel method(s): \(enabledInputModes.map { $0.rawValue })")
+-      return
+-    }
+-    TISRegisterInputSource(SquirrelApp.appDir as CFURL)
+-    print("Registered input source from \(SquirrelApp.appDir)")
++    // Always register this copy. A mode can already be enabled because the system saw another copy of the
++    // same bundle (e.g. a build-directory run); skipping registration then leaves the bundle-level source
++    // disabled and TISSelectInputSource fails with -50. TISRegisterInputSource is safe to repeat.
++    let error = TISRegisterInputSource(SquirrelApp.appDir as CFURL)
++    print("Register \(error == noErr ? "succeeds" : "fails (\(error))") for input source from \(SquirrelApp.appDir)")
++  }
++
++  // The bundle-level source (ID = bundle id) has to be enabled as well as the mode, or the mode can't be selected.
++  private var bundleSource: TISInputSource? { Bundle.main.bundleIdentifier.flatMap { inputSources[$0] } }
++
++  private func setBundleSource(enabled: Bool) {
++    guard let source = bundleSource, let current = getBool(for: source, key: kTISPropertyInputSourceIsEnabled),
++          current != enabled else { return }
++    let error = enabled ? TISEnableInputSource(source) : TISDisableInputSource(source)
++    print("\(enabled ? "Enable" : "Disable") \(error == noErr ? "succeeds" : "fails") for input source: \(Bundle.main.bundleIdentifier!)")
+   }
+ 
+   func enable(modes: [InputMode] = []) {
++    setBundleSource(enabled: true)
+     let enabledInputModes = enabledModes()
+     if !enabledInputModes.isEmpty && modes.isEmpty {
+       print("User already enabled Squirrel method(s): \(enabledInputModes.map { $0.rawValue })")
+@@ -95,6 +104,9 @@ final class SquirrelInstaller {
+   }
+ 
+   func disable(modes: [InputMode] = []) {
++    // A mode of a third-party input method may still read enabled=1 after TISDisableInputSource returns noErr
++    // (seen on macOS 26 with Squirrel); disabling the bundle-level source is what takes it off the menu.
++    if modes.isEmpty { setBundleSource(enabled: false) }
+     let modesToDisable = modes.isEmpty ? InputMode.allCases : modes
+     for (mode, inputSource) in getInputSource(modes: modesToDisable) {
+       if let enabled = getBool(for: inputSource, key: kTISPropertyInputSourceIsEnabled), enabled {
+-- 
+2.56.0
+

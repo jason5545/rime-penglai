@@ -1,0 +1,89 @@
+From f2d60a35fd7b10a34b98727514aac1b812241901 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Tue, 27 Oct 2026 21:00:12 +0800
+Subject: [PATCH] Tell librime about input it never saw before a modifier is
+ released
+
+Squirrel passes Command shortcuts on to the client without telling librime,
+and keys taken by menus or the system (and mouse clicks) never reach the
+input method at all. librime then sees only the modifier going down and
+up, which is indistinguishable from tapping the modifier alone: tap
+handlers fire on Command+C (a Lua processor bound to a right Command tap
+deletes the highlighted user phrase), and ascii_composer may toggle on
+Shift+click.
+
+Count key and mouse button presses in the login session with
+CGEventSource.counterForEventType, which also covers events that never
+reach the input method, and also remember Command keys passed on to the
+client (in case the counter does not move). When a modifier is released and
+such input happened since the previous modifier change, first send a
+release of XK_VoidSymbol carrying the held modifiers. Every built-in
+processor ignores it (releases are skipped, the release mask keeps it out
+of the commit history and the user dictionary's BackSpace revert); only
+tap trackers reset their state, which is the point.
+---
+ sources/SquirrelInputController.swift | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
+
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index ed2aef2..5052feb 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -17,6 +17,9 @@ final class SquirrelInputController: IMKInputController {
+   private var selRange: NSRange = .empty
+   private var caretPos: Int = 0
+   private var lastModifiers: NSEvent.ModifierFlags = .init()
++  // Input that librime never sees between modifier changes (see handle(_:client:)).
++  private var inputCountAtLastFlags: UInt32 = 0
++  private var commandKeyPassedOn = false
+   private var session: RimeSessionId = 0
+   private var schemaId: String = ""
+   private var inlinePreedit = false
+@@ -85,6 +88,21 @@ final class SquirrelInputController: IMKInputController {
+           buffer.insert((keycode: rimeKeycode, modifier: rimeModifiers | kReleaseMask.rawValue), at: 0)
+         }
+       }
++
++      // librime only sees the modifier going down and up for Command shortcuts (passed on to the
++      // client below), keys taken by menus or the system, and mouse clicks, which looks the same as
++      // tapping the modifier alone. Before releasing a modifier, if any such input happened since the
++      // last modifier change, send a key release no processor handles, so tap detection (ascii_composer,
++      // Lua processors) knows another key was pressed in between.
++      let inputCount = Self.sessionInputCount()
++      if (commandKeyPassedOn || inputCount != inputCountAtLastFlags) &&
++          buffer.contains(where: { $0.modifier & kReleaseMask.rawValue != 0 }) {
++        let heldModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: lastModifiers)
++        _ = rimeAPI.process_key(session, Int32(XK_VoidSymbol), Int32(heldModifiers | kReleaseMask.rawValue))
++      }
++      inputCountAtLastFlags = inputCount
++      commandKeyPassedOn = false
++
+       for (keycode, modifier) in buffer {
+         _ = processKey(keycode, modifiers: modifier)
+       }
+@@ -95,6 +113,7 @@ final class SquirrelInputController: IMKInputController {
+     case .keyDown:
+       // Let client apps handle Command shortcuts.
+       if modifiers.contains(.command) {
++        commandKeyPassedOn = true
+         break
+       }
+ 
+@@ -399,6 +418,14 @@ private extension SquirrelInputController {
+     clearChord()
+   }
+ 
++  // Key and mouse button presses in this login session, counted by the window server, including
++  // those that never reach the input method (menu key equivalents, system shortcuts, clicks).
++  static func sessionInputCount() -> UInt32 {
++    [CGEventType.keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown].reduce(0) {
++      $0 &+ CGEventSource.counterForEventType(.combinedSessionState, eventType: $1)
++    }
++  }
++
+   func processKey(_ rimeKeycode: UInt32, modifiers rimeModifiers: UInt32) -> Bool {
+     if let panel = NSApp.squirrelAppDelegate.panel {
+       if panel.linear != rimeAPI.get_option(session, "_linear") {
+-- 
+2.56.0
+

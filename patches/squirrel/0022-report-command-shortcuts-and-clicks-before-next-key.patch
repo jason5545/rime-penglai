@@ -1,0 +1,106 @@
+From bff865de5c2e89c86a22ee90e27c2dbf74ebaf48 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Fri, 30 Oct 2026 16:29:05 +0800
+Subject: [PATCH] Tell librime about Command shortcuts and mouse clicks before
+ the next key
+
+Patch 0001 reports input librime never saw only when a modifier is released, and only if nothing
+else changed the modifiers in between: after Command+Left, pressing Shift before releasing Command
+clears the record without reporting it. Mouse clicks that move the insertion point are reported
+only if a modifier happens to be released afterwards.
+
+Before sending a key to librime, if a Command shortcut was passed on to the client or a mouse button
+was pressed outside the candidate panel since the last key librime saw, first send a release of
+XK_VoidSymbol carrying Command (what 0001 sends for Command shortcuts). Built-in processors ignore it;
+lua/penglai_space.lua drops the punctuation it was holding for the next commit. Only mouse presses
+are counted: the window server's key counter runs ahead of the keys still queued for this process.
+Presses on the candidate panel reset the mouse baseline.
+---
+ sources/SquirrelInputController.swift | 28 +++++++++++++++++++++++++++
+ sources/SquirrelPanel.swift           |  3 +++
+ 2 files changed, 31 insertions(+)
+
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 46364c0..4061cc8 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -20,6 +20,9 @@ final class SquirrelInputController: IMKInputController {
+   // Input that librime never sees between modifier changes (see handle(_:client:)).
+   private var inputCountAtLastFlags: UInt32 = 0
+   private var commandKeyPassedOn = false
++  // Input since the last key sent to librime that librime never saw (see handle(_:client:), keyDown).
++  private var commandKeySinceLastKey = false
++  private var mouseCountAtLastKey: UInt32?
+   private var session: RimeSessionId = 0
+   private var schemaId: String = ""
+   private var inlinePreedit = false
+@@ -114,6 +117,7 @@ final class SquirrelInputController: IMKInputController {
+       // Let client apps handle Command shortcuts.
+       if modifiers.contains(.command) {
+         commandKeyPassedOn = true
++        commandKeySinceLastKey = true
+         break
+       }
+ 
+@@ -129,6 +133,18 @@ final class SquirrelInputController: IMKInputController {
+                                                            shift: modifiers.contains(.shift),
+                                                            caps: modifiers.contains(.capsLock))
+         if rimeKeycode != 0 {
++          // The client may have moved the insertion point or changed its text since the last key librime
++          // saw: a Command shortcut passed on above (even if another modifier changed before Command was
++          // released, so the release check in flagsChanged missed it), or a mouse click outside the
++          // candidate panel. Tell librime first with a key release no built-in processor handles, carrying
++          // Command like the one sent for Command shortcuts at modifier release. Only mouse presses are
++          // counted here: the key counter runs ahead of the keys still queued for this process.
++          let mouseCount = Self.sessionMouseCount()
++          if commandKeySinceLastKey || (mouseCountAtLastKey.map { $0 != mouseCount } ?? false) {
++            _ = rimeAPI.process_key(session, Int32(XK_VoidSymbol), Int32(kSuperMask.rawValue | kReleaseMask.rawValue))
++          }
++          commandKeySinceLastKey = false
++          mouseCountAtLastKey = mouseCount
+           let rimeModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
+           handled = processKey(rimeKeycode, modifiers: rimeModifiers)
+           rimeUpdate()
+@@ -142,6 +158,12 @@ final class SquirrelInputController: IMKInputController {
+     return handled
+   }
+ 
++  // A mouse press on the candidate panel is input librime handles (selecting, paging, moving the caret),
++  // not a click in the client: don't report it before the next key.
++  func notePanelMouseDown() {
++    mouseCountAtLastKey = Self.sessionMouseCount()
++  }
++
+   func selectCandidate(_ index: Int) -> Bool {
+     let success = rimeAPI.select_candidate_on_current_page(session, index)
+     if success {
+@@ -425,6 +447,12 @@ private extension SquirrelInputController {
+     }
+   }
+ 
++  static func sessionMouseCount() -> UInt32 {
++    [CGEventType.leftMouseDown, .rightMouseDown, .otherMouseDown].reduce(0) {
++      $0 &+ CGEventSource.counterForEventType(.combinedSessionState, eventType: $1)
++    }
++  }
++
+   func processKey(_ rimeKeycode: UInt32, modifiers rimeModifiers: UInt32) -> Bool {
+     if let panel = NSApp.squirrelAppDelegate.panel {
+       if panel.linear != rimeAPI.get_option(session, "_linear") {
+diff --git a/sources/SquirrelPanel.swift b/sources/SquirrelPanel.swift
+index a9e2dae..0b25e95 100644
+--- a/sources/SquirrelPanel.swift
++++ b/sources/SquirrelPanel.swift
+@@ -66,6 +66,9 @@ final class SquirrelPanel: NSPanel {
+ 
+   // swiftlint:disable:next cyclomatic_complexity
+   override func sendEvent(_ event: NSEvent) {
++    if [.leftMouseDown, .rightMouseDown, .otherMouseDown].contains(event.type) {
++      inputController?.notePanelMouseDown()
++    }
+     switch event.type {
+     case .leftMouseDown:
+       let (index, _, pagingUp) =  view.click(at: mousePosition())
+-- 
+2.56.0
+

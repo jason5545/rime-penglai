@@ -1,0 +1,155 @@
+From 7769b8d10256c72b11fd940c3a03c51c0eda0a5f Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 28 Oct 2026 15:59:20 +0800
+Subject: [PATCH] Add Penglai settings window
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A settings window inside the input method (menu item 蓬萊設定…) that reads
+the deployed config through librime and writes changes back to the line
+where each value lives in the user's *.custom.yaml, leaving every other
+line untouched. Lists every config key the code reads (from a catalog
+generated from source), shows where each value comes from, flags keys
+nothing reads, toggles list-based features, and keeps an undo history.
+
+`Squirrel --settings --user-dir DIR` opens the same window on a sandbox
+copy for testing and screenshots.
+---
+ Squirrel.xcodeproj/project.pbxproj        | 16 ++++++++++++++++
+ sources/Main.swift                        |  4 ++++
+ sources/SquirrelApplicationDelegate.swift |  8 ++++++++
+ sources/SquirrelInputController.swift     |  7 +++++++
+ 4 files changed, 35 insertions(+)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index edde586..eadd063 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -98,6 +98,10 @@
+ 		D26434552706A15100857391 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D26434542706A15100857391 /* QuartzCore.framework */; };
+ 		E93074B70A5C264700470842 /* InputMethodKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E93074B60A5C264700470842 /* InputMethodKit.framework */; };
+ 		F45E005F2B8CA81C00179B75 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F45E005E2B8CA81C00179B75 /* UserNotifications.framework */; };
++		B3F0A0022F26020000AA0001 /* PenglaiSettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0012F26020000AA0001 /* PenglaiSettingsStore.swift */; };
++		B3F0A0042F26020000AA0001 /* PenglaiSettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0032F26020000AA0001 /* PenglaiSettingsModel.swift */; };
++		B3F0A0062F26020000AA0001 /* PenglaiSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */; };
++		B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -317,6 +321,10 @@
+ 		D26434542706A15100857391 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+ 		E93074B60A5C264700470842 /* InputMethodKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InputMethodKit.framework; path = /System/Library/Frameworks/InputMethodKit.framework; sourceTree = "<absolute>"; };
+ 		F45E005E2B8CA81C00179B75 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
++		B3F0A0012F26020000AA0001 /* PenglaiSettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsStore.swift; path = sources/PenglaiSettingsStore.swift; sourceTree = "<group>"; };
++		B3F0A0032F26020000AA0001 /* PenglaiSettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsModel.swift; path = sources/PenglaiSettingsModel.swift; sourceTree = "<group>"; };
++		B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsView.swift; path = sources/PenglaiSettingsView.swift; sourceTree = "<group>"; };
++		B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsStandalone.swift; path = sources/PenglaiSettingsStandalone.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -348,6 +356,10 @@
+ 				B39771242BED899F0093A49B /* SquirrelConfig.swift */,
+ 				B35D2FE72BF00839009D156B /* BridgingFunctions.swift */,
+ 				B3A001012F260100009D156B /* ReservedProperty.swift */,
++				B3F0A0012F26020000AA0001 /* PenglaiSettingsStore.swift */,
++				B3F0A0032F26020000AA0001 /* PenglaiSettingsModel.swift */,
++				B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */,
++				B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -618,6 +630,10 @@
+ 				B39771272BED9B250093A49B /* SquirrelTheme.swift in Sources */,
+ 				B35D2FE82BF00839009D156B /* BridgingFunctions.swift in Sources */,
+ 				B3A001022F260100009D156B /* ReservedProperty.swift in Sources */,
++				B3F0A0022F26020000AA0001 /* PenglaiSettingsStore.swift in Sources */,
++				B3F0A0042F26020000AA0001 /* PenglaiSettingsModel.swift in Sources */,
++				B3F0A0062F26020000AA0001 /* PenglaiSettingsView.swift in Sources */,
++				B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/sources/Main.swift b/sources/Main.swift
+index 17b5751..fb0476f 100644
+--- a/sources/Main.swift
++++ b/sources/Main.swift
+@@ -111,6 +111,9 @@ struct SquirrelApp {
+             print("nascii")
+           }
+           return true
++        case "--settings":
++          PenglaiSettingsStandalone.run(Array(args.dropFirst(2)))
++          return true
+         case "--help":
+           print(helpDoc)
+           return true
+@@ -164,6 +167,7 @@ Supported arguments:
+ Perform actions:
+   --quit                     quit all Squirrel process
+   --reload                   deploy
++  --settings --user-dir DIR  open Penglai settings window on a sandbox copy (not ~/Library/Rime)
+   --sync                     sync user data
+   --build                    build all schemas in current directory
+   --ascii                    turn on ASCII mode
+diff --git a/sources/SquirrelApplicationDelegate.swift b/sources/SquirrelApplicationDelegate.swift
+index 46a9f06..8d8d194 100644
+--- a/sources/SquirrelApplicationDelegate.swift
++++ b/sources/SquirrelApplicationDelegate.swift
+@@ -78,6 +78,9 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUSta
+     }
+   }
+ 
++  /// 蓬萊設定視窗觸發的部署：這一輪不跳通知
++  static var quietDeploy = false
++
+   func deploy() {
+     print("Start maintenance...")
+     self.shutdownRime()
+@@ -273,6 +276,11 @@ private func notificationHandler(contextObject: UnsafeMutableRawPointer?, sessio
+   let messageValue = messageValueC.map { String(cString: $0) }
+ 
+   if messageType == "deploy" {
++    // 蓬萊設定視窗等部署結果；從設定視窗觸發的部署不跳系統通知（視窗下面的狀態列會顯示）
++    let quiet = SquirrelApplicationDelegate.quietDeploy
++    if messageValue == "success" || messageValue == "failure" { SquirrelApplicationDelegate.quietDeploy = false }
++    DispatchQueue.main.async { NotificationCenter.default.post(name: .penglaiDeployMessage, object: messageValue) }
++    if quiet { return }
+     switch messageValue {
+     case "start":
+       SquirrelApplicationDelegate.showMessage(msgText: NSLocalizedString("deploy_start", comment: ""))
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 5052feb..2cd80a5 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -266,6 +266,8 @@ final class SquirrelInputController: IMKInputController {
+     sync.target = self
+     let logDir = NSMenuItem(title: NSLocalizedString("Logs...", comment: "Menu item"), action: #selector(openLogFolder), keyEquivalent: "")
+     logDir.target = self
++    let penglai = NSMenuItem(title: "蓬萊設定…", action: #selector(openPenglaiSettings), keyEquivalent: "")
++    penglai.target = self
+     let setting = NSMenuItem(title: NSLocalizedString("Settings...", comment: "Menu item"), action: #selector(openRimeFolder), keyEquivalent: "")
+     setting.target = self
+     let wiki = NSMenuItem(title: NSLocalizedString("Rime Wiki...", comment: "Menu item"), action: #selector(openWiki), keyEquivalent: "")
+@@ -277,6 +279,7 @@ final class SquirrelInputController: IMKInputController {
+     menu.addItem(deploy)
+     menu.addItem(sync)
+     menu.addItem(logDir)
++    menu.addItem(penglai)
+     menu.addItem(setting)
+     menu.addItem(wiki)
+     menu.addItem(update)
+@@ -288,6 +291,10 @@ final class SquirrelInputController: IMKInputController {
+     NSApp.squirrelAppDelegate.deploy()
+   }
+ 
++  @objc func openPenglaiSettings() {
++    PenglaiSettingsWindowController.showInInputMethod()
++  }
++
+   @objc func syncUserData() {
+     NSApp.squirrelAppDelegate.syncUserData()
+   }
+-- 
+2.56.0
+

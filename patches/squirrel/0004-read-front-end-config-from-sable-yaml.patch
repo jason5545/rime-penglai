@@ -1,0 +1,55 @@
+From c1e5d2267cf7e692f5b974bad3a588b3ad169b31 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 28 Oct 2026 20:41:53 +0800
+Subject: [PATCH] Read the front-end config from sable.yaml
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Rime's convention is one config file per front end (squirrel.yaml,
+weasel.yaml). Sable reads sable.yaml / sable.custom.yaml so it never picks
+up a squirrel.custom.yaml written for Squirrel, and the two can be told
+apart in the user folder. The SharedSupport copy is Squirrel's
+data/squirrel.yaml under the new name (rime-penglai build.sh).
+
+- SquirrelConfig opens "sable"; startup and the settings window deploy
+  sable.yaml.
+- Settings window: the front-end config ID is "sable" (catalog config
+  field, custom file sable.custom.yaml, `set=sable:<key>:<value>` in
+  --script); the non-appearance group is labelled 貂毫.
+
+Swift names (PenglaiConfigID.squirrel, onlySquirrel) stay as they are.
+---
+ sources/SquirrelApplicationDelegate.swift | 2 +-
+ sources/SquirrelConfig.swift              | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/sources/SquirrelApplicationDelegate.swift b/sources/SquirrelApplicationDelegate.swift
+index 1004f1e..acc767b 100644
+--- a/sources/SquirrelApplicationDelegate.swift
++++ b/sources/SquirrelApplicationDelegate.swift
+@@ -126,7 +126,7 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
+     print("Initializing la rime...")
+     rimeAPI.initialize(nil)
+     if rimeAPI.start_maintenance(fullCheck) {
+-      _ = rimeAPI.deploy_config_file("squirrel.yaml", "config_version")
++      _ = rimeAPI.deploy_config_file("sable.yaml", "config_version")
+     }
+   }
+ 
+diff --git a/sources/SquirrelConfig.swift b/sources/SquirrelConfig.swift
+index 71b9ae0..8f9f261 100644
+--- a/sources/SquirrelConfig.swift
++++ b/sources/SquirrelConfig.swift
+@@ -17,7 +17,7 @@ final class SquirrelConfig {
+ 
+   func openBaseConfig() -> Bool {
+     close()
+-    isOpen = rimeAPI.config_open("squirrel", &config)
++    isOpen = rimeAPI.config_open("sable", &config)
+     return isOpen
+   }
+ 
+-- 
+2.56.0
+

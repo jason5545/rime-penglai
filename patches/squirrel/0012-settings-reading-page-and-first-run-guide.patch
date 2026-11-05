@@ -1,0 +1,123 @@
+From d6308e46eed6d87a8217e7c4c1a96fed9deb0713 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Thu, 29 Oct 2026 18:30:26 +0800
+Subject: [PATCH] Settings window: a reading page; a first-run guide
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+A new 讀音 page picks which reading of a character comes first (librime patch 0010: 蓬萊音, 中州音, 兼收並蓄). A click sets the schema options on the sessions that are open (like the F4 menu) and writes "switches/@N/reset" into the schema's custom file, then deploys, so new sessions follow it. Search finds it under 讀音, 中州, 兼收.
+
+The store no longer treats a list append ("switches/+") as blocking keys that name an existing item by number (switches/@3/reset).
+
+The first time a text field uses Sable, a small window asks for the reading (蓬萊音 or 中州音). The choice goes through the same model as the settings window; pages seen are recorded in penglai-onboarding.json in the user folder, so it shows once. More pages can be added later. `Sable --onboarding --user-dir DIR` runs it on a sandbox.
+---
+ Squirrel.xcodeproj/project.pbxproj    |  4 ++++
+ sources/Main.swift                    |  4 ++++
+ sources/SquirrelInputController.swift | 18 ++++++++++++++++++
+ 3 files changed, 26 insertions(+)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index 4796576..f084361 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -100,6 +100,7 @@
+ 		B3F0A0042F26020000AA0001 /* PenglaiSettingsModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0032F26020000AA0001 /* PenglaiSettingsModel.swift */; };
+ 		B3F0A0062F26020000AA0001 /* PenglaiSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */; };
+ 		B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */; };
++		B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -322,6 +323,7 @@
+ 		B3F0A0032F26020000AA0001 /* PenglaiSettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsModel.swift; path = sources/PenglaiSettingsModel.swift; sourceTree = "<group>"; };
+ 		B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsView.swift; path = sources/PenglaiSettingsView.swift; sourceTree = "<group>"; };
+ 		B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsStandalone.swift; path = sources/PenglaiSettingsStandalone.swift; sourceTree = "<group>"; };
++		B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiOnboarding.swift; path = sources/PenglaiOnboarding.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -356,6 +358,7 @@
+ 				B3F0A0032F26020000AA0001 /* PenglaiSettingsModel.swift */,
+ 				B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */,
+ 				B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */,
++				B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -630,6 +633,7 @@
+ 				B3F0A0042F26020000AA0001 /* PenglaiSettingsModel.swift in Sources */,
+ 				B3F0A0062F26020000AA0001 /* PenglaiSettingsView.swift in Sources */,
+ 				B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */,
++				B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/sources/Main.swift b/sources/Main.swift
+index ed3cdf8..1b45213 100644
+--- a/sources/Main.swift
++++ b/sources/Main.swift
+@@ -113,6 +113,9 @@ struct SquirrelApp {
+         case "--settings":
+           PenglaiSettingsStandalone.run(Array(args.dropFirst(2)))
+           return true
++        case "--onboarding":
++          PenglaiOnboarding.runStandalone(Array(args.dropFirst(2)))
++          return true
+         case "--help":
+           print(helpDoc)
+           return true
+@@ -167,6 +170,7 @@ Perform actions:
+   --quit                     quit all Sable process
+   --reload                   deploy
+   --settings --user-dir DIR  open Penglai settings window on a sandbox copy (not ~/Library/Rime)
++  --onboarding --user-dir DIR  open the first-run guide on a sandbox copy (not ~/Library/Rime)
+   --sync                     sync user data
+   --build                    build all schemas in current directory
+   --ascii                    turn on ASCII mode
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 1b9c45d..46364c0 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -213,6 +213,7 @@ final class SquirrelInputController: IMKInputController {
+       let label = rimeAPI.get_state_label_abbreviated(session, "ascii_mode", state, true).asString
+       NSApp.squirrelAppDelegate.updateStatusIcon(asciiMode: state, schemaLabel: label)
+     }
++    PenglaiOnboarding.showIfNeeded()
+   }
+ 
+   override init!(server: IMKServer!, delegate: Any!, client: Any!) {
+@@ -235,6 +236,11 @@ final class SquirrelInputController: IMKInputController {
+     ) { [weak self] notification in
+       self?.reportASCIIMode(notification)
+     }
++
++    // 蓬萊設定改了方案選項（讀音）：這個輸入框的 session 馬上照著改
++    NotificationCenter.default.addObserver(forName: .penglaiSetOptions, object: nil, queue: nil) { [weak self] notification in
++      self?.handlePenglaiOptions(notification)
++    }
+   }
+ 
+   override func deactivateServer(_ sender: Any!) {
+@@ -646,6 +652,18 @@ private extension SquirrelInputController {
+     rimeUpdate()
+   }
+ 
++  /// 跟 F4 選單一樣直接改 session 的選項；組字中就重畫候選（讀音換了，候選跟著換）
++  private func handlePenglaiOptions(_ notification: Notification) {
++    guard let options = notification.object as? [String: Bool] else { return }
++    guard session != 0 && rimeAPI.find_session(session) else { return }
++    for (name, value) in options {
++      rimeAPI.set_option(session, name, value)
++    }
++    if let input = rimeAPI.get_input(session), input.pointee != 0 {
++      rimeUpdate()
++    }
++  }
++
+   private func reportASCIIMode(_: Notification) {
+     guard client != nil else { return }
+     guard session != 0 && rimeAPI.find_session(session) else { return }
+-- 
+2.56.0
+

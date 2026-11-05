@@ -1,0 +1,207 @@
+From 602d5286e5b344babe3050be6d3cca5185747c70 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Tue, 3 Nov 2026 09:48:33 +0800
+Subject: [PATCH 27/28] Tell penglai_space the text around the caret before a
+ space after text from elsewhere
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+With penglai_space/foreign on, penglai_space also guesses punctuation for a space pressed after text Sable never
+sent (pasted, dictated, already in the document), from the sentence around the caret: "，" or "？" in a mostly
+Chinese sentence, ", " in a mostly English one, a plain space when the character before the caret is not a letter,
+digit or Han character.
+
+The processor announces the setting by setting the property "penglai_space_foreign" to its schema id. Before a plain
+space with nothing being composed in Chinese mode, only if that matches the current schema, read up to 100 UTF-16
+units before and after the caret and put them in "penglai_space_before" and "penglai_space_after" (empty when the
+client can't report its text, the caret is unknown, text is selected, the answer has an unexpected length, or the
+text after the caret can't be read). length() can be expensive: it is called only when the client answers nil for a
+range after the caret running past the end, to ask again within it. A length short of the caret (T3, an Electron app,
+answers 0) is not used: nil for one unit after the caret means nothing is there; when one unit comes back, the client
+keeps only part of the range, so take the actual range stringFromRange reports, or search for the longest length the
+client gives (growing from 2, then halving; a miss is tried one unit longer, as a range ending inside a surrogate pair may
+come back nil), instead of dropping the text before the caret.
+
+The processor marks that space "foreign" instead of "punct": the units before the caret are checked against the text
+just sent for this space instead of the last commit. A Return right after a guessed ", " turns it into "." the same
+checked way a "，" becomes "。".
+---
+ sources/SquirrelInputController.swift | 114 +++++++++++++++++++++++++-
+ 1 file changed, 112 insertions(+), 2 deletions(-)
+
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 4e370a2..2c839dd 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -9,6 +9,7 @@ import InputMethodKit
+ 
+ final class SquirrelInputController: IMKInputController {
+   private static let keyRollOver = 50
++  private static let spaceContextLength = 100
+   private static var unknownAppCnt: UInt = 0
+ 
+   private weak var client: IMKTextInput?
+@@ -28,6 +29,9 @@ final class SquirrelInputController: IMKInputController {
+   // punctuation), and the punctuation's length.
+   private var autoPunct: (caret: Int, text: String, length: Int)?
+   private var lastCommitted = ""
++  // The text before the caret sent to librime for this space (see sendSpaceContext()), for checking the punctuation
++  // penglai_space guesses from it ("foreign" in commitFromRime(_:)).
++  private var spaceContext: String?
+   private var session: RimeSessionId = 0
+   private var schemaId: String = ""
+   private var inlinePreedit = false
+@@ -157,9 +161,16 @@ final class SquirrelInputController: IMKInputController {
+           }
+           commandKeySinceLastKey = false
+           mouseCountAtLastKey = mouseCount
++          // penglai_space/foreign: a plain space with nothing being composed may follow text Sable never sent (pasted,
++          // dictated, already there). Only then, and only if the schema asks for it, read the text around the caret.
++          if Int(keyCode) == kVK_Space, modifiers.isDisjoint(with: [.shift, .control, .option, .command]), preedit.isEmpty,
++             spaceContextWanted() {
++            spaceContext = sendSpaceContext()
++          }
+           let rimeModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
+           handled = processKey(rimeKeycode, modifiers: rimeModifiers)
+           rimeUpdate()
++          spaceContext = nil
+           if !handled {
+             handled = replaceGuessedPunct()
+           } else if Int(keyCode) == kVK_Return {
+@@ -540,6 +551,8 @@ private extension SquirrelInputController {
+     if role == "period" {
+       if punct.text.hasSuffix("，") {
+         _ = replace(punct, with: "。")
++      } else if punct.text.hasSuffix(", ") {
++        _ = replace(punct, with: ".")
+       }
+       return false
+     }
+@@ -553,17 +566,19 @@ private extension SquirrelInputController {
+     if role == "replace", let punct, replace(punct, with: string) {
+       return
+     }
+-    guard role == "punct", let client, preedit.isEmpty else {
++    guard role == "punct" || role == "foreign", let client, preedit.isEmpty else {
+       commit(string: string)
+       return
+     }
+     // Read the two UTF-16 units before the caret before committing (a web view's cached text gets the commit
+     // inserted right away, at the start of the last marked text), and only if they end like the last commit.
++    // "foreign" follows text from elsewhere: they have to end like the text just sent to librime for this space.
++    let reference = role == "punct" ? lastCommitted : spaceContext ?? ""
+     let caret = client.selectedRange()
+     var before: String?
+     if caret.location != NSNotFound, caret.length == 0, caret.location > 0 {
+       let count = min(caret.location, 2)
+-      let last = lastCommitted.utf16.suffix(count)
++      let last = reference.utf16.suffix(count)
+       if let text = client.attributedSubstring(from: NSRange(location: caret.location - count, length: count))?.string,
+          text.utf16.count == count, !last.isEmpty, text.utf16.suffix(last.count).elementsEqual(last) {
+         before = text
+@@ -575,6 +590,101 @@ private extension SquirrelInputController {
+     }
+   }
+ 
++  // penglai_space announces penglai_space/foreign by setting the property "penglai_space_foreign" to its schema id
++  // (empty when off). Checking the id keeps a schema switched to later in this session from inheriting it.
++  func spaceContextWanted() -> Bool {
++    guard !schemaId.isEmpty, !rimeAPI.get_option(session, "ascii_mode") else { return false }
++    var buffer = [CChar](repeating: 0, count: 128)
++    guard rimeAPI.get_property(session, "penglai_space_foreign", &buffer, buffer.count) else { return false }
++    return String(cString: buffer) == schemaId
++  }
++
++  // Up to 100 UTF-16 units on each side of the caret, in the properties "penglai_space_before" and
++  // "penglai_space_after"; librime cuts out the sentence and decides (plugins/penglai, penglai_space). Empty when the
++  // client can't tell (terminals), the caret is unknown, text is selected, the client returns something else than
++  // asked, or the text after the caret can't be read (see textAfterCaret(_:_:)). Returns the text before the caret.
++  func sendSpaceContext() -> String {
++    var before = "", after = ""
++    if let client {
++      let caret = client.selectedRange()
++      if caret.location != NSNotFound, caret.length == 0, caret.location > 0 {
++        let start = max(0, caret.location - Self.spaceContextLength)
++        let count = caret.location - start
++        // A range splitting a surrogate pair may come back one unit longer or shorter.
++        if let text = client.attributedSubstring(from: NSRange(location: start, length: count))?.string,
++           abs(text.utf16.count - count) <= 1 {
++          before = text
++        }
++        if !before.isEmpty {
++          if let text = textAfterCaret(client, caret.location).text, text.utf16.count <= Self.spaceContextLength + 1 {
++            after = text
++          } else {
++            // The text after the caret is part of the sentence: when it can't be read, nothing is read.
++            before = ""
++          }
++        }
++      }
++    }
++    rimeAPI.set_property(session, "penglai_space_before", before)
++    rimeAPI.set_property(session, "penglai_space_after", after)
++    return before
++  }
++
++  // Up to 100 UTF-16 units after the caret, nil when they can't be read. `how` says which way they were read (d: at
++  // once; z, l, L: by length(); s: nothing after; a: stringFromRange's actual range; b: by halving; for logs).
++  // Some clients answer nil for a range running past the end instead of clamping it: then ask for the length (only now,
++  // it can be expensive) and ask again within it. A length short of the caret is not a length (T3, an Electron app,
++  // answers 0): the text before the caret was read, so nil for one unit after it means nothing is there (11/3). When
++  // one unit does come back, the client keeps only part of the range (Chromium answers from the text it keeps around
++  // the selection, and IMK drops an answer shorter than asked: 11/4): take the range stringFromRange reports, or else
++  // search for the longest length the client gives, instead of giving up on the text before.
++  func textAfterCaret(_ client: IMKTextInput, _ caret: Int) -> (text: String?, how: String) {
++    let limit = Self.spaceContextLength
++    if let text = client.attributedSubstring(from: NSRange(location: caret, length: limit))?.string {
++      return (text, "d")
++    }
++    let available = client.length() - caret
++    if available == 0 {
++      return ("", "z")
++    }
++    if available > 0 {
++      let text = client.attributedSubstring(from: NSRange(location: caret, length: min(available, limit)))?.string
++      return (text, text == nil ? "L" : "l")
++    }
++    guard let one = client.attributedSubstring(from: NSRange(location: caret, length: 1))?.string else {
++      return ("", "s")
++    }
++    var actual = NSRange(location: NSNotFound, length: 0)
++    if let text = client.string(from: NSRange(location: caret, length: limit), actualRange: &actual),
++       actual.location == caret, actual.length > 0, actual.length <= limit, text.utf16.count == actual.length {
++      return (text, "a")
++    }
++    // The client gives `low` units and not `high`: find the longest range it gives. What comes after the caret is usually
++    // short (the end of the text, a line or two), so grow the range first, then halve between the two. A range ending inside
++    // a surrogate pair may come back nil even though longer ones don't, so a miss is tried one unit longer before it counts
++    // (of two neighbouring ends one is never inside a pair, which keeps the search sound).
++    var good = one, low = 1, high = limit
++    func probe(_ count: Int) -> Bool {
++      for length in [count, count + 1] where length < high {
++        if let text = client.attributedSubstring(from: NSRange(location: caret, length: length))?.string {
++          good = text
++          low = length
++          return true
++        }
++      }
++      high = count
++      return false
++    }
++    var count = 2
++    while count < high, probe(count) {
++      count = low * 2
++    }
++    while high - low > 1 {
++      _ = probe((low + high) / 2)
++    }
++    return (good, "b")
++  }
++
+   func replace(_ punct: (caret: Int, text: String, length: Int), with string: String) -> Bool {
+     guard let client, preedit.isEmpty, !rimeAPI.get_option(session, "force_marked_text_for_direct_commit") else { return false }
+     let caret = client.selectedRange()
+-- 
+2.56.0
+

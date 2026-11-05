@@ -1,0 +1,190 @@
+From eaa5542c04eb7da11b2f710695c9b32fdcb1e984 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 4 Nov 2026 08:05:39 +0800
+Subject: [PATCH] Hook the AX experiment into the input controller
+
+sable/PenglaiAXDiag.swift compares what IMK and Accessibility (AX) report as the text before the caret, right after
+Sable commits text and when a plain space is pressed with nothing being composed, and logs only lengths, positions,
+character classes, whether each matched, and timings (docs/findings.md). It is off unless the flag file penglai-axdiag
+is in the user folder; off, the hooks return at once and the key handler only checks for that file every 2 seconds.
+
+Hooks: every key down (for the flag check and to notice Command shortcuts and mouse clicks), a plain space before and
+after librime handles it, keys passed on to the client, commit(string:), a guessed punctuation replaced, app
+activation and deactivation, and what sendSpaceContext() hands librime (the lengths and which way the text after the
+caret was read; the same client calls as before). AX is read on a background queue with a messaging timeout, never in
+the key handler.
+---
+ Squirrel.xcodeproj/project.pbxproj    |  4 +++
+ sources/SquirrelInputController.swift | 40 +++++++++++++++++++++++++--
+ 2 files changed, 41 insertions(+), 3 deletions(-)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index f084361..63835b3 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -101,6 +101,7 @@
+ 		B3F0A0062F26020000AA0001 /* PenglaiSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */; };
+ 		B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */; };
+ 		B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */; };
++		B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -324,6 +325,7 @@
+ 		B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsView.swift; path = sources/PenglaiSettingsView.swift; sourceTree = "<group>"; };
+ 		B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsStandalone.swift; path = sources/PenglaiSettingsStandalone.swift; sourceTree = "<group>"; };
+ 		B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiOnboarding.swift; path = sources/PenglaiOnboarding.swift; sourceTree = "<group>"; };
++		B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiAXDiag.swift; path = sources/PenglaiAXDiag.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -359,6 +361,7 @@
+ 				B3F0A0052F26020000AA0001 /* PenglaiSettingsView.swift */,
+ 				B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */,
+ 				B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */,
++				B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -634,6 +637,7 @@
+ 				B3F0A0062F26020000AA0001 /* PenglaiSettingsView.swift in Sources */,
+ 				B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */,
+ 				B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */,
++				B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 2c839dd..5c88a8b 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -123,6 +123,10 @@ final class SquirrelInputController: IMKInputController {
+       rimeUpdate()
+ 
+     case .keyDown:
++      // The AX experiment (sable/PenglaiAXDiag.swift) is off unless the flag file penglai-axdiag is in the user folder;
++      // off, these calls only check for that file every 2 seconds.
++      PenglaiAXDiag.shared.noteKeyDown(command: modifiers.contains(.command))
++      var diagSpace = false
+       // Only the space or Return right after a guessed punctuation may replace it (see commitFromRime(_:)), even
+       // if the keys in between never reach lua/penglai_space.lua (the schema menu takes F4 and Escape).
+       if (Int(event.keyCode) != kVK_Space && Int(event.keyCode) != kVK_Return)
+@@ -167,6 +171,13 @@ final class SquirrelInputController: IMKInputController {
+              spaceContextWanted() {
+             spaceContext = sendSpaceContext()
+           }
++          diagSpace = PenglaiAXDiag.shared.on && Int(keyCode) == kVK_Space
++            && modifiers.isDisjoint(with: [.shift, .control, .option, .command]) && preedit.isEmpty
++            && !rimeAPI.get_option(session, "ascii_mode")
++          if diagSpace {
++            PenglaiAXDiag.shared.spaceWillProcess(app: currentApp, client: client, foreignWanted: spaceContext != nil,
++                                                 pendingPunct: autoPunct)
++          }
+           let rimeModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
+           handled = processKey(rimeKeycode, modifiers: rimeModifiers)
+           rimeUpdate()
+@@ -176,8 +187,14 @@ final class SquirrelInputController: IMKInputController {
+           } else if Int(keyCode) == kVK_Return {
+             autoPunct = nil
+           }
++          if diagSpace {
++            PenglaiAXDiag.shared.spaceDidProcess(handled: handled)
++          }
+         }
+       }
++      if !handled && !diagSpace {
++        PenglaiAXDiag.shared.keyPassedOn()
++      }
+ 
+     default:
+       break
+@@ -259,6 +276,7 @@ final class SquirrelInputController: IMKInputController {
+     }
+     preedit = ""
+     autoPunct = nil
++    PenglaiAXDiag.shared.breakTail()
+     if session != 0 {
+       let state = rimeAPI.get_option(session, "ascii_mode")
+       let label = rimeAPI.get_state_label_abbreviated(session, "ascii_mode", state, true).asString
+@@ -271,6 +289,7 @@ final class SquirrelInputController: IMKInputController {
+     self.client = client as? IMKTextInput
+     super.init(server: server, delegate: delegate, client: client)
+     createSession()
++    PenglaiAXDiag.shared.userDir = SquirrelApp.userDir
+ 
+     NotificationCenter.default.addObserver(
+       forName: .init("SableSetASCIIModeNotification"),
+@@ -299,6 +318,7 @@ final class SquirrelInputController: IMKInputController {
+     commitComposition(sender)
+     client = nil
+     autoPunct = nil
++    PenglaiAXDiag.shared.breakTail()
+   }
+ 
+   override func hidePalettes() {
+@@ -605,18 +625,25 @@ private extension SquirrelInputController {
+   // asked, or the text after the caret can't be read (see textAfterCaret(_:_:)). Returns the text before the caret.
+   func sendSpaceContext() -> String {
+     var before = "", after = ""
++    // For the AX experiment (sable/PenglaiAXDiag.swift): the length read before the caret, how the text after it was read,
++    // and how long this took (the clock is read only while the experiment is on).
++    var diagRead = -1, diagHow = "-"
++    let diagStart = PenglaiAXDiag.shared.on ? DispatchTime.now().uptimeNanoseconds : 0
+     if let client {
+       let caret = client.selectedRange()
+       if caret.location != NSNotFound, caret.length == 0, caret.location > 0 {
+         let start = max(0, caret.location - Self.spaceContextLength)
+         let count = caret.location - start
+         // A range splitting a surrogate pair may come back one unit longer or shorter.
+-        if let text = client.attributedSubstring(from: NSRange(location: start, length: count))?.string,
+-           abs(text.utf16.count - count) <= 1 {
++        let read = client.attributedSubstring(from: NSRange(location: start, length: count))?.string
++        diagRead = read?.utf16.count ?? -1
++        if let text = read, abs(text.utf16.count - count) <= 1 {
+           before = text
+         }
+         if !before.isEmpty {
+-          if let text = textAfterCaret(client, caret.location).text, text.utf16.count <= Self.spaceContextLength + 1 {
++          let (afterText, how) = textAfterCaret(client, caret.location)
++          diagHow = how
++          if let text = afterText, text.utf16.count <= Self.spaceContextLength + 1 {
+             after = text
+           } else {
+             // The text after the caret is part of the sentence: when it can't be read, nothing is read.
+@@ -627,6 +654,10 @@ private extension SquirrelInputController {
+     }
+     rimeAPI.set_property(session, "penglai_space_before", before)
+     rimeAPI.set_property(session, "penglai_space_after", after)
++    if PenglaiAXDiag.shared.on {
++      PenglaiAXDiag.shared.noteSpaceContext(read: diagRead, before: before, after: after, how: diagHow,
++                                            micros: Int((DispatchTime.now().uptimeNanoseconds - diagStart) / 1000))
++    }
+     return before
+   }
+ 
+@@ -695,6 +726,7 @@ private extension SquirrelInputController {
+     client.insertText(string, replacementRange: NSRange(location: punct.caret - punct.length, length: punct.length))
+     lastCommitted = string
+     hidePalettes()
++    PenglaiAXDiag.shared.replaced(length: punct.length, with: string, app: currentApp, client: client)
+     return true
+   }
+ 
+@@ -832,12 +864,14 @@ private extension SquirrelInputController {
+       )
+     }
+ 
++    let hadPreedit = !preedit.isEmpty
+     client.insertText(string, replacementRange: .empty)
+     preedit = ""
+     if !string.isEmpty {
+       lastCommitted = string
+     }
+     hidePalettes()
++    PenglaiAXDiag.shared.committed(string, app: currentApp, client: client, hadPreedit: hadPreedit)
+   }
+ 
+   func show(preedit: String, selRange: NSRange, caretPos: Int) {
+-- 
+2.56.0
+

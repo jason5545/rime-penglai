@@ -1,0 +1,79 @@
+From 43f595f29a78618c118759f112cd115bba1919f1 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Sat, 31 Oct 2026 15:41:54 +0800
+Subject: [PATCH] Show the zhuyin the latest selection took as a hint in the
+ panel's preedit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+When the Penglai librime could cut the latest selection two ways (ㄋ alone, or ㄋㄧ: 你 can take one key or
+both), it puts the zhuyin that selection's last syllable took right after it in the preedit, followed by a space
+("所以你ㄋㄧ ㄨㄤ ㄏ ㄈㄢˉ"), so a wrong guess shows right away. Before the highlighted segment the preedit holds
+only converted text otherwise, so draw the zhuyin there in the comment color, one size smaller than the preedit.
+Inline preedit shows the same text without the styling.
+---
+ sources/SquirrelPanel.swift | 21 +++++++++++++++++++++
+ sources/SquirrelTheme.swift |  7 +++++++
+ 2 files changed, 28 insertions(+)
+
+diff --git a/sources/SquirrelPanel.swift b/sources/SquirrelPanel.swift
+index 0b25e95..7d549f2 100644
+--- a/sources/SquirrelPanel.swift
++++ b/sources/SquirrelPanel.swift
+@@ -153,6 +153,11 @@ final class SquirrelPanel: NSPanel {
+   }
+ 
+   // swiftlint:disable:next cyclomatic_complexity function_parameter_count
++  // Bopomofo letters (the extended block too) and the tone marks ˉˊˇˋ˙.
++  static func isZhuyin(_ unit: UInt16) -> Bool {
++    (0x3105...0x312F).contains(unit) || (0x31A0...0x31BF).contains(unit) || [0x02C9, 0x02CA, 0x02C7, 0x02CB, 0x02D9].contains(unit)
++  }
++
+   func update(preedit: String, selRange: NSRange, caretPos: Int, candidates: [String], comments: [String], labels: [String], highlighted index: Int, page: Int, lastPage: Bool, update: Bool) {
+     if update {
+       self.preedit = preedit
+@@ -195,6 +200,22 @@ final class SquirrelPanel: NSPanel {
+       let line = NSMutableAttributedString(string: preedit)
+       line.addAttributes(theme.preeditAttrs, range: preeditRange)
+       line.addAttributes(theme.preeditHighlightedAttrs, range: selRange)
++      // Before the highlighted segment there is only converted text, except the zhuyin librime adds after the
++      // latest selection when it could have taken more or fewer keys: show it as a hint.
++      let units = Array(preedit.utf16)
++      var index = 0
++      while index < min(selRange.location, units.count) {
++        if Self.isZhuyin(units[index]) {
++          var end = index + 1
++          while end < min(selRange.location, units.count) && Self.isZhuyin(units[end]) {
++            end += 1
++          }
++          line.addAttributes(theme.preeditHintAttrs, range: NSRange(location: index, length: end - index))
++          index = end
++        } else {
++          index += 1
++        }
++      }
+       text.append(line)
+ 
+       text.addAttribute(.paragraphStyle, value: theme.preeditParagraphStyle, range: NSRange(location: 0, length: text.length))
+diff --git a/sources/SquirrelTheme.swift b/sources/SquirrelTheme.swift
+index 93ce586..9022f22 100644
+--- a/sources/SquirrelTheme.swift
++++ b/sources/SquirrelTheme.swift
+@@ -158,6 +158,13 @@ final class SquirrelTheme {
+     .font: preeditFont,
+     .baselineOffset: baseOffset
+   ]
++  // Zhuyin librime puts after the latest selection when it could have taken more or fewer keys (the keys it took):
++  // the comment color, one size smaller than the preedit.
++  private(set) lazy var preeditHintAttrs: [NSAttributedString.Key: Any] = [
++    .foregroundColor: commentTextColor ?? candidateTextColor,
++    .font: NSFont(descriptor: preeditFont.fontDescriptor, size: max(preeditFont.pointSize - 2, 1)) ?? preeditFont,
++    .baselineOffset: baseOffset
++  ]
+ 
+   private(set) lazy var firstParagraphStyle: NSParagraphStyle = {
+     let style = NSParagraphStyle.default.mutableCopy() as! NSMutableParagraphStyle
+-- 
+2.56.0
+

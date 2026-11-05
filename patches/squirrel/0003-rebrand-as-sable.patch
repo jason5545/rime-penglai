@@ -1,0 +1,935 @@
+From 298fe26884e889511514af93aab9d7283eb38b71 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 28 Oct 2026 20:09:34 +0800
+Subject: [PATCH] =?UTF-8?q?Rebrand=20as=20Sable=20(=E8=B2=82=E6=AF=AB),=20?=
+ =?UTF-8?q?the=20Penglai=20front=20end?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Sable is Penglai's own macOS front end built from Squirrel. It must be able
+to run next to Squirrel without either one picking up the other's input
+source, IMK connection or distributed notifications, so every outward
+identifier changes while Swift type and file names stay the same (fewer
+conflicts when syncing with upstream).
+
+- Bundle id im.penglai.inputmethod.Sable, product/executable/module Sable,
+  version 0.1.0. Info.plist uses $(EXECUTABLE_NAME), $(PRODUCT_NAME) and
+  $(PRODUCT_MODULE_NAME): with the product renamed, a literal "Squirrel"
+  executable or Squirrel.SquirrelInputController class would keep the input
+  method from starting.
+- One input mode, im.penglai.inputmethod.Sable.Hant (primary .hant), shown
+  as 貂毫 in the input menu.
+- The status-item and stranded-composition checks compare against
+  Bundle.main.bundleIdentifier instead of a hard-coded prefix.
+- Register the running bundle (Bundle.main.bundleURL) instead of
+  /Library/Input Methods/Squirrel.app: Sable installs per user in
+  ~/Library/Input Methods.
+- Distributed notifications, IMK connection, librime distribution
+  (Sable / 貂毫 / rime.sable), log directory and launch-crash record all
+  use Sable names, so `Squirrel --reload` no longer reaches Sable.
+- Remove Sparkle: the official appcast only ships Squirrel. Drops the
+  updater, the "Check for updates" menu item, the feed keys and the
+  framework from the build phases.
+- Icons: Sable.icon (app) and resources/penglai.pdf (menu bar), copied in
+  from rime-penglai's branding/ by build.sh.
+
+The front-end config is still squirrel.yaml here; renaming it to
+sable.yaml is a separate patch.
+---
+ Squirrel.xcodeproj/project.pbxproj        | 40 ++++++-------
+ resources/Info.plist                      | 65 +++++----------------
+ resources/InfoPlist.xcstrings             | 57 ++++++------------
+ resources/Localizable.xcstrings           | 63 +++-----------------
+ sources/InputSource.swift                 |  5 +-
+ sources/Main.swift                        | 27 +++++----
+ sources/SquirrelApplicationDelegate.swift | 71 +++++------------------
+ sources/SquirrelInputController.swift     | 13 +----
+ 8 files changed, 92 insertions(+), 249 deletions(-)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index eadd063..4796576 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -32,8 +32,6 @@
+ 		442B5B881570C37200370DEA /* squirrel.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 442B5B871570C37200370DEA /* squirrel.yaml */; };
+ 		442C64921F7A410A0027EFBE /* rime-install in CopyFiles */ = {isa = PBXBuildFile; fileRef = 442C64901F7A404A0027EFBE /* rime-install */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+ 		446C01D71F767BD400A6C23E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 446C01D61F767BD400A6C23E /* Assets.xcassets */; };
+-		447765C925C30E97002415AF /* Sparkle.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 447765C725C30E6B002415AF /* Sparkle.framework */; };
+-		447765CA25C30E97002415AF /* Sparkle.framework in Copy 3rd-party Frameworks */ = {isa = PBXBuildFile; fileRef = 447765C725C30E6B002415AF /* Sparkle.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+ 		448363DD25BDBBED0022C7BA /* pinyin.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 448363D925BDBBBF0022C7BA /* pinyin.yaml */; };
+ 		448363DE25BDBBED0022C7BA /* zhuyin.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 448363DA25BDBBBF0022C7BA /* zhuyin.yaml */; };
+ 		44986A95184B421700B3278D /* LICENSE.txt in Resources */ = {isa = PBXBuildFile; fileRef = 44986A93184B421700B3278D /* LICENSE.txt */; };
+@@ -80,7 +78,7 @@
+ 		7B5488C01D2DACDF0056A1BE /* luna_pinyin.schema.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 7B5488321D2DAAD10056A1BE /* luna_pinyin.schema.yaml */; };
+ 		7B5488C11D2DACDF0056A1BE /* luna_quanpin.schema.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 7B5488331D2DAAD10056A1BE /* luna_quanpin.schema.yaml */; };
+ 		7B5488C91D2DACDF0056A1BE /* symbols.yaml in Copy Shared Support Files */ = {isa = PBXBuildFile; fileRef = 7B54883B1D2DAAD10056A1BE /* symbols.yaml */; };
+-		B3216E5C2BF438F800E292D2 /* rime.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B3216E5B2BF438F800E292D2 /* rime.pdf */; };
++		B3216E5C2BF438F800E292D2 /* penglai.pdf in Resources */ = {isa = PBXBuildFile; fileRef = B3216E5B2BF438F800E292D2 /* penglai.pdf */; };
+ 		B35D2FE82BF00839009D156B /* BridgingFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35D2FE72BF00839009D156B /* BridgingFunctions.swift */; };
+ 		B3A001022F260100009D156B /* ReservedProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3A001012F260100009D156B /* ReservedProperty.swift */; };
+ 		B38E9B912BE9AE1E0036ABEF /* SquirrelApplicationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B38E9B902BE9AE1E0036ABEF /* SquirrelApplicationDelegate.swift */; };
+@@ -94,7 +92,7 @@
+ 		B397712F2BEECBED0093A49B /* Main.swift in Sources */ = {isa = PBXBuildFile; fileRef = B397712E2BEECBED0093A49B /* Main.swift */; };
+ 		B39771312BEEE4540093A49B /* InfoPlist.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B39771302BEEE4540093A49B /* InfoPlist.xcstrings */; };
+ 		B39771332BEEE4540093A49B /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = B39771322BEEE4540093A49B /* Localizable.xcstrings */; };
+-		B3EF08EA2F17125E00433A45 /* Rime.icon in Resources */ = {isa = PBXBuildFile; fileRef = B3EF08E92F17125E00433A45 /* Rime.icon */; };
++		B3EF08EA2F17125E00433A45 /* Sable.icon in Resources */ = {isa = PBXBuildFile; fileRef = B3EF08E92F17125E00433A45 /* Sable.icon */; };
+ 		D26434552706A15100857391 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D26434542706A15100857391 /* QuartzCore.framework */; };
+ 		E93074B70A5C264700470842 /* InputMethodKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E93074B60A5C264700470842 /* InputMethodKit.framework */; };
+ 		F45E005F2B8CA81C00179B75 /* UserNotifications.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F45E005E2B8CA81C00179B75 /* UserNotifications.framework */; };
+@@ -218,7 +216,6 @@
+ 			dstSubfolderSpec = 10;
+ 			files = (
+ 				44CD640C15E2646B0021234E /* librime.1.dylib in Copy 3rd-party Frameworks */,
+-				447765CA25C30E97002415AF /* Sparkle.framework in Copy 3rd-party Frameworks */,
+ 			);
+ 			name = "Copy 3rd-party Frameworks";
+ 			runOnlyForDeploymentPostprocessing = 0;
+@@ -301,7 +298,7 @@
+ 		7B54883B1D2DAAD10056A1BE /* symbols.yaml */ = {isa = PBXFileReference; lastKnownFileType = text; name = symbols.yaml; path = data/plum/symbols.yaml; sourceTree = "<group>"; };
+ 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = resources/Info.plist; sourceTree = "<group>"; };
+ 		A4B8E1B20F645B870094E08B /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
+-		B3216E5B2BF438F800E292D2 /* rime.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = rime.pdf; path = resources/rime.pdf; sourceTree = "<group>"; };
++		B3216E5B2BF438F800E292D2 /* penglai.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; name = penglai.pdf; path = resources/penglai.pdf; sourceTree = "<group>"; };
+ 		B32B80772BE7FAA200FCF3BC /* Squirrel.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; name = Squirrel.entitlements; path = resources/Squirrel.entitlements; sourceTree = "<group>"; };
+ 		B35D2FE72BF00839009D156B /* BridgingFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = BridgingFunctions.swift; path = sources/BridgingFunctions.swift; sourceTree = "<group>"; };
+ 		B3A001012F260100009D156B /* ReservedProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ReservedProperty.swift; path = sources/ReservedProperty.swift; sourceTree = "<group>"; };
+@@ -317,7 +314,7 @@
+ 		B397712E2BEECBED0093A49B /* Main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Main.swift; path = sources/Main.swift; sourceTree = "<group>"; };
+ 		B39771302BEEE4540093A49B /* InfoPlist.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = InfoPlist.xcstrings; path = resources/InfoPlist.xcstrings; sourceTree = "<group>"; };
+ 		B39771322BEEE4540093A49B /* Localizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; name = Localizable.xcstrings; path = resources/Localizable.xcstrings; sourceTree = "<group>"; };
+-		B3EF08E92F17125E00433A45 /* Rime.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Rime.icon; sourceTree = "<group>"; };
++		B3EF08E92F17125E00433A45 /* Sable.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = Sable.icon; sourceTree = "<group>"; };
+ 		D26434542706A15100857391 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+ 		E93074B60A5C264700470842 /* InputMethodKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = InputMethodKit.framework; path = /System/Library/Frameworks/InputMethodKit.framework; sourceTree = "<absolute>"; };
+ 		F45E005E2B8CA81C00179B75 /* UserNotifications.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UserNotifications.framework; path = System/Library/Frameworks/UserNotifications.framework; sourceTree = SDKROOT; };
+@@ -335,7 +332,6 @@
+ 				D26434552706A15100857391 /* QuartzCore.framework in Frameworks */,
+ 				F45E005F2B8CA81C00179B75 /* UserNotifications.framework in Frameworks */,
+ 				E93074B70A5C264700470842 /* InputMethodKit.framework in Frameworks */,
+-				447765C925C30E97002415AF /* Sparkle.framework in Frameworks */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+@@ -415,7 +411,7 @@
+ 		29B97317FDCFA39411CA2CEA /* Resources */ = {
+ 			isa = PBXGroup;
+ 			children = (
+-				B3216E5B2BF438F800E292D2 /* rime.pdf */,
++				B3216E5B2BF438F800E292D2 /* penglai.pdf */,
+ 				44986A93184B421700B3278D /* LICENSE.txt */,
+ 				44986A94184B421700B3278D /* README.md */,
+ 				B39771322BEEE4540093A49B /* Localizable.xcstrings */,
+@@ -423,7 +419,7 @@
+ 				B32B80772BE7FAA200FCF3BC /* Squirrel.entitlements */,
+ 				B39771302BEEE4540093A49B /* InfoPlist.xcstrings */,
+ 				446C01D61F767BD400A6C23E /* Assets.xcassets */,
+-				B3EF08E92F17125E00433A45 /* Rime.icon */,
++				B3EF08E92F17125E00433A45 /* Sable.icon */,
+ 			);
+ 			name = Resources;
+ 			sourceTree = "<group>";
+@@ -603,12 +599,12 @@
+ 			buildActionMask = 2147483647;
+ 			files = (
+ 				446C01D71F767BD400A6C23E /* Assets.xcassets in Resources */,
+-				B3EF08EA2F17125E00433A45 /* Rime.icon in Resources */,
++				B3EF08EA2F17125E00433A45 /* Sable.icon in Resources */,
+ 				B39771312BEEE4540093A49B /* InfoPlist.xcstrings in Resources */,
+ 				44986A95184B421700B3278D /* LICENSE.txt in Resources */,
+ 				B39771332BEEE4540093A49B /* Localizable.xcstrings in Resources */,
+ 				44986A96184B421700B3278D /* README.md in Resources */,
+-				B3216E5C2BF438F800E292D2 /* rime.pdf in Resources */,
++				B3216E5C2BF438F800E292D2 /* penglai.pdf in Resources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+@@ -643,7 +639,7 @@
+ 		C01FCF4B08A954540054247B /* Debug */ = {
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+-				ASSETCATALOG_COMPILER_APPICON_NAME = Rime;
++				ASSETCATALOG_COMPILER_APPICON_NAME = Sable;
+ 				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOL_FRAMEWORKS = AppKit;
+ 				CLANG_CXX_LIBRARY = "libc++";
+ 				CLANG_ENABLE_MODULES = YES;
+@@ -651,7 +647,7 @@
+ 				CODE_SIGN_ENTITLEMENTS = resources/Squirrel.entitlements;
+ 				COMBINE_HIDPI_IMAGES = YES;
+ 				COPY_PHASE_STRIP = NO;
+-				CURRENT_PROJECT_VERSION = 1.1.2;
++				CURRENT_PROJECT_VERSION = 0.1.0;
+ 				DEAD_CODE_STRIPPING = YES;
+ 				FRAMEWORK_SEARCH_PATHS = (
+ 					"$(inherited)",
+@@ -666,7 +662,7 @@
+ 				GCC_MODEL_TUNING = G5;
+ 				GCC_OPTIMIZATION_LEVEL = 0;
+ 				INFOPLIST_FILE = resources/Info.plist;
+-				INFOPLIST_KEY_CFBundleDisplayName = "Squirrel Input Method";
++				INFOPLIST_KEY_CFBundleDisplayName = Sable;
+ 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+ 				INSTALL_PATH = "\"/Library/Input Methods\"";
+ 				LD_RUNPATH_SEARCH_PATHS = (
+@@ -686,8 +682,8 @@
+ 					"$(OTHER_CPLUSPLUSFLAGS_QUOTED_FOR_TARGET_2)",
+ 				);
+ 				OTHER_LDFLAGS = "-lrime.1";
+-				PRODUCT_BUNDLE_IDENTIFIER = im.rime.inputmethod.Squirrel;
+-				PRODUCT_NAME = Squirrel;
++				PRODUCT_BUNDLE_IDENTIFIER = im.penglai.inputmethod.Sable;
++				PRODUCT_NAME = Sable;
+ 				SDKROOT = macosx;
+ 				SWIFT_EMIT_LOC_STRINGS = YES;
+ 				SWIFT_OBJC_BRIDGING_HEADER = "sources/Squirrel-Bridging-Header.h";
+@@ -700,14 +696,14 @@
+ 		C01FCF4C08A954540054247B /* Release */ = {
+ 			isa = XCBuildConfiguration;
+ 			buildSettings = {
+-				ASSETCATALOG_COMPILER_APPICON_NAME = Rime;
++				ASSETCATALOG_COMPILER_APPICON_NAME = Sable;
+ 				ASSETCATALOG_COMPILER_GENERATE_ASSET_SYMBOL_FRAMEWORKS = AppKit;
+ 				CLANG_CXX_LIBRARY = "libc++";
+ 				CLANG_ENABLE_MODULES = YES;
+ 				CLANG_ENABLE_OBJC_ARC = YES;
+ 				CODE_SIGN_ENTITLEMENTS = resources/Squirrel.entitlements;
+ 				COMBINE_HIDPI_IMAGES = YES;
+-				CURRENT_PROJECT_VERSION = 1.1.2;
++				CURRENT_PROJECT_VERSION = 0.1.0;
+ 				DEAD_CODE_STRIPPING = YES;
+ 				FRAMEWORK_SEARCH_PATHS = (
+ 					"$(inherited)",
+@@ -721,7 +717,7 @@
+ 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+ 				GCC_MODEL_TUNING = G5;
+ 				INFOPLIST_FILE = resources/Info.plist;
+-				INFOPLIST_KEY_CFBundleDisplayName = "Squirrel Input Method";
++				INFOPLIST_KEY_CFBundleDisplayName = Sable;
+ 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+ 				INSTALL_PATH = "\"/Library/Input Methods\"";
+ 				LD_RUNPATH_SEARCH_PATHS = (
+@@ -741,8 +737,8 @@
+ 					"$(OTHER_CPLUSPLUSFLAGS_QUOTED_FOR_TARGET_2)",
+ 				);
+ 				OTHER_LDFLAGS = "-lrime.1";
+-				PRODUCT_BUNDLE_IDENTIFIER = im.rime.inputmethod.Squirrel;
+-				PRODUCT_NAME = Squirrel;
++				PRODUCT_BUNDLE_IDENTIFIER = im.penglai.inputmethod.Sable;
++				PRODUCT_NAME = Sable;
+ 				SDKROOT = macosx;
+ 				SWIFT_EMIT_LOC_STRINGS = YES;
+ 				SWIFT_OBJC_BRIDGING_HEADER = "sources/Squirrel-Bridging-Header.h";
+diff --git a/resources/Info.plist b/resources/Info.plist
+index df13876..a13cef9 100644
+--- a/resources/Info.plist
++++ b/resources/Info.plist
+@@ -3,19 +3,19 @@
+ <plist version="1.0">
+ <dict>
+ 	<key>TISInputSourceID</key>
+-	<string>im.rime.inputmethod.Squirrel</string>
++	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+ 	<key>CFBundleDevelopmentRegion</key>
+ 	<string>English</string>
+ 	<key>CFBundleExecutable</key>
+-	<string>Squirrel</string>
++	<string>$(EXECUTABLE_NAME)</string>
+ 	<key>CFBundleIconFile</key>
+-	<string>RimeIcon.icns</string>
++	<string>Sable</string>
+ 	<key>CFBundleIdentifier</key>
+ 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+ 	<key>CFBundleInfoDictionaryVersion</key>
+ 	<string>6.0</string>
+ 	<key>CFBundleName</key>
+-	<string>Squirrel</string>
++	<string>$(PRODUCT_NAME)</string>
+ 	<key>CFBundlePackageType</key>
+ 	<string>APPL</string>
+ 	<key>CFBundleSignature</key>
+@@ -26,57 +26,29 @@
+ 	<dict>
+ 		<key>tsInputModeListKey</key>
+ 		<dict>
+-			<key>im.rime.inputmethod.Squirrel.Hans</key>
+-			<dict>
+-				<key>TISInputSourceID</key>
+-				<string>im.rime.inputmethod.Squirrel.Hans</string>
+-				<key>TISIntendedLanguage</key>
+-				<string>zh-Hans</string>
+-				<key>tsInputModeAlternateMenuIconFileKey</key>
+-				<string>rime.pdf</string>
+-				<key>tsInputModeCharacterRepertoireKey</key>
+-				<array>
+-					<string>Hans</string>
+-					<string>Hant</string>
+-				</array>
+-				<key>tsInputModeDefaultStateKey</key>
+-				<true/>
+-				<key>tsInputModeIsVisibleKey</key>
+-				<true/>
+-				<key>tsInputModeKeyEquivalentModifiersKey</key>
+-				<integer>4608</integer>
+-				<key>tsInputModeMenuIconFileKey</key>
+-				<string>rime.pdf</string>
+-				<key>tsInputModePaletteIconFileKey</key>
+-				<string>rime.pdf</string>
+-				<key>tsInputModePrimaryInScriptKey</key>
+-				<true/>
+-				<key>tsInputModeScriptKey</key>
+-				<string>smUnicodeScript</string>
+-			</dict>
+-			<key>im.rime.inputmethod.Squirrel.Hant</key>
++			<key>im.penglai.inputmethod.Sable.Hant</key>
+ 			<dict>
+ 				<key>TISInputSourceID</key>
+-				<string>im.rime.inputmethod.Squirrel.Hant</string>
++				<string>$(PRODUCT_BUNDLE_IDENTIFIER).Hant</string>
+ 				<key>TISIntendedLanguage</key>
+ 				<string>zh-Hant</string>
+ 				<key>tsInputModeAlternateMenuIconFileKey</key>
+-				<string>rime.pdf</string>
++				<string>penglai.pdf</string>
+ 				<key>tsInputModeCharacterRepertoireKey</key>
+ 				<array>
+ 					<string>Hant</string>
+ 					<string>Hans</string>
+ 				</array>
+ 				<key>tsInputModeDefaultStateKey</key>
+-				<false/>
++				<true/>
+ 				<key>tsInputModeIsVisibleKey</key>
+ 				<true/>
+ 				<key>tsInputModeKeyEquivalentModifiersKey</key>
+ 				<integer>4608</integer>
+ 				<key>tsInputModeMenuIconFileKey</key>
+-				<string>rime.pdf</string>
++				<string>penglai.pdf</string>
+ 				<key>tsInputModePaletteIconFileKey</key>
+-				<string>rime.pdf</string>
++				<string>penglai.pdf</string>
+ 				<key>tsInputModePrimaryInScriptKey</key>
+ 				<true/>
+ 				<key>tsInputModeScriptKey</key>
+@@ -85,31 +57,22 @@
+ 		</dict>
+ 		<key>tsVisibleInputModeOrderedArrayKey</key>
+ 		<array>
+-			<string>im.rime.inputmethod.Squirrel.Hans</string>
+-			<string>im.rime.inputmethod.Squirrel.Hant</string>
++			<string>$(PRODUCT_BUNDLE_IDENTIFIER).Hant</string>
+ 		</array>
+ 	</dict>
+ 	<key>InputMethodConnectionName</key>
+-	<string>Squirrel_Connection</string>
++	<string>$(PRODUCT_NAME)_Connection</string>
+ 	<key>InputMethodServerControllerClass</key>
+-	<string>Squirrel.SquirrelInputController</string>
++	<string>$(PRODUCT_MODULE_NAME).SquirrelInputController</string>
+ 	<key>InputMethodServerDelegateClass</key>
+-	<string>Squirrel.SquirrelInputController</string>
++	<string>$(PRODUCT_MODULE_NAME).SquirrelInputController</string>
+ 	<key>LSBackgroundOnly</key>
+ 	<false/>
+ 	<key>LSUIElement</key>
+ 	<true/>
+ 	<key>NSPrincipalClass</key>
+ 	<string>NSApplication</string>
+-	<key>SUEnableAutomaticChecks</key>
+-	<true/>
+-	<key>SUFeedURL</key>
+-	<string>https://rime.github.io/release/squirrel/appcast.xml</string>
+-	<key>SUPublicEDKey</key>
+-	<string>ukvWq2dKOWn3B9AsdsQIwOptiDdDKdUjAVNgFxSvB2o=</string>
+ 	<key>TICapsLockLanguageSwitchCapable</key>
+ 	<true/>
+-	<key>SUEnableInstallerLauncherService</key>
+-	<true/>
+ </dict>
+ </plist>
+diff --git a/resources/InfoPlist.xcstrings b/resources/InfoPlist.xcstrings
+index e304fbe..7473104 100644
+--- a/resources/InfoPlist.xcstrings
++++ b/resources/InfoPlist.xcstrings
+@@ -7,19 +7,19 @@
+         "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "Squirrel"
++            "value" : "Sable"
+           }
+         },
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠须管"
++            "value" : "貂毫"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠鬚管"
++            "value" : "貂毫"
+           }
+         }
+       }
+@@ -31,88 +31,65 @@
+         "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "Squirrel"
++            "value" : "Sable"
+           }
+         },
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠须管"
++            "value" : "貂毫"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠鬚管"
++            "value" : "貂毫"
+           }
+         }
+       }
+     },
+-    "im.rime.inputmethod.Squirrel" : {
++    "im.penglai.inputmethod.Sable" : {
+       "extractionState" : "manual",
+       "localizations" : {
+         "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "Squirrel"
++            "value" : "Sable"
+           }
+         },
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠须管"
++            "value" : "貂毫"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠鬚管"
++            "value" : "貂毫"
+           }
+         }
+       }
+     },
+-    "im.rime.inputmethod.Squirrel.Hans" : {
++    "im.penglai.inputmethod.Sable.Hant" : {
+       "extractionState" : "manual",
+       "localizations" : {
+         "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "Squirrel - Simplified"
++            "value" : "Sable"
+           }
+         },
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠须管"
++            "value" : "貂毫"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠须管"
+-          }
+-        }
+-      }
+-    },
+-    "im.rime.inputmethod.Squirrel.Hant" : {
+-      "extractionState" : "manual",
+-      "localizations" : {
+-        "en" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "Squirrel - Traditional"
+-          }
+-        },
+-        "zh-Hans" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "鼠鬚管"
+-          }
+-        },
+-        "zh-Hant" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "鼠鬚管"
++            "value" : "貂毫"
+           }
+         }
+       }
+@@ -124,19 +101,19 @@
+         "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "Copyleft, RIME Developers"
++            "value" : "Copyleft, RIME Developers\nSable (Penglai): modified Squirrel, GPL-3.0"
+           }
+         },
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "式恕堂 版权所无"
++            "value" : "式恕堂 版权所无\n貂毫（蓬莱）：鼠须管改作，GPL-3.0"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "式恕堂 版權所無"
++            "value" : "式恕堂 版權所無\n貂毫（蓬萊）：鼠鬚管改作，GPL-3.0"
+           }
+         }
+       }
+diff --git a/resources/Localizable.xcstrings b/resources/Localizable.xcstrings
+index eb96d08..fde8d79 100644
+--- a/resources/Localizable.xcstrings
++++ b/resources/Localizable.xcstrings
+@@ -1,40 +1,6 @@
+ {
+   "sourceLanguage" : "en",
+   "strings" : {
+-    "A new update is available" : {
+-      "comment" : "Update",
+-      "localizations" : {
+-        "zh-Hans" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "有新版本"
+-          }
+-        },
+-        "zh-Hant" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "有新版本"
+-          }
+-        }
+-      }
+-    },
+-    "Check for updates..." : {
+-      "comment" : "Menu item",
+-      "localizations" : {
+-        "zh-Hans" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "检查新版本..."
+-          }
+-        },
+-        "zh-Hant" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "檢查新版本..."
+-          }
+-        }
+-      }
+-    },
+     "Deploy" : {
+       "comment" : "Menu item",
+       "localizations" : {
+@@ -101,7 +67,7 @@
+         "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "Squirrel is ready."
++            "value" : "Sable is ready."
+           }
+         },
+         "zh-Hans" : {
+@@ -194,50 +160,39 @@
+     "Squirrel" : {
+       "comment" : "Menu title",
+       "localizations" : {
+-        "zh-Hans" : {
++        "en" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "鼠须管"
++            "value" : "Sable"
+           }
+         },
+-        "zh-Hant" : {
+-          "stringUnit" : {
+-            "state" : "translated",
+-            "value" : "鼠鬚管"
+-          }
+-        }
+-      }
+-    },
+-    "Sync user data" : {
+-      "comment" : "Menu item",
+-      "localizations" : {
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "同步用户数据"
++            "value" : "貂毫"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "同步用戶資料"
++            "value" : "貂毫"
+           }
+         }
+       }
+     },
+-    "Version [version] is now available" : {
+-      "comment" : "Update",
++    "Sync user data" : {
++      "comment" : "Menu item",
+       "localizations" : {
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "[version] 现已发布"
++            "value" : "同步用户数据"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "[version] 現已發佈"
++            "value" : "同步用戶資料"
+           }
+         }
+       }
+diff --git a/sources/InputSource.swift b/sources/InputSource.swift
+index 89c1214..f1a0d6b 100644
+--- a/sources/InputSource.swift
++++ b/sources/InputSource.swift
+@@ -10,9 +10,8 @@ import InputMethodKit
+ 
+ final class SquirrelInstaller {
+   enum InputMode: String, CaseIterable {
+-    static let primary = Self.hans
+-    case hans = "im.rime.inputmethod.Squirrel.Hans"
+-    case hant = "im.rime.inputmethod.Squirrel.Hant"
++    static let primary = Self.hant
++    case hant = "im.penglai.inputmethod.Sable.Hant"
+   }
+   private lazy var inputSources: [String: TISInputSource] = {
+     var inputSources = [String: TISInputSource]()
+diff --git a/sources/Main.swift b/sources/Main.swift
+index fb0476f..ed3cdf8 100644
+--- a/sources/Main.swift
++++ b/sources/Main.swift
+@@ -15,10 +15,9 @@ struct SquirrelApp {
+   } else {
+     try! FileManager.default.url(for: .libraryDirectory, in: .userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("Rime", isDirectory: true)
+   }
+-  static let appDir = "/Library/Input Methods/Squirrel.app".withCString { dir in
+-    URL(fileURLWithFileSystemRepresentation: dir, isDirectory: false, relativeTo: nil)
+-  }
+-  static let logDir = FileManager.default.temporaryDirectory.appending(component: "rime.squirrel", directoryHint: .isDirectory)
++  // Register whichever copy is running (Sable installs per user in ~/Library/Input Methods).
++  static let appDir = Bundle.main.bundleURL
++  static let logDir = FileManager.default.temporaryDirectory.appending(component: "rime.sable", directoryHint: .isDirectory)
+ 
+   // swiftlint:disable:next cyclomatic_complexity
+   static func main() {
+@@ -37,7 +36,7 @@ struct SquirrelApp {
+         case "--reload":
+           // Squirrel is a background app, and AppKit suspends distributed-notification delivery to inactive apps;
+           // deliverImmediately is required for these notifications to reach Squirrel while it stays in the background
+-          DistributedNotificationCenter.default().postNotificationName(.init("SquirrelReloadNotification"), object: nil, userInfo: nil, deliverImmediately: true)
++          DistributedNotificationCenter.default().postNotificationName(.init("SableReloadNotification"), object: nil, userInfo: nil, deliverImmediately: true)
+           return true
+         case "--register-input-source", "--install":
+           installer.register()
+@@ -72,25 +71,25 @@ struct SquirrelApp {
+         case "--build":
+           SquirrelApplicationDelegate.showMessage(msgText: NSLocalizedString("deploy_update", comment: ""))
+           var builderTraits = RimeTraits.rimeStructInit()
+-          builderTraits.setCString("rime.squirrel-builder", to: \.app_name)
++          builderTraits.setCString("rime.sable-builder", to: \.app_name)
+           rimeAPI.setup(&builderTraits)
+           rimeAPI.deployer_initialize(nil)
+           _ = rimeAPI.deploy()
+           return true
+         case "--sync":
+-          DistributedNotificationCenter.default().postNotificationName(.init("SquirrelSyncNotification"), object: nil, userInfo: nil, deliverImmediately: true)
++          DistributedNotificationCenter.default().postNotificationName(.init("SableSyncNotification"), object: nil, userInfo: nil, deliverImmediately: true)
+           return true
+         case "--ascii":
+-          DistributedNotificationCenter.default().postNotificationName(.init("SquirrelToggleASCIIModeNotification"), object: "ascii", userInfo: nil, deliverImmediately: true)
++          DistributedNotificationCenter.default().postNotificationName(.init("SableToggleASCIIModeNotification"), object: "ascii", userInfo: nil, deliverImmediately: true)
+           return true
+         case "--nascii":
+-          DistributedNotificationCenter.default().postNotificationName(.init("SquirrelToggleASCIIModeNotification"), object: "nascii", userInfo: nil, deliverImmediately: true)
++          DistributedNotificationCenter.default().postNotificationName(.init("SableToggleASCIIModeNotification"), object: "nascii", userInfo: nil, deliverImmediately: true)
+           return true
+         case "--getascii":
+           var responseReceived = false
+           var asciiStatus = ""
+           let observer = DistributedNotificationCenter.default().addObserver(
+-            forName: .init("SquirrelASCIIModeResponse"),
++            forName: .init("SableASCIIModeResponse"),
+             object: nil,
+             queue: .main
+           ) { notification in
+@@ -99,7 +98,7 @@ struct SquirrelApp {
+               responseReceived = true
+             }
+           }
+-          DistributedNotificationCenter.default().postNotificationName(.init("SquirrelGetASCIIModeNotification"), object: nil, userInfo: nil, deliverImmediately: true)
++          DistributedNotificationCenter.default().postNotificationName(.init("SableGetASCIIModeNotification"), object: nil, userInfo: nil, deliverImmediately: true)
+           let timeout = Date().addingTimeInterval(2.0)
+           while !responseReceived && Date() < timeout {
+             RunLoop.current.run(until: Date().addingTimeInterval(0.01))
+@@ -141,7 +140,7 @@ struct SquirrelApp {
+ 
+       if NSApp.squirrelAppDelegate.problematicLaunchDetected() {
+         print("Problematic launch detected!")
+-        let args = ["Problematic launch detected! Squirrel may be suffering a crash due to improper configuration. Revert previous modifications to see if the problem recurs."]
++        let args = ["Problematic launch detected! Sable may be suffering a crash due to improper configuration. Revert previous modifications to see if the problem recurs."]
+         let task = Process()
+         task.executableURL = "/usr/bin/say".withCString { dir in
+           URL(fileURLWithFileSystemRepresentation: dir, isDirectory: false, relativeTo: nil)
+@@ -165,7 +164,7 @@ struct SquirrelApp {
+   static let helpDoc = """
+ Supported arguments:
+ Perform actions:
+-  --quit                     quit all Squirrel process
++  --quit                     quit all Sable process
+   --reload                   deploy
+   --settings --user-dir DIR  open Penglai settings window on a sandbox copy (not ~/Library/Rime)
+   --sync                     sync user data
+@@ -173,7 +172,7 @@ Perform actions:
+   --ascii                    turn on ASCII mode
+   --nascii                   turn off ASCII mode
+   --getascii                 get current ASCII mode status
+-Install Squirrel:
++Install Sable:
+   --install, --register-input-source    register input source
+   --enable-input-source [source id...]  input source list optional
+   --disable-input-source [source id...] input source list optional
+diff --git a/sources/SquirrelApplicationDelegate.swift b/sources/SquirrelApplicationDelegate.swift
+index 8d8d194..1004f1e 100644
+--- a/sources/SquirrelApplicationDelegate.swift
++++ b/sources/SquirrelApplicationDelegate.swift
+@@ -6,14 +6,12 @@
+ //
+ 
+ import UserNotifications
+-import Sparkle
+ import AppKit
+ import InputMethodKit
+ 
+-final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUStandardUserDriverDelegate, UNUserNotificationCenterDelegate {
++final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+   static let rimeWikiURL = URL(string: "https://github.com/rime/home/wiki")!
+-  static let updateNotificationIdentifier = "SquirrelUpdateNotification"
+-  static let notificationIdentifier = "SquirrelNotification"
++  static let notificationIdentifier = "SableNotification"
+ 
+   let rimeAPI: RimeApi_stdbool = rime_get_api_stdbool().pointee
+   var config: SquirrelConfig?
+@@ -21,37 +19,9 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUSta
+   var enableNotifications = false
+   var showStatusIcon: Bool = true
+   var statusItem: NSStatusItem?
+-  let updateController = SPUStandardUpdaterController(startingUpdater: true, updaterDelegate: nil, userDriverDelegate: nil)
+-  var supportsGentleScheduledUpdateReminders: Bool {
+-    true
+-  }
+-
+-  func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem, state: SPUUserUpdateState) {
+-    NSApp.setActivationPolicy(.regular)
+-    if !state.userInitiated {
+-      NSApp.dockTile.badgeLabel = "1"
+-      let content = UNMutableNotificationContent()
+-      content.title = NSLocalizedString("A new update is available", comment: "Update")
+-      content.body = NSLocalizedString("Version [version] is now available", comment: "Update").replacingOccurrences(of: "[version]", with: update.displayVersionString)
+-      let request = UNNotificationRequest(identifier: Self.updateNotificationIdentifier, content: content, trigger: nil)
+-      UNUserNotificationCenter.current().add(request)
+-    }
+-  }
+-
+-  func standardUserDriverDidReceiveUserAttention(forUpdate update: SUAppcastItem) {
+-    NSApp.dockTile.badgeLabel = ""
+-    UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [Self.updateNotificationIdentifier])
+-  }
+-
+-  func standardUserDriverWillFinishUpdateSession() {
+-    NSApp.setActivationPolicy(.accessory)
+-  }
++  // Sable has no update feed: the Sparkle updater and its "Check for updates" menu item are removed.
+ 
+   func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+-    if response.notification.request.identifier == Self.updateNotificationIdentifier && response.actionIdentifier == UNNotificationDefaultActionIdentifier {
+-      updateController.updater.checkForUpdates()
+-    }
+-
+     completionHandler()
+   }
+ 
+@@ -101,15 +71,6 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUSta
+     NSWorkspace.shared.open(SquirrelApp.userDir)
+   }
+ 
+-  func checkForUpdates() {
+-    if updateController.updater.canCheckForUpdates {
+-      print("Checking for updates")
+-      updateController.updater.checkForUpdates()
+-    } else {
+-      print("Cannot check for updates")
+-    }
+-  }
+-
+   func openWiki() {
+     NSWorkspace.shared.open(Self.rimeWikiURL)
+   }
+@@ -154,10 +115,10 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUSta
+     squirrelTraits.setCString(Bundle.main.sharedSupportPath!, to: \.shared_data_dir)
+     squirrelTraits.setCString(SquirrelApp.userDir.path(), to: \.user_data_dir)
+     squirrelTraits.setCString(SquirrelApp.logDir.path(), to: \.log_dir)
+-    squirrelTraits.setCString("Squirrel", to: \.distribution_code_name)
+-    squirrelTraits.setCString("鼠鬚管", to: \.distribution_name)
++    squirrelTraits.setCString("Sable", to: \.distribution_code_name)
++    squirrelTraits.setCString("貂毫", to: \.distribution_name)
+     squirrelTraits.setCString(Bundle.main.object(forInfoDictionaryKey: kCFBundleVersionKey as String) as! String, to: \.distribution_version)
+-    squirrelTraits.setCString("rime.squirrel", to: \.app_name)
++    squirrelTraits.setCString("rime.sable", to: \.app_name)
+     rimeAPI.setup(&squirrelTraits)
+   }
+ 
+@@ -204,7 +165,7 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUSta
+   // Detect repeated launches that may indicate a bad configuration loop.
+   func problematicLaunchDetected() -> Bool {
+     var detected = false
+-    let logFile = FileManager.default.temporaryDirectory.appendingPathComponent("squirrel_launch.json", conformingTo: .json)
++    let logFile = FileManager.default.temporaryDirectory.appendingPathComponent("sable_launch.json", conformingTo: .json)
+     do {
+       let archive = try Data(contentsOf: logFile, options: [.uncached])
+       let decoder = JSONDecoder()
+@@ -235,10 +196,10 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, SPUSta
+     center.addObserver(forName: NSWorkspace.willPowerOffNotification, object: nil, queue: nil, using: workspaceWillPowerOff)
+ 
+     let notifCenter = DistributedNotificationCenter.default()
+-    notifCenter.addObserver(forName: .init("SquirrelReloadNotification"), object: nil, queue: nil, using: rimeNeedsReload)
+-    notifCenter.addObserver(forName: .init("SquirrelSyncNotification"), object: nil, queue: nil, using: rimeNeedsSync)
+-    notifCenter.addObserver(forName: .init("SquirrelToggleASCIIModeNotification"), object: nil, queue: nil, using: rimeToggleASCIIMode)
+-    notifCenter.addObserver(forName: .init("SquirrelGetASCIIModeNotification"), object: nil, queue: nil, using: rimeGetASCIIMode)
++    notifCenter.addObserver(forName: .init("SableReloadNotification"), object: nil, queue: nil, using: rimeNeedsReload)
++    notifCenter.addObserver(forName: .init("SableSyncNotification"), object: nil, queue: nil, using: rimeNeedsSync)
++    notifCenter.addObserver(forName: .init("SableToggleASCIIModeNotification"), object: nil, queue: nil, using: rimeToggleASCIIMode)
++    notifCenter.addObserver(forName: .init("SableGetASCIIModeNotification"), object: nil, queue: nil, using: rimeGetASCIIMode)
+     // Suspension behavior matters: the default coalescing holds notifications
+     // back while the process is inactive, which is exactly the state Squirrel
+     // enters when the user switches away — the icon would fail to hide until
+@@ -382,7 +343,7 @@ private extension SquirrelApplicationDelegate {
+   func updateStatusItemVisibility() {
+     guard let statusItem = statusItem else { return }
+     let currentInputSourceID = SquirrelInstaller.currentInputSourceID() ?? ""
+-    statusItem.isVisible = currentInputSourceID.hasPrefix("im.rime.inputmethod.Squirrel")
++    statusItem.isVisible = currentInputSourceID.hasPrefix(Bundle.main.bundleIdentifier!)
+   }
+ 
+   // macOS 26 does not call deactivateServer when the input source is switched
+@@ -394,7 +355,7 @@ private extension SquirrelApplicationDelegate {
+   // no-op.
+   func finalizeStrandedComposition() {
+     let currentInputSourceID = SquirrelInstaller.currentInputSourceID() ?? ""
+-    guard !currentInputSourceID.hasPrefix("im.rime.inputmethod.Squirrel") else { return }
++    guard !currentInputSourceID.hasPrefix(Bundle.main.bundleIdentifier!) else { return }
+     if let inputController = panel?.inputController {
+       inputController.deactivateServer(inputController.client())
+     }
+@@ -434,14 +395,14 @@ private extension SquirrelApplicationDelegate {
+     let enableASCII = mode == "ascii"
+ 
+     if enableASCII {
+-      NotificationCenter.default.post(name: .init("SquirrelSetASCIIModeNotification"), object: true)
++      NotificationCenter.default.post(name: .init("SableSetASCIIModeNotification"), object: true)
+     } else {
+-      NotificationCenter.default.post(name: .init("SquirrelSetASCIIModeNotification"), object: false)
++      NotificationCenter.default.post(name: .init("SableSetASCIIModeNotification"), object: false)
+     }
+   }
+ 
+   func rimeGetASCIIMode(_: Notification) {
+-    NotificationCenter.default.post(name: .init("SquirrelReportASCIIModeNotification"), object: nil)
++    NotificationCenter.default.post(name: .init("SableReportASCIIModeNotification"), object: nil)
+   }
+ 
+   func createDirIfNotExist(path: URL) {
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 2cd80a5..f14a9e3 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -221,7 +221,7 @@ final class SquirrelInputController: IMKInputController {
+     createSession()
+ 
+     NotificationCenter.default.addObserver(
+-      forName: .init("SquirrelSetASCIIModeNotification"),
++      forName: .init("SableSetASCIIModeNotification"),
+       object: nil,
+       queue: nil
+     ) { [weak self] notification in
+@@ -229,7 +229,7 @@ final class SquirrelInputController: IMKInputController {
+     }
+ 
+     NotificationCenter.default.addObserver(
+-      forName: .init("SquirrelReportASCIIModeNotification"),
++      forName: .init("SableReportASCIIModeNotification"),
+       object: nil,
+       queue: nil
+     ) { [weak self] notification in
+@@ -272,8 +272,6 @@ final class SquirrelInputController: IMKInputController {
+     setting.target = self
+     let wiki = NSMenuItem(title: NSLocalizedString("Rime Wiki...", comment: "Menu item"), action: #selector(openWiki), keyEquivalent: "")
+     wiki.target = self
+-    let update = NSMenuItem(title: NSLocalizedString("Check for updates...", comment: "Menu item"), action: #selector(checkForUpdates), keyEquivalent: "")
+-    update.target = self
+ 
+     let menu = NSMenu()
+     menu.addItem(deploy)
+@@ -282,7 +280,6 @@ final class SquirrelInputController: IMKInputController {
+     menu.addItem(penglai)
+     menu.addItem(setting)
+     menu.addItem(wiki)
+-    menu.addItem(update)
+ 
+     return menu
+   }
+@@ -307,10 +304,6 @@ final class SquirrelInputController: IMKInputController {
+     NSApp.squirrelAppDelegate.openRimeFolder()
+   }
+ 
+-  @objc func checkForUpdates() {
+-    NSApp.squirrelAppDelegate.checkForUpdates()
+-  }
+-
+   @objc func openWiki() {
+     NSApp.squirrelAppDelegate.openWiki()
+   }
+@@ -668,7 +661,7 @@ private extension SquirrelInputController {
+     let status = isASCIIMode ? "ascii" : "nascii"
+ 
+     DistributedNotificationCenter.default().postNotificationName(
+-      .init("SquirrelASCIIModeResponse"),
++      .init("SableASCIIModeResponse"),
+       object: status
+     )
+   }
+-- 
+2.56.0
+

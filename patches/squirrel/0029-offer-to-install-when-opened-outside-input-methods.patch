@@ -1,0 +1,90 @@
+From 30245a0af5f6ba18c0d787cf4de06575c9b849c5 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Thu, 5 Nov 2026 07:27:02 +0800
+Subject: [PATCH] Offer to install when opened from outside an input-method
+ folder
+
+sable/PenglaiInstall.swift: opened from the DMG (or anywhere that is not ~/Library/Input Methods or /Library/Input
+Methods) with no arguments, Sable asks whether to install, quits a running Sable, copies itself to
+~/Library/Input Methods/Sable.app (via Sable.app.new, so a failed copy leaves the old one), removes the quarantine
+flag, registers, enables both the bundle-level source and the .Hant mode, and selects it. The input method itself is
+always launched by the system from its input-method folder, so it never reaches this.
+
+--self-install [--to DIR] [--yes] [--no-tis] does the same from the command line for testing.
+---
+ Squirrel.xcodeproj/project.pbxproj | 4 ++++
+ sources/Main.swift                 | 9 +++++++++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index 63835b3..91cc6fb 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -102,6 +102,7 @@
+ 		B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */; };
+ 		B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */; };
+ 		B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */; };
++		B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -326,6 +327,7 @@
+ 		B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSettingsStandalone.swift; path = sources/PenglaiSettingsStandalone.swift; sourceTree = "<group>"; };
+ 		B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiOnboarding.swift; path = sources/PenglaiOnboarding.swift; sourceTree = "<group>"; };
+ 		B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiAXDiag.swift; path = sources/PenglaiAXDiag.swift; sourceTree = "<group>"; };
++		B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiInstall.swift; path = sources/PenglaiInstall.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -362,6 +364,7 @@
+ 				B3F0A0072F26020000AA0001 /* PenglaiSettingsStandalone.swift */,
+ 				B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */,
+ 				B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */,
++				B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -638,6 +641,7 @@
+ 				B3F0A0082F26020000AA0001 /* PenglaiSettingsStandalone.swift in Sources */,
+ 				B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */,
+ 				B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */,
++				B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/sources/Main.swift b/sources/Main.swift
+index 1b45213..89bab2e 100644
+--- a/sources/Main.swift
++++ b/sources/Main.swift
+@@ -116,6 +116,8 @@ struct SquirrelApp {
+         case "--onboarding":
+           PenglaiOnboarding.runStandalone(Array(args.dropFirst(2)))
+           return true
++        case "--self-install":
++          PenglaiInstall.runCommand(Array(args.dropFirst(2)))
+         case "--help":
+           print(helpDoc)
+           return true
+@@ -128,6 +130,11 @@ struct SquirrelApp {
+     if handled {
+       return
+     }
++    // Opened from somewhere other than an input-method folder (e.g. the DMG): offer to install (sable/PenglaiInstall.swift).
++    // The input method itself is always launched by the system from its input-method folder.
++    if !CommandLine.arguments.dropFirst().contains(where: { !$0.hasPrefix("-psn") }) {
++      PenglaiInstall.runIfNeeded()
++    }
+ 
+     autoreleasepool {
+       let main = Bundle.main
+@@ -181,5 +188,7 @@ Install Sable:
+   --enable-input-source [source id...]  input source list optional
+   --disable-input-source [source id...] input source list optional
+   --select-input-source [source id]     input source optional
++  --self-install [--to DIR] [--yes] [--no-tis]  copy this app into ~/Library/Input Methods (or DIR), then register,
++                                        enable and select it; opening the app from anywhere else does the same after asking
+ """
+ }
+-- 
+2.56.0
+

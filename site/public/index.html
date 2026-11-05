@@ -58,7 +58,7 @@
     <h1>注音為根的 <span class="nb">Rime 輸入法</span></h1>
     <p class="lead">詞典直接存注音，各地的讀音都收。打過一次的句子，下次每個字只按第一個注音，就叫得回來。</p>
     <p class="en" lang="en">Penglai — Rime, rooted in Zhuyin.</p>
-    <p class="status-chip"><span class="dot" aria-hidden="true"></span>開發中：macOS 版「貂毫」先做，還沒開放下載。</p>
+    <p class="status-chip"><span class="dot" aria-hidden="true"></span>macOS 版「貂毫」1.0：<a href="https://github.com/jason5545/rime-penglai/releases/latest">下載</a>（Apple Silicon、macOS 13 以上），裝法見<a href="/wiki/install/">說明書</a>。</p>
   </section>
 
   <section id="demo" class="band">
@@ -185,11 +185,11 @@
       <h2>進度</h2>
       <dl class="status">
         <dt>現在</dt>
-        <dd>macOS 版每天拿來打字，還沒開放下載。</dd>
+        <dd>macOS 版 1.0 開放<a href="https://github.com/jason5545/rime-penglai/releases/latest">下載</a>。</dd>
         <dt>接下來</dt>
         <dd>打錯鍵、多打一鍵的容錯，還有漏打聲母時的單字，特別是每個字只打第一個注音的時候。</dd>
-        <dt>公開時</dt>
-        <dd>引擎和前端的修改、詞典產生器、建置腳本一起放出來。引擎以 <a href="https://github.com/rime/librime">librime</a>（BSD-3-Clause）為基礎，前端改自<a href="https://github.com/rime/squirrel">鼠鬚管</a>（GPL-3.0），前端原始碼照 GPL-3.0 公開。</dd>
+        <dt>原始碼</dt>
+        <dd>引擎和前端的修改、詞典產生器、建置腳本放在 <a href="https://github.com/jason5545/rime-penglai">GitHub</a>。引擎以 <a href="https://github.com/rime/librime">librime</a>（BSD-3-Clause）為基礎，前端改自<a href="https://github.com/rime/squirrel">鼠鬚管</a>（GPL-3.0），前端原始碼照 GPL-3.0 公開。</dd>
         <dt>做法</dt>
         <dd>不 fork 整個上游歷史：鎖定上游的版本，套上自己的修改，一鍵建置。上游更新時換版本號、重套修改就好。</dd>
       </dl>

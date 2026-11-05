@@ -1,0 +1,68 @@
+From 8c8677285c5cd5ae055b01a9f02dd65e4ca37d0d Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Fri, 30 Oct 2026 09:26:41 +0800
+Subject: [PATCH] Menu: the online docs item opens the Penglai manual
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The input method menu's last item opened the Rime wiki on GitHub (github.com/rime/home/wiki) and was labelled 在線文檔..., a mainland term. It now opens https://penglai.im/wiki/, whose settings reference covers every key the engine reads, and is labelled 線上說明書… (zh-Hant), 在线说明书… (zh-Hans) and Online Manual… (en, which used to fall back to the key "Rime Wiki...").
+---
+ resources/Localizable.xcstrings           | 10 ++++++++--
+ sources/SquirrelApplicationDelegate.swift |  4 ++--
+ 2 files changed, 10 insertions(+), 4 deletions(-)
+
+diff --git a/resources/Localizable.xcstrings b/resources/Localizable.xcstrings
+index b341073..c646bdd 100644
+--- a/resources/Localizable.xcstrings
++++ b/resources/Localizable.xcstrings
+@@ -126,16 +126,22 @@
+     "Rime Wiki..." : {
+       "comment" : "Menu item",
+       "localizations" : {
++        "en" : {
++          "stringUnit" : {
++            "state" : "translated",
++            "value" : "Online Manual…"
++          }
++        },
+         "zh-Hans" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "在线文档..."
++            "value" : "在线说明书…"
+           }
+         },
+         "zh-Hant" : {
+           "stringUnit" : {
+             "state" : "translated",
+-            "value" : "在線文檔..."
++            "value" : "線上說明書…"
+           }
+         }
+       }
+diff --git a/sources/SquirrelApplicationDelegate.swift b/sources/SquirrelApplicationDelegate.swift
+index acc767b..659f8a2 100644
+--- a/sources/SquirrelApplicationDelegate.swift
++++ b/sources/SquirrelApplicationDelegate.swift
+@@ -10,7 +10,7 @@ import AppKit
+ import InputMethodKit
+ 
+ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUserNotificationCenterDelegate {
+-  static let rimeWikiURL = URL(string: "https://github.com/rime/home/wiki")!
++  static let manualURL = URL(string: "https://penglai.im/wiki/")!
+   static let notificationIdentifier = "SableNotification"
+ 
+   let rimeAPI: RimeApi_stdbool = rime_get_api_stdbool().pointee
+@@ -72,7 +72,7 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
+   }
+ 
+   func openWiki() {
+-    NSWorkspace.shared.open(Self.rimeWikiURL)
++    NSWorkspace.shared.open(Self.manualURL)
+   }
+ 
+   static func showMessage(msgText: String?) {
+-- 
+2.56.0
+

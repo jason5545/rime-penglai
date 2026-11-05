@@ -1,13 +1,38 @@
 <!-- partial -->
 <h1>安裝</h1>
-<p class="lede">貂毫還沒開放下載。</p>
-<p>開放的時候，下載位置會寫在這一頁和<a href="/">首頁</a>。在那之前，這份說明書可以先拿來了解蓬萊注音怎麼打。</p>
+<p class="lede">到 <a href="https://github.com/jason5545/rime-penglai/releases/latest">GitHub 的最新版本</a>下載 <code>Sable-1.0.0.dmg</code>，打開裡面的貂毫，按「安裝」。</p>
 
 <h2>先知道的事</h2>
 <ul>
-<li>目前只有 macOS 版。</li>
-<li>貂毫跟官方的鼠鬚管用同一個使用者資料夾（<code>~/Library/Rime</code>）。兩個不要同時開著：同一份學習紀錄被兩邊開著時，後開的那個會學不到東西。</li>
+<li>只有 macOS 版，要 Apple Silicon（M 系列晶片）的 Mac、macOS 13 以上。</li>
+<li>App 用 Apple 的開發者憑證簽過、也送 Apple 公證過，第一次打開時 macOS 只會問一次「是從網路下載的，確定要打開嗎」。</li>
+<li>只裝給目前登入的使用者，不用管理員密碼。</li>
 </ul>
 
-<h2>安裝、加入輸入法、移除</h2>
-<p class="todo">還沒寫。開放下載時補上。</p>
+<h2>安裝</h2>
+<ol>
+<li>下載 <code>Sable-1.0.0.dmg</code>，按兩下打開。</li>
+<li>在打開的視窗裡按兩下「Sable」（貂毫），出現「安裝貂毫」時按「安裝」。</li>
+<li>它會把自己放進你的輸入法資料夾（<code>~/Library/Input Methods</code>），加進輸入法清單，再切換過去。看到「貂毫裝好了」就完成，DMG 可以退出、刪掉。</li>
+<li>在任何能打字的地方開始打。第一次用要先準備詞典，等幾秒；接著會跳出一個小視窗，選好<a href="/wiki/readings/">讀音</a>就能打了（見<a href="/wiki/first-run/">第一次使用</a>）。</li>
+</ol>
+<p>選單列的輸入法選單看不到「貂毫」的話：打開「系統設定 › 鍵盤 › 輸入方式」，按「＋」，在「繁體中文」裡選「貂毫」加入。</p>
+
+<h2>更新</h2>
+<p>下載新版的 DMG，一樣打開裡面的貂毫，按「更新」。學習紀錄和設定在 <code>~/Library/Rime</code>，不會動。</p>
+
+<h2>已經在用鼠鬚管</h2>
+<ul>
+<li>貂毫跟鼠鬚管用同一個使用者資料夾（<code>~/Library/Rime</code>）。兩個不要同時開著：同一份學習紀錄被兩邊開著時，後開的那個會學不到東西。裝好貂毫之後，在輸入方式裡把鼠鬚管移除。</li>
+<li>你的 <code>default.custom.yaml</code> 如果自己寫了方案清單（<code>schema_list</code>），清單裡要加上 <code>- schema: penglai_zhuyin</code>，選單裡才會有蓬萊注音。</li>
+</ul>
+
+<h2>移除</h2>
+<ol>
+<li>先切換到別的輸入法，在「系統設定 › 鍵盤 › 輸入方式」選「貂毫」，按「－」。</li>
+<li>在 Finder 按 <kbd>⌘⇧G</kbd>，輸入 <code>~/Library/Input Methods</code>，把 <code>Sable.app</code> 丟到垃圾桶。</li>
+<li>學習紀錄和設定在 <code>~/Library/Rime</code>，要一起清掉就把那個資料夾也刪掉。</li>
+</ol>
+
+<h2>原始碼</h2>
+<p>貂毫的原始碼、引擎的修改、詞典產生器和建置腳本都在 <a href="https://github.com/jason5545/rime-penglai">jason5545/rime-penglai</a>，每一版的標籤（例如 <code>v1.0.0</code>）就是那個 DMG 建出來的原始碼。</p>

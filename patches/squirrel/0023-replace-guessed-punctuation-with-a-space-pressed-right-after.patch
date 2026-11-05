@@ -1,0 +1,178 @@
+From 2a1043f5bd8f0a8213d7c4dda615dd1e5d8e93ff Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Fri, 30 Oct 2026 17:47:57 +0800
+Subject: [PATCH] Replace the guessed punctuation with a space pressed right
+ after it
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+lua/penglai_space.lua commits a guessed "，" or "？" when space is pressed after Chinese. A second space right
+after it should take the punctuation's place ("中文 " rather than "中文， "), but the punctuation is already
+in the client, out of librime's reach.
+
+The Lua processor marks its space key in the context property "penglai_space": "punct" when it commits the
+punctuation, "replace" for the space right after it, which then goes on as usual (a half-width space is left
+to the client, a full-width one is committed by the punctuator). For "punct", note the caret and the two
+UTF-16 units before it (read before committing: a web view inserts the commit into its cached text right
+away, at the start of the last marked text) if they end like the last commit. For "replace", insert the
+space with a replacement range covering the punctuation, only if the caret is still right after it and the
+text before it is unchanged; otherwise the space goes to the client as before. Terminals can't report their
+text, and a web view's cached caret and text lag behind the page until it reports back. Any key other than a
+plain space, a Command shortcut or a mouse click drops the note, including keys the schema menu takes before
+the Lua processor sees them.
+---
+ sources/SquirrelInputController.swift | 83 ++++++++++++++++++++++++++-
+ 1 file changed, 82 insertions(+), 1 deletion(-)
+
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 4061cc8..0d1adfb 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -23,6 +23,11 @@ final class SquirrelInputController: IMKInputController {
+   // Input since the last key sent to librime that librime never saw (see handle(_:client:), keyDown).
+   private var commandKeySinceLastKey = false
+   private var mouseCountAtLastKey: UInt32?
++  // The punctuation lua/penglai_space.lua guessed for a space after Chinese (see commitFromRime(_:)): where the
++  // client's caret was right after it, the client's text expected right before that caret (ending with the
++  // punctuation), and the punctuation's length.
++  private var autoPunct: (caret: Int, text: String, length: Int)?
++  private var lastCommitted = ""
+   private var session: RimeSessionId = 0
+   private var schemaId: String = ""
+   private var inlinePreedit = false
+@@ -114,6 +119,11 @@ final class SquirrelInputController: IMKInputController {
+       rimeUpdate()
+ 
+     case .keyDown:
++      // Only the space right after a guessed punctuation may replace it (see commitFromRime(_:)), even if
++      // the keys in between never reach lua/penglai_space.lua (the schema menu takes F4 and Escape).
++      if Int(event.keyCode) != kVK_Space || !modifiers.isDisjoint(with: [.shift, .control, .option, .command]) {
++        autoPunct = nil
++      }
+       // Let client apps handle Command shortcuts.
+       if modifiers.contains(.command) {
+         commandKeyPassedOn = true
+@@ -141,6 +151,7 @@ final class SquirrelInputController: IMKInputController {
+           // counted here: the key counter runs ahead of the keys still queued for this process.
+           let mouseCount = Self.sessionMouseCount()
+           if commandKeySinceLastKey || (mouseCountAtLastKey.map { $0 != mouseCount } ?? false) {
++            autoPunct = nil
+             _ = rimeAPI.process_key(session, Int32(XK_VoidSymbol), Int32(kSuperMask.rawValue | kReleaseMask.rawValue))
+           }
+           commandKeySinceLastKey = false
+@@ -148,6 +159,9 @@ final class SquirrelInputController: IMKInputController {
+           let rimeModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
+           handled = processKey(rimeKeycode, modifiers: rimeModifiers)
+           rimeUpdate()
++          if !handled {
++            handled = replaceGuessedPunct()
++          }
+         }
+       }
+ 
+@@ -230,6 +244,7 @@ final class SquirrelInputController: IMKInputController {
+       lastModifiers.remove(.capsLock)
+     }
+     preedit = ""
++    autoPunct = nil
+     if session != 0 {
+       let state = rimeAPI.get_option(session, "ascii_mode")
+       let label = rimeAPI.get_state_label_abbreviated(session, "ascii_mode", state, true).asString
+@@ -269,6 +284,7 @@ final class SquirrelInputController: IMKInputController {
+     hidePalettes()
+     commitComposition(sender)
+     client = nil
++    autoPunct = nil
+   }
+ 
+   override func hidePalettes() {
+@@ -492,12 +508,74 @@ private extension SquirrelInputController {
+     var commitText = RimeCommit.rimeStructInit()
+     if rimeAPI.get_commit(session, &commitText) {
+       if let text = commitText.text {
+-        commit(string: String(cString: text))
++        commitFromRime(String(cString: text))
+       }
+       _ = rimeAPI.free_commit(&commitText)
+     }
+   }
+ 
++  // lua/penglai_space.lua sets the context property "penglai_space" for its space key: "punct" when it commits the
++  // punctuation it guessed after Chinese, "replace" for a space pressed right after that, which should take the
++  // punctuation's place. That space goes on as usual: a half-width space is left to the client (see
++  // replaceGuessedPunct()), a full-width one is committed by the punctuator. Before replacing, check the client
++  // still has the caret where it was right after the punctuation, with the same text before it; clients that
++  // can't report their text (terminals) or don't match (the text changed, or a web view hasn't caught up yet)
++  // get the space as before, after the punctuation.
++  func penglaiSpaceRole() -> String {
++    var buffer = [CChar](repeating: 0, count: 16)
++    guard rimeAPI.get_property(session, "penglai_space", &buffer, buffer.count) else { return "" }
++    rimeAPI.set_property(session, "penglai_space", "")
++    return String(cString: buffer)
++  }
++
++  func replaceGuessedPunct() -> Bool {
++    guard penglaiSpaceRole() == "replace", let punct = autoPunct else { return false }
++    autoPunct = nil
++    return replace(punct, with: " ")
++  }
++
++  func commitFromRime(_ string: String) {
++    let role = penglaiSpaceRole()
++    let punct = autoPunct
++    autoPunct = nil
++    if role == "replace", let punct, replace(punct, with: string) {
++      return
++    }
++    guard role == "punct", let client, preedit.isEmpty else {
++      commit(string: string)
++      return
++    }
++    // Read the two UTF-16 units before the caret before committing (a web view's cached text gets the commit
++    // inserted right away, at the start of the last marked text), and only if they end like the last commit.
++    let caret = client.selectedRange()
++    var before: String?
++    if caret.location != NSNotFound, caret.length == 0, caret.location > 0 {
++      let count = min(caret.location, 2)
++      let last = lastCommitted.utf16.suffix(count)
++      if let text = client.attributedSubstring(from: NSRange(location: caret.location - count, length: count))?.string,
++         text.utf16.count == count, !last.isEmpty, text.utf16.suffix(last.count).elementsEqual(last) {
++        before = text
++      }
++    }
++    commit(string: string)
++    if let before {
++      autoPunct = (caret: caret.location + string.utf16.count, text: before + string, length: string.utf16.count)
++    }
++  }
++
++  func replace(_ punct: (caret: Int, text: String, length: Int), with string: String) -> Bool {
++    guard let client, preedit.isEmpty, !rimeAPI.get_option(session, "force_marked_text_for_direct_commit") else { return false }
++    let caret = client.selectedRange()
++    let count = punct.text.utf16.count
++    guard caret.location == punct.caret, caret.length == 0, punct.caret >= count,
++          client.attributedSubstring(from: NSRange(location: punct.caret - count, length: count))?.string == punct.text
++    else { return false }
++    client.insertText(string, replacementRange: NSRange(location: punct.caret - punct.length, length: punct.length))
++    lastCommitted = string
++    hidePalettes()
++    return true
++  }
++
+   // Preserve reserved comment marks when librime requests a UI-only refresh.
+   func rimeUpdate(clearReservedComments: Bool = true) {
+     if clearReservedComments {
+@@ -634,6 +712,9 @@ private extension SquirrelInputController {
+ 
+     client.insertText(string, replacementRange: .empty)
+     preedit = ""
++    if !string.isEmpty {
++      lastCommitted = string
++    }
+     hidePalettes()
+   }
+ 
+-- 
+2.56.0
+

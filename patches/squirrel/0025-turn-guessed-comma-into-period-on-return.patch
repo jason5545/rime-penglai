@@ -1,0 +1,72 @@
+From b98584c648f6c3a05651794a30df19de12822b16 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Sat, 31 Oct 2026 15:10:57 +0800
+Subject: [PATCH] =?UTF-8?q?Turn=20a=20guessed=20"=EF=BC=8C"=20into=20"?=
+ =?UTF-8?q?=E3=80=82"=20when=20Return=20is=20pressed=20right=20after=20it?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+penglai_space commits a guessed "，" or "？" when space is pressed after Chinese. Return right after a guessed
+"，" means the sentence is over: it should end with "。", and the Return should still reach the client (a new
+line, or send).
+
+The processor leaves that Return unhandled and marks it in the context property "penglai_space" as "period".
+Keep the note of the guessed punctuation across a plain Return like across a plain space; when librime leaves
+the Return to the client with "period" and the note is a "，", replace it with "。" the same checked way as the
+space does (caret still right after it, same text before it), then pass the Return on. A "？" stays, and so
+does the "，" in clients that can't report their text.
+---
+ sources/SquirrelInputController.swift | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 0d1adfb..4e370a2 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -119,9 +119,10 @@ final class SquirrelInputController: IMKInputController {
+       rimeUpdate()
+ 
+     case .keyDown:
+-      // Only the space right after a guessed punctuation may replace it (see commitFromRime(_:)), even if
+-      // the keys in between never reach lua/penglai_space.lua (the schema menu takes F4 and Escape).
+-      if Int(event.keyCode) != kVK_Space || !modifiers.isDisjoint(with: [.shift, .control, .option, .command]) {
++      // Only the space or Return right after a guessed punctuation may replace it (see commitFromRime(_:)), even
++      // if the keys in between never reach lua/penglai_space.lua (the schema menu takes F4 and Escape).
++      if (Int(event.keyCode) != kVK_Space && Int(event.keyCode) != kVK_Return)
++          || !modifiers.isDisjoint(with: [.shift, .control, .option, .command]) {
+         autoPunct = nil
+       }
+       // Let client apps handle Command shortcuts.
+@@ -161,6 +162,8 @@ final class SquirrelInputController: IMKInputController {
+           rimeUpdate()
+           if !handled {
+             handled = replaceGuessedPunct()
++          } else if Int(keyCode) == kVK_Return {
++            autoPunct = nil
+           }
+         }
+       }
+@@ -528,9 +531,18 @@ private extension SquirrelInputController {
+     return String(cString: buffer)
+   }
+ 
++  // "period" is for a Return right after a guessed "，" (not "？"): the sentence is over, so it becomes "。", and the
++  // Return still goes on to the client (a new line, or send). Clients that can't be checked keep the "，".
+   func replaceGuessedPunct() -> Bool {
+-    guard penglaiSpaceRole() == "replace", let punct = autoPunct else { return false }
++    let role = penglaiSpaceRole()
++    guard role == "replace" || role == "period", let punct = autoPunct else { return false }
+     autoPunct = nil
++    if role == "period" {
++      if punct.text.hasSuffix("，") {
++        _ = replace(punct, with: "。")
++      }
++      return false
++    }
+     return replace(punct, with: " ")
+   }
+ 
+-- 
+2.56.0
+
