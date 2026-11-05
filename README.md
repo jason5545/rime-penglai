@@ -35,6 +35,13 @@ zsh build.sh          # 產物：.build/custom-app/Sable.app（約 2–5 分鐘�
 
 說明書的頁面由 `site/wiki/` 的 HTML 片段產生，頁面上的選字窗例子是在只放公開檔案的沙盒裡逐鍵實打錄下來的（`site/wiki/examples.json`）。錄例子的工具還沒搬過來。
 
+## 感謝
+
+- 佛振（[lotem](https://github.com/lotem)）：Rime 的作者。蓬萊韻的引擎和貂毫都是從 Rime 改出來的。
+- 瑾昀（[kunki](https://github.com/kunki)）：Rime 注音、地球拼音詞庫的維護者。
+- [zhtw2013](https://github.com/zhtw2013)：RIME.TW 粉專的編輯，替地球拼音補過一批臺灣讀音。
+- [osfans](https://github.com/osfans)：同文輸入法（Android 上的 Rime 前端）的作者。
+
 ## 授權
 
 程式和網站以 GNU GPL 第 3 版釋出，全文在 `LICENSE`。詞典與讀音資料以 GNU LGPL 第 3 版釋出（`COPYING.LESSER`）。各上游元件和資料來源的授權、出處標示見 `NOTICE.md`，授權全文在 `licenses/`。
