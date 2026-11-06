@@ -1,2 +1,7 @@
 patch:
-  translator/key_model/fuzzy_pairs: [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄈㄏ]
+  translator/key_model/fuzzy_pairs:
+    - ㄣㄥ
+    - ㄓㄗ
+    - ㄔㄘ
+    - ㄕㄙ
+    - ㄡㄛ

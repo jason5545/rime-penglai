@@ -510,7 +510,8 @@ final class PenglaiSettingsModel: ObservableObject {
         break
       }
       let scalarTypes = ["bool", "int", "double", "string"]
-      if blocked == nil, !scalarTypes.contains(type) || structure != nil {
+      // 模糊音的清單由勾選框改（setFuzzyPair），不算鎖住
+      if blocked == nil, key != Self.fuzzyPairsKey, !scalarTypes.contains(type) || structure != nil {
         blocked = "這是清單或表格，請打開檔案改"
       }
       result.append(PenglaiSettingRow(group: group, config: config, key: key, info: info, type: type, effective: effective,
@@ -694,6 +695,10 @@ final class PenglaiSettingsModel: ObservableObject {
   static let spacePunctKey = "penglai_space/punct"
   /// 打錯也對得到（按鍵模型，librime 0052）
   static let keyModelKey = "translator/key_model/enable"
+  /// 模糊音（按鍵模型的 fuzzy_pairs；librime 0054 起沒打聲調也修）
+  static let fuzzyPairsKey = "translator/key_model/fuzzy_pairs"
+  /// 勾選框列的幾對（11/6 量過：開這五對，一般打字八組 0 改錯）。檔案裡手寫的其他對照留著
+  static let fuzzyChoices = ["ㄣㄥ", "ㄓㄗ", "ㄔㄘ", "ㄕㄙ", "ㄡㄛ"]
 
   /// 方案原檔寫了英文單字表（english_lexicon），才回傳那個名字。方案原檔預設打開，關掉是在 custom 寫空字串。
   private func readEnglishLexicon() -> String? {
@@ -1017,6 +1022,44 @@ final class PenglaiSettingsModel: ObservableObject {
     let file = PenglaiConfigID.schema(schemaID).customFile
     apply([.init(file: file, key: recipe.list, action: .recipe(recipe, enable: enable, base: recipeBase(recipe, store.read(file))))],
           summary: "\(recipe.title)：\(enable ? "開" : "關")")
+  }
+
+  /// 模糊音勾選框的狀態：custom 檔寫的清單；沒寫就是部署後方案的清單（公開預設是空的）。按鍵模型關著時不能勾
+  struct FuzzyState: Equatable {
+    var pairs: [String]
+    var enabled: Bool
+    var note: String?
+  }
+
+  var fuzzyState: FuzzyState {
+    guard !schemaID.isEmpty, let row = schemaRow(Self.keyModelKey) else {
+      return FuzzyState(pairs: [], enabled: false, note: Self.unsupportedText)
+    }
+    let doc = store.read(PenglaiConfigID.schema(schemaID).customFile)
+    var pairs: [String]
+    switch doc.region(Self.fuzzyPairsKey) {
+    case .unsupported(let reason):
+      NSLog("Penglai settings: %@ 的 %@ 改不了：%@", PenglaiConfigID.schema(schemaID).customFile, Self.fuzzyPairsKey, reason)
+      return FuzzyState(pairs: PenglaiRimeConfig(.schema(schemaID)).listStrings(Self.fuzzyPairsKey), enabled: false, note: Self.blockedText)
+    case .absent:
+      pairs = PenglaiRimeConfig(.schema(schemaID)).listStrings(Self.fuzzyPairsKey)
+    case .range:
+      pairs = doc.listItems(Self.fuzzyPairsKey)?.compactMap(\.value) ?? []
+    }
+    let on = row.shownValue == "true"
+    return FuzzyState(pairs: pairs, enabled: on && row.blocked == nil, note: on ? nil : "要先打開「打錯也對得到」")
+  }
+
+  /// 勾或取消一對：整段清單換掉（勾選框的順序在前，手寫的其他對照接在後面）；全部取消就拿掉那一項
+  func setFuzzyPair(_ pair: String, _ on: Bool) {
+    let state = fuzzyState
+    guard state.enabled, !schemaID.isEmpty else { return }
+    var chosen = Set(state.pairs)
+    if on { chosen.insert(pair) } else { chosen.remove(pair) }
+    let pairs = Self.fuzzyChoices.filter(chosen.contains) + state.pairs.filter { chosen.contains($0) && !Self.fuzzyChoices.contains($0) }
+    let action: PenglaiSettingsStore.Change.Action = pairs.isEmpty ? .remove : .block(pairs.map { "- \($0)" })
+    apply([.init(file: PenglaiConfigID.schema(schemaID).customFile, key: Self.fuzzyPairsKey, action: action)],
+          summary: "模糊音 \(pair)：\(on ? "開" : "關")")
   }
 
   func setSchemaList(_ ids: [String]) {

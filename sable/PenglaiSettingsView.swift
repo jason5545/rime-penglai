@@ -35,6 +35,8 @@ enum PenglaiCopy {
                                           keywords: ["標點", "逗號", "問號", "句號", "空白鍵", "自動標點", "猜標點"])
   static let keyModel = PenglaiCopyItem(title: "打錯也對得到", desc: "打完整注音時按到旁邊的鍵、漏打聲母或介音、同一鍵連按兩下，也找得到原本要打的詞（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）。只打第一個注音時不改。",
                                         keywords: ["容錯", "糾錯", "聲母", "漏打", "打錯", "按錯", "模糊音", "連按"])
+  static let fuzzy = PenglaiCopyItem(title: "模糊音", desc: "分不清的注音勾起來：勾了 ㄣㄥ，打 ㄖㄥˊ ㄕㄥ 也找得到「人生」，沒打聲調也行。只勾自己真的會混的那幾對，勾越多，照打本來就對的詞越容易被換掉。",
+                                     keywords: ["模糊音", "ㄣㄥ", "前後鼻音", "捲舌", "ㄓㄗ", "ㄕㄙ", "台灣國語", "分不清"])
   static let strokeLookup = PenglaiCopyItem(title: "筆畫查字", desc: "先按 ` 鍵，再用 h s p n z（橫、豎、撇、點、折）打筆畫，查出不知道讀音的字。",
                                             keywords: ["反查", "筆畫", "不會念", "讀音"])
   static let sentences = PenglaiCopyItem(title: "整句候選數", desc: "一次列出幾種不同的整句組合。", keywords: ["整句", "組句"])
@@ -619,6 +621,10 @@ struct PenglaiTypingPage: View {
             PenglaiDetailLink(section: "composing", segment: "key_model")
             PenglaiSwitch(isOn: row.shownValue.map { $0 == "true" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
           }
+          let fuzzy = model.fuzzyState
+          PenglaiFormRow(PenglaiCopy.fuzzy, row: nil, note: fuzzy.note) {
+            PenglaiFuzzyPairs()
+          }
         }
         ForEach(model.catalog?.recipes ?? [], id: \.id) { recipe in
           let state = model.recipeState(recipe)
@@ -867,7 +873,7 @@ enum PenglaiAdvanced {
       Segment(id: "key_model", title: "打錯也對得到", keys: [
         "translator/key_model/valid_first", "translator/key_model/fuzzy_pairs", "translator/key_model/substitution",
         "translator/key_model/omit_initial", "translator/key_model/omit_medial", "translator/key_model/double_press",
-        "translator/key_model/extra", "translator/key_model/max_edits",
+        "translator/key_model/extra", "translator/key_model/show_reading",
       ]),
       Segment(id: "split", title: "選字吃幾個鍵", keys: ["translator/extend_selection", "translator/split_penalty"]),
       Segment(id: "typing_style", title: "打法", keys: ["translator/typing_style"]),
@@ -943,9 +949,10 @@ enum PenglaiAdvanced {
     // 罕用黏合音節的清單是詞典產生器照字頻寫的（tools/gen_terra_tw.py），不是給人調的
     "translator/glue_syllables",
     // 按鍵模型的內部參數：11/6 量出來的界線，調了會讓一般打字變差（只打首注音的長句改錯幾百題），不給人調
-    "translator/key_model/abbreviations", "translator/key_model/require_tone", "translator/key_model/valid",
+    "translator/key_model/abbreviations", "translator/key_model/require_tone", "translator/key_model/fuzzy_untoned",
+    "translator/key_model/valid",
     "translator/key_model/valid_suggest", "translator/key_model/closed_type", "translator/key_model/sigma",
-    "translator/key_model/fuzzy", "translator/key_model/max_corrections",
+    "translator/key_model/fuzzy", "translator/key_model/max_corrections", "translator/key_model/max_edits",
     "custom_phrase/enable_charset_filter", "custom_phrase/enable_encoder", "custom_phrase/enable_sentence",
     "custom_phrase/encode_commit_history", "custom_phrase/max_homographs", "custom_phrase/max_phrase_length",
     "custom_phrase/sentence_over_completion", "custom_phrase/max_sentences", "custom_phrase/sentence_cutoff_threshold",
@@ -1285,6 +1292,39 @@ struct PenglaiDetailLink: View {
 }
 
 /// 進階頁的一列：依型別給控制項。
+/// 模糊音的勾選框：一對一顆按鈕，按下是開（輸入頁、進階「打錯也對得到」共用）
+struct PenglaiFuzzyPairs: View {
+  @EnvironmentObject var model: PenglaiSettingsModel
+
+  var body: some View {
+    let state = model.fuzzyState
+    let extra = state.pairs.filter { !PenglaiSettingsModel.fuzzyChoices.contains($0) }
+    HStack(spacing: 4) {
+      ForEach(PenglaiSettingsModel.fuzzyChoices, id: \.self) { pair in
+        let on = state.pairs.contains(pair)
+        Button { model.setFuzzyPair(pair, !on) } label: {
+          HStack(spacing: 3) {
+            Image(systemName: on ? "checkmark" : "plus").font(.system(size: 10, weight: .bold))
+            Text(pair).font(.system(size: 14))
+          }
+          .padding(.horizontal, 10).padding(.vertical, 5)
+          .foregroundStyle(on ? Color.white : Color.primary)
+          .background(RoundedRectangle(cornerRadius: 7).fill(on ? Color.accentColor : Color.secondary.opacity(0.18)))
+          .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("模糊音 \(pair)")
+        .accessibilityValue(on ? "開" : "關")
+      }
+      if !extra.isEmpty {
+        Text("＋" + extra.joined(separator: " ")).font(.system(size: 11)).foregroundStyle(.secondary)
+          .help("設定檔裡另外寫的，這裡不改")
+      }
+    }
+    .disabled(!state.enabled)
+  }
+}
+
 struct PenglaiGenericRow: View {
   @EnvironmentObject var model: PenglaiSettingsModel
   var row: PenglaiSettingRow
@@ -1322,7 +1362,9 @@ struct PenglaiGenericRow: View {
         }
       }
     default:
-      if PenglaiShortcuts.keys.contains(row.key), let options = row.info?.options {
+      if row.key == PenglaiSettingsModel.fuzzyPairsKey {
+        PenglaiFuzzyPairs()
+      } else if PenglaiShortcuts.keys.contains(row.key), let options = row.info?.options {
         // 快速鍵：選項全列（不限 6 個），設定檔手改成別的值時多列一個；選了別人的鍵就對調
         let current = model.shortcutValue(row)
         let values = options.map(\.text) + (options.contains { $0.text == current } ? [] : [current])
@@ -1405,6 +1447,7 @@ enum PenglaiSearch {
     addCopy(PenglaiCopy.prediction, .typing, available: model.predictionSwitch != nil)
     addCopy(PenglaiCopy.spacePunct, .typing, available: model.schemaRow(PenglaiSettingsModel.spacePunctKey) != nil)
     addCopy(PenglaiCopy.keyModel, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
+    addCopy(PenglaiCopy.fuzzy, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
     addCopy(PenglaiCopy.strokeLookup, .typing, available: model.schemaRow(PenglaiSettingsModel.reverseLookupKey) != nil)
     addCopy(PenglaiCopy.sentences, .typing, available: schemaReady)
     addCopy(PenglaiCopy.phraseLength, .typing, available: schemaReady)

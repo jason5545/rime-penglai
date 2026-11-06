@@ -3826,7 +3826,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "list",
    "title": "打錯也對得到：模糊音",
-   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄈㄏ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
+   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄡㄛ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞，沒打聲調（ㄖㄥ）也一樣。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": null,
    "penglai": true,
@@ -3840,12 +3840,42 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "list",
    "title": "打錯也對得到：模糊音",
-   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄈㄏ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
+   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄡㄛ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞，沒打聲調（ㄖㄥ）也一樣。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": null,
    "penglai": true,
    "where": {
     "file": true
+   }
+  },
+  {
+   "id": "translator:key_model/fuzzy_untoned",
+   "path": "custom_phrase/key_model/fuzzy_untoned",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：模糊音不用打聲調",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/fuzzy_untoned",
+   "path": "translator/key_model/fuzzy_untoned",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：模糊音不用打聲調",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
    }
   },
   {
@@ -3887,9 +3917,7 @@
    "max": 3,
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 53
+    "unused": "hidden"
    }
   },
   {
@@ -4012,6 +4040,38 @@
    "penglai": true,
    "where": {
     "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/show_reading",
+   "path": "custom_phrase/key_model/show_reading",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：修過的詞標出讀音",
+   "desc": "修過的詞在選字窗旁邊寫上修成的讀音（打 ㄈㄡ ㄓㄣ 出現「佛振 ㄈㄛˊ ㄓㄣˋ」），看得出這個詞是改過的。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/show_reading",
+   "path": "translator/key_model/show_reading",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：修過的詞標出讀音",
+   "desc": "修過的詞在選字窗旁邊寫上修成的讀音（打 ㄈㄡ ㄓㄣ 出現「佛振 ㄈㄛˊ ㄓㄣˋ」），看得出這個詞是改過的。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 53
    }
   },
   {
