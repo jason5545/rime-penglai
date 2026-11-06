@@ -214,7 +214,8 @@ struct PenglaiCustomYAML {
         .map { Self.indentation(lines[$0]) } ?? block.indent + 2
       let pad = String(repeating: " ", count: itemIndent)
       let newBody = body.map { pad + $0 }
-      lines.replaceSubrange((range.lowerBound + 1)...range.upperBound, with: newBody)
+      // 只有 `key:` 一行、底下沒有項目時，range 只有那一行：插在它後面（閉區間 lower+1...upper 會是空的、當掉）
+      lines.replaceSubrange((range.lowerBound + 1)..<(range.upperBound + 1), with: newBody)
       return range.lowerBound...(range.lowerBound + newBody.count)
     case .absent:
       let start = appendEntry([Self.keyToken(key) + ":"] + body.map { "  " + $0 })

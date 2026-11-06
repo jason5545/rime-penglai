@@ -1031,6 +1031,12 @@ final class PenglaiSettingsModel: ObservableObject {
     var note: String?
   }
 
+  /// 引擎把一對注音雙向互換：手寫的 ㄥㄣ 跟按鈕的 ㄣㄥ 是同一對
+  static func fuzzyCanonical(_ pair: String) -> String {
+    let reversed = String(pair.reversed())
+    return fuzzyChoices.contains(reversed) ? reversed : pair
+  }
+
   var fuzzyState: FuzzyState {
     guard !schemaID.isEmpty, let row = schemaRow(Self.keyModelKey) else {
       return FuzzyState(pairs: [], enabled: false, note: Self.unsupportedText)
@@ -1047,6 +1053,7 @@ final class PenglaiSettingsModel: ObservableObject {
       pairs = doc.listItems(Self.fuzzyPairsKey)?.compactMap(\.value) ?? []
     }
     let on = row.shownValue == "true"
+    pairs = pairs.map(Self.fuzzyCanonical)
     return FuzzyState(pairs: pairs, enabled: on && row.blocked == nil, note: on ? nil : "要先打開「打錯也對得到」")
   }
 
