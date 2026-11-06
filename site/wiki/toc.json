@@ -3,6 +3,7 @@
   {"title": "開始", "pages": [
    {"slug": "about", "title": "蓬萊是什麼", "desc": "蓬萊韻、蓬萊注音、貂毫三個名字，跟 Rime 內建的注音差在哪。"},
    {"slug": "install", "title": "安裝", "desc": "下載、安裝、更新、移除。"},
+   {"slug": "changelog", "title": "版本紀錄", "desc": "每一版改了什麼。"},
    {"slug": "first-run", "title": "第一次使用", "desc": "選讀音的小視窗、選單列的中／西圖示、蓬萊設定在哪裡。"}
   ]},
   {"title": "打字", "pages": [
