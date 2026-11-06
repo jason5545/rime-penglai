@@ -68,6 +68,10 @@
      "title": "組句與補完"
     },
     {
+     "id": "key_model",
+     "title": "打錯也對得到"
+    },
+    {
      "id": "split",
      "title": "選字吃幾個鍵"
     },
@@ -224,7 +228,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 72
+    "order": 80
    }
   },
   {
@@ -239,7 +243,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 70
+    "order": 78
    }
   },
   {
@@ -254,7 +258,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 76
+    "order": 84
    }
   },
   {
@@ -269,7 +273,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 71
+    "order": 79
    }
   },
   {
@@ -297,7 +301,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 73
+    "order": 81
    }
   },
   {
@@ -312,7 +316,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 74
+    "order": 82
    }
   },
   {
@@ -327,7 +331,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 75
+    "order": 83
    }
   },
   {
@@ -393,7 +397,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 77
+    "order": 85
    }
   },
   {
@@ -526,7 +530,7 @@
    "builtin": null,
    "where": {
     "page": "配色",
-    "order": 12
+    "order": 13
    }
   },
   {
@@ -540,7 +544,7 @@
    "builtin": null,
    "where": {
     "page": "配色",
-    "order": 14
+    "order": 15
    }
   },
   {
@@ -1145,7 +1149,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 108
+    "order": 116
    }
   },
   {
@@ -1160,7 +1164,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 109
+    "order": 117
    }
   },
   {
@@ -1175,7 +1179,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 110
+    "order": 118
    }
   },
   {
@@ -1203,7 +1207,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 111
+    "order": 119
    }
   },
   {
@@ -1218,7 +1222,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 113
+    "order": 121
    }
   },
   {
@@ -1233,7 +1237,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 112
+    "order": 120
    }
   },
   {
@@ -1345,7 +1349,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 61
+    "order": 69
    }
   },
   {
@@ -1361,7 +1365,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 62
+    "order": 70
    }
   },
   {
@@ -1376,7 +1380,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 63
+    "order": 71
    }
   },
   {
@@ -1448,7 +1452,7 @@
    "builtin": null,
    "where": {
     "page": "輸入",
-    "order": 8
+    "order": 9
    }
   },
   {
@@ -1546,7 +1550,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 104
+    "order": 112
    }
   },
   {
@@ -1566,7 +1570,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 103
+    "order": 111
    }
   },
   {
@@ -1782,7 +1786,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 59
+    "order": 67
    }
   },
   {
@@ -1805,7 +1809,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 101
+    "order": 109
    }
   },
   {
@@ -1828,7 +1832,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 102
+    "order": 110
    }
   },
   {
@@ -1848,7 +1852,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 100
+    "order": 108
    }
   },
   {
@@ -1859,7 +1863,7 @@
    "title": "相鄰鍵糾錯",
    "desc": "打錯成鍵盤上相鄰的鍵也能對到。例：開了之後 ㄨㄎㄧㄉㄉㄏㄉ 第一候選從「我可以打電話的」變「我可以的的話的」；實測只打第一個注音的長句，第一候選對的少了約 9%。",
    "value": null,
-   "builtin": "false",
+   "builtin": "true",
    "where": {
     "section": "composing",
     "segment": "composing",
@@ -1919,7 +1923,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 80
+    "order": 88
    }
   },
   {
@@ -1942,7 +1946,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 79
+    "order": 87
    }
   },
   {
@@ -1966,7 +1970,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 78
+    "order": 86
    }
   },
   {
@@ -1990,7 +1994,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 92
+    "order": 100
    }
   },
   {
@@ -2014,7 +2018,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 99
+    "order": 107
    }
   },
   {
@@ -2037,7 +2041,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 96
+    "order": 104
    }
   },
   {
@@ -2060,7 +2064,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 97
+    "order": 105
    }
   },
   {
@@ -2083,7 +2087,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 94
+    "order": 102
    }
   },
   {
@@ -2106,7 +2110,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 95
+    "order": 103
    }
   },
   {
@@ -2129,7 +2133,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 93
+    "order": 101
    }
   },
   {
@@ -2153,7 +2157,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 98
+    "order": 106
    }
   },
   {
@@ -2176,7 +2180,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 90
+    "order": 98
    }
   },
   {
@@ -2199,7 +2203,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 91
+    "order": 99
    }
   },
   {
@@ -2219,7 +2223,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 88
+    "order": 96
    }
   },
   {
@@ -2242,7 +2246,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 89
+    "order": 97
    }
   },
   {
@@ -2285,7 +2289,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 84
+    "order": 92
    }
   },
   {
@@ -2308,7 +2312,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 82
+    "order": 90
    }
   },
   {
@@ -2331,7 +2335,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 83
+    "order": 91
    }
   },
   {
@@ -2353,7 +2357,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 81
+    "order": 89
    }
   },
   {
@@ -2373,7 +2377,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 86
+    "order": 94
    }
   },
   {
@@ -2397,7 +2401,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 87
+    "order": 95
    }
   },
   {
@@ -2415,7 +2419,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 85
+    "order": 93
    }
   },
   {
@@ -2435,7 +2439,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 46
+    "order": 54
    }
   },
   {
@@ -2461,7 +2465,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 121
+    "order": 129
    }
   },
   {
@@ -2497,6 +2501,41 @@
    }
   },
   {
+   "id": "script_translator:key_model/enable",
+   "path": "translator/key_model/enable",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到",
+   "desc": "打完整注音時，按到旁邊的鍵、漏打聲母（ㄧㄝˋ → ㄒㄧㄝˋ）、漏打介音（ㄒㄢ → ㄒㄧㄢ）、同一鍵連按兩下，也找得到原本要打的詞。每種錯有自己的機率，錯幾次扣幾次分，跟詞典、前後文一起排。只修以聲調鍵結尾的音節，只打第一個注音的輸入不改；照打的注音本身就是合法音節時，修過的詞只當建議、排在第二。只有蓬萊版引擎認得。 同「輸入」頁的「打錯也對得到」。只有蓬萊版引擎認得。",
+   "value": "true",
+   "builtin": "false",
+   "options": [
+    true,
+    false
+   ],
+   "penglai": true,
+   "where": {
+    "page": "輸入",
+    "order": 7
+   }
+  },
+  {
+   "id": "script_translator:key_model/max_corrections",
+   "path": "translator/key_model/max_corrections",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：容錯候選最多幾個",
+   "desc": "一次最多列幾個修過的候選。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "30",
+   "min": 1,
+   "max": 60,
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
    "id": "script_translator:long_phrase_quota",
    "path": "translator/long_phrase_quota",
    "file": "penglai_zhuyin.custom.yaml",
@@ -2517,7 +2556,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 49
+    "order": 57
    }
   },
   {
@@ -2532,7 +2571,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 105
+    "order": 113
    }
   },
   {
@@ -2553,7 +2592,7 @@
    "penglai": true,
    "where": {
     "page": "輸入",
-    "order": 10
+    "order": 11
    }
   },
   {
@@ -2568,7 +2607,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 58
+    "order": 66
    }
   },
   {
@@ -2625,7 +2664,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 50
+    "order": 58
    }
   },
   {
@@ -2649,7 +2688,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 51
+    "order": 59
    }
   },
   {
@@ -2673,7 +2712,7 @@
    "penglai": true,
    "where": {
     "page": "輸入",
-    "order": 11
+    "order": 12
    }
   },
   {
@@ -2693,7 +2732,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 56
+    "order": 64
    }
   },
   {
@@ -2717,7 +2756,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 52
+    "order": 60
    }
   },
   {
@@ -2740,7 +2779,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 53
+    "order": 61
    }
   },
   {
@@ -2764,7 +2803,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 54
+    "order": 62
    }
   },
   {
@@ -2788,7 +2827,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 55
+    "order": 63
    }
   },
   {
@@ -2829,7 +2868,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 47
+    "order": 55
    }
   },
   {
@@ -2851,7 +2890,7 @@
    "where": {
     "section": "composing",
     "segment": "typing_style",
-    "order": 48
+    "order": 56
    }
   },
   {
@@ -2984,7 +3023,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 68
+    "order": 76
    }
   },
   {
@@ -2999,7 +3038,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 65
+    "order": 73
    }
   },
   {
@@ -3040,7 +3079,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 69
+    "order": 77
    }
   },
   {
@@ -3055,7 +3094,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 66
+    "order": 74
    }
   },
   {
@@ -3070,7 +3109,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 67
+    "order": 75
    }
   },
   {
@@ -3085,7 +3124,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 64
+    "order": 72
    }
   },
   {
@@ -3269,7 +3308,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 118
+    "order": 126
    }
   },
   {
@@ -3444,7 +3483,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 120
+    "order": 128
    }
   },
   {
@@ -3462,7 +3501,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 60
+    "order": 68
    }
   },
   {
@@ -3503,7 +3542,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 116
+    "order": 124
    }
   },
   {
@@ -3533,7 +3572,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 115
+    "order": 123
    }
   },
   {
@@ -3548,7 +3587,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 57
+    "order": 65
    }
   },
   {
@@ -3563,7 +3602,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 114
+    "order": 122
    }
   },
   {
@@ -3578,7 +3617,577 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 107
+    "order": 115
+   }
+  },
+  {
+   "id": "translator:key_model/abbreviations",
+   "path": "custom_phrase/key_model/abbreviations",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "string",
+   "title": "打錯也對得到：只打第一個注音時也修",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "none",
+   "penglai": true,
+   "where": {
+    "file": true
+   }
+  },
+  {
+   "id": "translator:key_model/abbreviations",
+   "path": "translator/key_model/abbreviations",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "string",
+   "title": "打錯也對得到：只打第一個注音時也修",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "none",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/closed_type",
+   "path": "custom_phrase/key_model/closed_type",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：修過的音節當照打的算",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/closed_type",
+   "path": "translator/key_model/closed_type",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：修過的音節當照打的算",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/double_press",
+   "path": "custom_phrase/key_model/double_press",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：同一鍵連按兩下的機率",
+   "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "options": [
+    0.001,
+    0.01,
+    0.03
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/double_press",
+   "path": "translator/key_model/double_press",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：同一鍵連按兩下的機率",
+   "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "options": [
+    0.001,
+    0.01,
+    0.03
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 51
+   }
+  },
+  {
+   "id": "translator:key_model/enable",
+   "path": "custom_phrase/key_model/enable",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到",
+   "desc": "同「輸入」頁的「打錯也對得到」。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "options": [
+    true,
+    false
+   ],
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/extra",
+   "path": "custom_phrase/key_model/extra",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：多按一個別的鍵的機率",
+   "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.002",
+   "options": [
+    0.0002,
+    0.002,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/extra",
+   "path": "translator/key_model/extra",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：多按一個別的鍵的機率",
+   "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.002",
+   "options": [
+    0.0002,
+    0.002,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 52
+   }
+  },
+  {
+   "id": "translator:key_model/fuzzy",
+   "path": "custom_phrase/key_model/fuzzy",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：模糊音的機率",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/fuzzy",
+   "path": "translator/key_model/fuzzy",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：模糊音的機率",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/fuzzy_pairs",
+   "path": "custom_phrase/key_model/fuzzy_pairs",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "list",
+   "title": "打錯也對得到：模糊音",
+   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄈㄏ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": null,
+   "penglai": true,
+   "where": {
+    "file": true
+   }
+  },
+  {
+   "id": "translator:key_model/fuzzy_pairs",
+   "path": "translator/key_model/fuzzy_pairs",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "list",
+   "title": "打錯也對得到：模糊音",
+   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄈㄏ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": null,
+   "penglai": true,
+   "where": {
+    "file": true
+   }
+  },
+  {
+   "id": "translator:key_model/max_edits",
+   "path": "custom_phrase/key_model/max_edits",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：一個音節最多錯幾次",
+   "desc": "一個音節裡最多修幾個錯。2 修得比較多，但比較慢、照打的詞比較常被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "1",
+   "options": [
+    1,
+    2
+   ],
+   "min": 1,
+   "max": 3,
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/max_edits",
+   "path": "translator/key_model/max_edits",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：一個音節最多錯幾次",
+   "desc": "一個音節裡最多修幾個錯。2 修得比較多，但比較慢、照打的詞比較常被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "1",
+   "options": [
+    1,
+    2
+   ],
+   "min": 1,
+   "max": 3,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 53
+   }
+  },
+  {
+   "id": "translator:key_model/omit_initial",
+   "path": "custom_phrase/key_model/omit_initial",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：漏打聲母的機率",
+   "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.003",
+   "options": [
+    0.0003,
+    0.003,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/omit_initial",
+   "path": "translator/key_model/omit_initial",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：漏打聲母的機率",
+   "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.003",
+   "options": [
+    0.0003,
+    0.003,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 49
+   }
+  },
+  {
+   "id": "translator:key_model/omit_medial",
+   "path": "custom_phrase/key_model/omit_medial",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：漏打介音的機率",
+   "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.003",
+   "options": [
+    0.0003,
+    0.003,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/omit_medial",
+   "path": "translator/key_model/omit_medial",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：漏打介音的機率",
+   "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.003",
+   "options": [
+    0.0003,
+    0.003,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 50
+   }
+  },
+  {
+   "id": "translator:key_model/require_tone",
+   "path": "custom_phrase/key_model/require_tone",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：只修打了聲調的音節",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/require_tone",
+   "path": "translator/key_model/require_tone",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：只修打了聲調的音節",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/sigma",
+   "path": "custom_phrase/key_model/sigma",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：鍵距的範圍",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.6",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/sigma",
+   "path": "translator/key_model/sigma",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：鍵距的範圍",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.6",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/substitution",
+   "path": "custom_phrase/key_model/substitution",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：按到旁邊的鍵的機率",
+   "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "options": [
+    0.001,
+    0.01,
+    0.03
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/substitution",
+   "path": "translator/key_model/substitution",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：按到旁邊的鍵的機率",
+   "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "options": [
+    0.001,
+    0.01,
+    0.03
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 48
+   }
+  },
+  {
+   "id": "translator:key_model/valid",
+   "path": "custom_phrase/key_model/valid",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：照打合法時多扣的分",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.0001",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/valid",
+   "path": "translator/key_model/valid",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：照打合法時多扣的分",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.0001",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/valid_first",
+   "path": "custom_phrase/key_model/valid_first",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：照打合法時也可以排第一",
+   "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "options": [
+    false,
+    true
+   ],
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/valid_first",
+   "path": "translator/key_model/valid_first",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：照打合法時也可以排第一",
+   "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "options": [
+    false,
+    true
+   ],
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 46
+   }
+  },
+  {
+   "id": "translator:key_model/valid_suggest",
+   "path": "custom_phrase/key_model/valid_suggest",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：照打合法時只當建議",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/valid_suggest",
+   "path": "translator/key_model/valid_suggest",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：照打合法時只當建議",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
    }
   },
   {
@@ -3594,7 +4203,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 119
+    "order": 127
    }
   },
   {
@@ -3651,7 +4260,7 @@
    "max": 9,
    "where": {
     "page": "輸入",
-    "order": 9
+    "order": 10
    }
   },
   {
@@ -3748,7 +4357,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 106
+    "order": 114
    }
   },
   {
@@ -3763,7 +4372,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 117
+    "order": 125
    }
   },
   {
@@ -3930,7 +4539,7 @@
    "builtin": "true",
    "where": {
     "page": "輸入",
-    "order": 7
+    "order": 8
    }
   },
   {
@@ -3978,7 +4587,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 121
+    "order": 129
    }
   },
   {

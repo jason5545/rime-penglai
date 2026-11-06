@@ -134,13 +134,7 @@ speller:
     - "abbrev/^([A-Za-z]+)\\d$/$1/"
     - "abbrev/^([bpmfdtnlgkhjqxZCSrzcs]).+(\\d)$/$1$2/"
     - "abbrev/^([iuvaoeEAIOUMNKGR]).+$/$1/"
-    # 漏打聲母也能對到（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）：只限打了聲調的完整音節，簡拼碰不到。容錯規則（librime 1.16）一條固定扣一折，
-    # 套兩次（先加 # 再拿掉、最後清掉帶 # 的）扣到萬分之一：一折時「ㄚ」「ㄧˊ ㄘˋ」常被拉成「他」「其次」。
-    # 單字扣完通常輸給同音的字（ㄧㄝˋ 的謝排第 57 個）。相鄰鍵糾錯（translator/enable_correction）不開：
-    # 只打第一個注音的長句改錯 112 題（10/28 基準）
-    - "derive/^([bpmfdtnlgkhjqxZCSrzcs])([iuvaoeEAIOUMNKGR][A-Za-z]*\\d)$/$2#/correction"
-    - "derive/^(.+)#$/$1/correction"
-    - "erase/^.+#$/"
+    # 漏打聲母、打錯鍵改由引擎的按鍵模型處理（translator/key_model），11/6 拿掉這裡原本的三條容錯規則
     # 大千鍵位
     - "xlit|bpmfdtnlgkhjqxZCSrzcsiuvaoeEAIOUMNKGR12345|1qaz2wsxedcrfv5tgbyhnujm8ik,9ol.0p;/- 6347|"
 
@@ -233,6 +227,12 @@ translator:
   # abbrev（簡拼、混著打），存在使用者資料夾的 penglai_typing_style.txt（只有計數，沒有文字）。現在只有罕用黏合音節照它開關。
   # off＝不偵測、罕用黏合音節照改（跟沒有這個設定一樣）；unknown、full、abbrev＝釘住那個狀態、不偵測（測試用）
   typing_style: auto
+  # 打錯也對得到（按鍵模型，11/6，蓬萊改過的 librime 才會讀）：照舊版 Google 注音的做法，每一鍵都是機率，按到旁邊的鍵、
+  # 漏打聲母、漏打介音（ㄒㄢ → ㄒㄧㄢ）、同一鍵連按兩下都算，錯幾次扣幾次分，跟詞典、語言模型一起排。
+  # 只修以聲調鍵結尾的音節（看起來是打完整注音的地方）；只打第一個注音的輸入不碰。照打的那段本身就是合法音節時，
+  # 修過的詞只當建議、最多排第二（valid_first: true 才可以搶第一）。模糊音另外開：fuzzy_pairs: [ㄣㄥ, ㄓㄗ, …]
+  key_model:
+    enable: true
 
 # 聯想（librime-predict，蓬萊改過：patches/librime-predict/0001）。開關是上面的 prediction（預設關）。
 # 打開時：送出之後，拿這則訊息到目前送出的字最長、表裡有的結尾查聯想（最多 max_context_chars 個字），

@@ -692,6 +692,8 @@ final class PenglaiSettingsModel: ObservableObject {
   static let englishKey = "translator/english_lexicon"
   /// 送出之後按空白補標點（外掛模組 penglai_space 讀，沒寫時開）
   static let spacePunctKey = "penglai_space/punct"
+  /// 打錯也對得到（按鍵模型，librime 0052）
+  static let keyModelKey = "translator/key_model/enable"
 
   /// 方案原檔寫了英文單字表（english_lexicon），才回傳那個名字。方案原檔預設打開，關掉是在 custom 寫空字串。
   private func readEnglishLexicon() -> String? {
@@ -1157,6 +1159,7 @@ final class PenglaiSettingsModel: ObservableObject {
     "style/candidate_list_layout", "style/font_point", "style/inline_preedit", "style/inline_candidate", "status_icon/show",
     "style/color_scheme", "style/color_scheme_dark", "menu/page_size", "translator/max_sentences",
     "translator/max_user_phrase_syllables", "translator/revert_learning_seconds", reverseLookupKey, englishKey, spacePunctKey,
+    keyModelKey,
   ]
 
   /// 進階頁不列的技術項目：值是檔名或資料格式，使用者不會需要換

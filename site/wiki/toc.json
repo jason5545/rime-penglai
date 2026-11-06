@@ -14,7 +14,7 @@
    {"slug": "punctuation", "title": "標點符號", "desc": "每個標點在哪個鍵，有好幾種的怎麼選，送出之後按空白自動補標點。"},
    {"slug": "english", "title": "英文與數字", "desc": "切換中文、西文，打到一半按 Shift 會發生什麼。"},
    {"slug": "stroke", "title": "不知道讀音：筆畫查字", "desc": "先按 `，再打橫豎撇點折，候選旁邊有注音。"},
-   {"slug": "missing-initial", "title": "漏打聲母", "desc": "打了聲調、漏掉聲母的詞也找得到。"},
+   {"slug": "missing-initial", "title": "打錯也對得到", "desc": "按到旁邊的鍵、漏打聲母或介音、連按兩下也找得到。"},
    {"slug": "switcher", "title": "方案選單（F4）", "desc": "臨時切換中西文、全形、簡化字、讀音。"},
    {"slug": "shortcuts", "title": "按鍵一覽", "desc": "所有按鍵整理成一張表。"}
   ]},

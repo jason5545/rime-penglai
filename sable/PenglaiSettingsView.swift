@@ -33,8 +33,8 @@ enum PenglaiCopy {
                                           keywords: ["預測", "聯想詞", "下一個詞", "接下來", "接著打", "自動完成"])
   static let spacePunct = PenglaiCopyItem(title: "送出之後按空白補標點", desc: "中文送出之後按空白，補上「，」，像問句時補「？」。緊接著再按一次空白換成空白。",
                                           keywords: ["標點", "逗號", "問號", "句號", "空白鍵", "自動標點", "猜標點"])
-  static let missingInitial = PenglaiCopyItem(title: "容許漏打聲母", desc: "打了聲調但漏掉聲母時，也能找到有聲母的詞（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）。",
-                                              keywords: ["容錯", "聲母", "漏打", "打錯"])
+  static let keyModel = PenglaiCopyItem(title: "打錯也對得到", desc: "打完整注音時按到旁邊的鍵、漏打聲母或介音、同一鍵連按兩下，也找得到原本要打的詞（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）。只打第一個注音時不改。",
+                                        keywords: ["容錯", "糾錯", "聲母", "漏打", "打錯", "按錯", "模糊音", "連按"])
   static let strokeLookup = PenglaiCopyItem(title: "筆畫查字", desc: "先按 ` 鍵，再用 h s p n z（橫、豎、撇、點、折）打筆畫，查出不知道讀音的字。",
                                             keywords: ["反查", "筆畫", "不會念", "讀音"])
   static let sentences = PenglaiCopyItem(title: "整句候選數", desc: "一次列出幾種不同的整句組合。", keywords: ["整句", "組句"])
@@ -614,9 +614,15 @@ struct PenglaiTypingPage: View {
             PenglaiSwitch(isOn: state.on, enabled: state.enabled) { model.setPrediction($0) }
           }
         }
+        if let row = model.schemaRow(PenglaiSettingsModel.keyModelKey) {
+          PenglaiFormRow(PenglaiCopy.keyModel, row: row) {
+            PenglaiDetailLink(section: "composing", segment: "key_model")
+            PenglaiSwitch(isOn: row.shownValue.map { $0 == "true" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
+          }
+        }
         ForEach(model.catalog?.recipes ?? [], id: \.id) { recipe in
           let state = model.recipeState(recipe)
-          let copy = recipe.id == "missing_initial_correction" ? PenglaiCopy.missingInitial : PenglaiCopyItem(title: recipe.title)
+          let copy = PenglaiCopyItem(title: recipe.title)
           PenglaiFormRow(copy, row: nil, note: recipeNote(state)) {
             PenglaiSwitch(isOn: state == .on ? true : state == .off ? false : nil, enabled: state == .on || state == .off) {
               model.setRecipe(recipe, enable: $0)
@@ -858,6 +864,11 @@ enum PenglaiAdvanced {
         "translator/contextual_suggestions", "translator/last_commit_as_context", "translator/enable_completion",
         "translator/enable_word_completion", "translator/enable_correction", "translator/strict_spelling", "reverse_lookup/enable_completion",
       ]),
+      Segment(id: "key_model", title: "打錯也對得到", keys: [
+        "translator/key_model/valid_first", "translator/key_model/fuzzy_pairs", "translator/key_model/substitution",
+        "translator/key_model/omit_initial", "translator/key_model/omit_medial", "translator/key_model/double_press",
+        "translator/key_model/extra", "translator/key_model/max_edits",
+      ]),
       Segment(id: "split", title: "選字吃幾個鍵", keys: ["translator/extend_selection", "translator/split_penalty"]),
       Segment(id: "typing_style", title: "打法", keys: ["translator/typing_style"]),
       Segment(id: "order", title: "候選排序", keys: [
@@ -931,6 +942,10 @@ enum PenglaiAdvanced {
     "penglai_tap/clipboard", "penglai_tap/pasteboard",
     // 罕用黏合音節的清單是詞典產生器照字頻寫的（tools/gen_terra_tw.py），不是給人調的
     "translator/glue_syllables",
+    // 按鍵模型的內部參數：11/6 量出來的界線，調了會讓一般打字變差（只打首注音的長句改錯幾百題），不給人調
+    "translator/key_model/abbreviations", "translator/key_model/require_tone", "translator/key_model/valid",
+    "translator/key_model/valid_suggest", "translator/key_model/closed_type", "translator/key_model/sigma",
+    "translator/key_model/fuzzy", "translator/key_model/max_corrections",
     "custom_phrase/enable_charset_filter", "custom_phrase/enable_encoder", "custom_phrase/enable_sentence",
     "custom_phrase/encode_commit_history", "custom_phrase/max_homographs", "custom_phrase/max_phrase_length",
     "custom_phrase/sentence_over_completion", "custom_phrase/max_sentences", "custom_phrase/sentence_cutoff_threshold",
@@ -973,6 +988,9 @@ enum PenglaiAdvanced {
       result["translator/english_keylid_\(key)"] = Requirement(parent: "translator/english_keylid", verb: "打開") { !($0 ?? "").isEmpty }
     }
     result["translator/english_space_min_length"] = Requirement(parent: "translator/english_space", verb: "打開") { $0 == "true" }
+    for key in ["valid_first", "fuzzy_pairs", "substitution", "omit_initial", "omit_medial", "double_press", "extra", "max_edits"] {
+      result["translator/key_model/\(key)"] = Requirement(parent: PenglaiSettingsModel.keyModelKey, verb: "打開") { $0 == "true" }
+    }
     result["penglai_space/replace"] = Requirement(parent: "penglai_space/punct", verb: "打開") { $0 != "false" }
     result["penglai_space/period"] = Requirement(parent: "penglai_space/punct", verb: "打開") { $0 != "false" }
     result["penglai_space/foreign"] = Requirement(parent: "penglai_space/punct", verb: "打開") { $0 != "false" }
@@ -1386,7 +1404,7 @@ enum PenglaiSearch {
     addCopy(PenglaiCopy.english, .typing, available: model.schemaRow(PenglaiSettingsModel.englishKey) != nil)
     addCopy(PenglaiCopy.prediction, .typing, available: model.predictionSwitch != nil)
     addCopy(PenglaiCopy.spacePunct, .typing, available: model.schemaRow(PenglaiSettingsModel.spacePunctKey) != nil)
-    addCopy(PenglaiCopy.missingInitial, .typing, available: model.catalog?.recipes.contains { $0.id == "missing_initial_correction" } == true)
+    addCopy(PenglaiCopy.keyModel, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
     addCopy(PenglaiCopy.strokeLookup, .typing, available: model.schemaRow(PenglaiSettingsModel.reverseLookupKey) != nil)
     addCopy(PenglaiCopy.sentences, .typing, available: schemaReady)
     addCopy(PenglaiCopy.phraseLength, .typing, available: schemaReady)

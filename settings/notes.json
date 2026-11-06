@@ -19,27 +19,26 @@
   "schema_list", "switcher/hotkeys", "switcher/save_options", "selector", "navigator", "dependencies",
   "__include", "__patch", "__append", "__merge"
  ],
- "recipes": [
-  {
-   "id": "missing_initial_correction",
-   "title": "漏打聲母也能對到",
-   "desc": "打了聲調、只漏掉聲母的音節也能對到有聲母的詞（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）。只限打完整、有聲調的音節，簡拼不受影響。開了之後零聲母字偶爾會被拉成有聲母的（啊 → 他）。",
-   "config": "schema",
-   "list": "speller/algebra",
-   "insert_before": "^(abbrev/\\^\\(.*\\)\\$/\\$1!/$|xlit\\|bpmf)",
-   "comments": [
-    "# 漏打聲母也能對到（ㄧㄝˋ → 謝）：只限打了聲調的完整音節，簡拼碰不到。librime 1.16 的容錯規則，",
-    "# 一條規則固定扣一折，這裡套兩次（先加 # 再拿掉、最後清掉帶 # 的）扣到萬分之一：一折時「ㄚ」「ㄧˊ ㄘˋ」常被拉成「他」「其次」",
-    "# 相鄰鍵糾錯（translator/enable_correction）不開：只打第一個注音的長句改錯 112 題（10/28 基準）"
-   ],
-   "items": [
-    "derive/^([bpmfdtnlgkhjqxZCSrzcs])([iuvaoeEAIOUMNKGR][A-Za-z]*\\d)$/$2#/correction",
-    "derive/^(.+)#$/$1/correction",
-    "erase/^.+#$/"
-   ]
-  }
- ],
+ "recipes": [],
  "keys": {
+  "script_translator:key_model/enable": {"title": "打錯也對得到", "desc": "打完整注音時，按到旁邊的鍵、漏打聲母（ㄧㄝˋ → ㄒㄧㄝˋ）、漏打介音（ㄒㄢ → ㄒㄧㄢ）、同一鍵連按兩下，也找得到原本要打的詞。每種錯有自己的機率，錯幾次扣幾次分，跟詞典、前後文一起排。只修以聲調鍵結尾的音節，只打第一個注音的輸入不改；照打的注音本身就是合法音節時，修過的詞只當建議、排在第二。只有蓬萊版引擎認得。", "options": [true, false], "default": "false", "penglai": true},
+  "script_translator:key_model/max_corrections": {"title": "打錯也對得到：容錯候選最多幾個", "desc": "一次最多列幾個修過的候選。只有蓬萊版引擎認得。", "min": 1, "max": 60, "step": 1, "default": "30", "penglai": true},
+  "translator:key_model/enable": {"title": "打錯也對得到", "desc": "同「輸入」頁的「打錯也對得到」。只有蓬萊版引擎認得。", "options": [true, false], "default": "false", "penglai": true},
+  "translator:key_model/valid_first": {"title": "打錯也對得到：照打合法時也可以排第一", "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。", "options": [false, true], "default": "false", "penglai": true},
+  "translator:key_model/fuzzy_pairs": {"title": "打錯也對得到：模糊音", "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄈㄏ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/substitution": {"title": "打錯也對得到：按到旁邊的鍵的機率", "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。", "options": [0.001, 0.01, 0.03], "min": 0, "max": 0.1, "step": 0.001, "default": "0.01", "penglai": true},
+  "translator:key_model/omit_initial": {"title": "打錯也對得到：漏打聲母的機率", "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。", "options": [0.0003, 0.003, 0.01], "min": 0, "max": 0.1, "step": 0.0001, "default": "0.003", "penglai": true},
+  "translator:key_model/omit_medial": {"title": "打錯也對得到：漏打介音的機率", "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。", "options": [0.0003, 0.003, 0.01], "min": 0, "max": 0.1, "step": 0.0001, "default": "0.003", "penglai": true},
+  "translator:key_model/double_press": {"title": "打錯也對得到：同一鍵連按兩下的機率", "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。", "options": [0.001, 0.01, 0.03], "min": 0, "max": 0.1, "step": 0.001, "default": "0.01", "penglai": true},
+  "translator:key_model/extra": {"title": "打錯也對得到：多按一個別的鍵的機率", "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。", "options": [0.0002, 0.002, 0.01], "min": 0, "max": 0.1, "step": 0.0001, "default": "0.002", "penglai": true},
+  "translator:key_model/max_edits": {"title": "打錯也對得到：一個音節最多錯幾次", "desc": "一個音節裡最多修幾個錯。2 修得比較多，但比較慢、照打的詞比較常被換掉。只有蓬萊版引擎認得。", "options": [1, 2], "min": 1, "max": 3, "step": 1, "default": "1", "penglai": true},
+  "translator:key_model/abbreviations": {"title": "打錯也對得到：只打第一個注音時也修", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/require_tone": {"title": "打錯也對得到：只修打了聲調的音節", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/valid": {"title": "打錯也對得到：照打合法時多扣的分", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/valid_suggest": {"title": "打錯也對得到：照打合法時只當建議", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/closed_type": {"title": "打錯也對得到：修過的音節當照打的算", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/sigma": {"title": "打錯也對得到：鍵距的範圍", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
+  "translator:key_model/fuzzy": {"title": "打錯也對得到：模糊音的機率", "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。", "penglai": true},
   "sable:style/candidate_list_layout": {"title": "候選排列", "desc": "直式一行一個候選；橫式排成一列。選的配色若自帶排列會蓋掉這裡。認不得的值當直式。", "options": ["stacked", "linear"], "labels": {"stacked": "直式", "linear": "橫式"}, "probe": {"class": "影響顯示", "example": "squirrel.yaml style/candidate_list_layout: linear，淺色 linear（）：False → True"}},
   "sable:style/text_orientation": {"title": "文字方向", "desc": "直書會把整個選字窗轉成直的。認不得的值當橫書。", "options": ["horizontal", "vertical"], "labels": {"horizontal": "橫書", "vertical": "直書"}, "probe": {"class": "影響顯示", "example": "squirrel.yaml style/text_orientation: vertical，淺色 vertical（）：False → True"}},
   "sable:style/font_point": {"title": "字級", "desc": "選字窗的字大小，編號、註解沒另外設定時跟著它。例：改 40，候選、編號、註解都讀成 40；-1 讀成 12。", "min": 8, "max": 72, "step": 1, "probe": {"class": "影響顯示", "example": "squirrel.yaml style/font_point: -1，淺色 comment_font（）：Avenir 16.0 → Avenir 12.0"}},
