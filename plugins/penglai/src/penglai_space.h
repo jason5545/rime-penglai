@@ -1,10 +1,12 @@
 // 送出之後按空白補標點（原 penglai_space.lua，10/30）：很多人打字不加標點、用空白隔開。中文送出之後、組字區空著時按空白，
-// 不出空白，直接送出猜的標點：剛送出的那一句像問句時是「？」，不然是「，」。
+// 不出空白，直接送出猜的標點：剛送出的那一句像問句時是「？」，前一段是嘆詞時是「！」，不然是「，」。
 //   要真的空白：緊接著再按一次空白，剛補的標點換成空白（中文␣）；再按就是一般的空白。換標點是貂毫做的（patch 0023）：
 //     這裡把 context 的 penglai_space 設成 replace（補標點那次設成 punct），空白照原本的路走；貂毫核對游標前面確實是剛補的標點才換，
 //     核對不到的 App（終端機之類）、別的前端照舊把空白鍵交給 App（標點後面接空白）。也可以先按 BackSpace 刪掉標點再按空白
 //   句子打完了：補了「，」之後緊接著按 Return，「，」換成「。」，Return 照舊交給 App（換段、送出）。也是貂毫換的（patch 0025）：
 //     context 的 penglai_space 設成 period，Return 照原本的路走；貂毫核對游標前面確實是剛補的「，」才換。「？」不換
+//   嘆詞開頭（11/6）：前一段只有一個招呼、感嘆的嘆詞（嘿、哇、喂、哎呀…），這一段不是問句、8 個字以內時補「！」：
+//     嘿，好主意！ 哇，好冷！（嘿，你在幹嘛？照舊是問句）。前一段是補的標點或標點鍵的「，」「！」隔開的；換成空白就不算
 //   要別的標點：直接按標點鍵（Shift+, 是「，」、Shift+. 是「。」），組字區空著時照原本的標點處理
 // 「剛送出的中文」：上一筆送出的字結尾是漢字，中間沒按過送出以外的鍵。BackSpace、方向鍵、Return 送出訊息、切中西文、
 //   Command 組合鍵（貼上、移游標）、在選字窗以外點滑鼠（移動插入點；貂毫補送帶 Command 的 VoidSymbol）都算斷掉，
@@ -40,6 +42,10 @@ namespace penglai {
 bool IsQuestion(const string& text, const SortedTable* model);
 // 模型的分數（gen_punct.py 的 feats，同一個特徵只算一次，照這個順序加總）
 double QuestionScore(const string& text, const vector<string>& chars, const SortedTable& model);
+// 中文的那一段補什麼：像問句「？」，前一段（prev，用「，」「！」隔開的那一段）是嘆詞、這一段 8 個字以內「！」，不然「，」
+string GuessPunct(const string& clause, const string& prev, const SortedTable* model);
+// 前一段只有一個招呼、感嘆的嘆詞（嘿、哇、喂、哎呀…），這一段 1–8 個字（空白不算）
+bool AfterInterjection(const string& prev, const string& clause);
 // 游標前是別處的字時按空白補什麼：before、after 是游標前後的字（UTF-8）。回傳「，」「？」「：」「, 」，空字串＝照舊出空白
 string ForeignPunct(const string& before, const string& after, const SortedTable* model);
 
@@ -59,6 +65,7 @@ class PenglaiSpace : public rime::Processor {
   // 剛送出字（任何字，含自己補的標點），之後還沒有斷掉 clause_ 的事件：這時的空白不看游標前後文
   bool fresh_ = false;
   std::optional<string> clause_;   // 這一句貂毫送出的字（結尾是漢字的才接著算；english 開著時英文詞也算）
+  std::optional<string> prev_;   // 前一段：用補的標點或標點鍵的「，」「！」隔開、clause_ 前面那一段（嘆詞後面補「！」用）
   std::optional<string> mark_;   // 剛補的標點：緊接著的空白、Return 把它換掉；之後任何鍵、送出、切中西文都清掉
   an<SortedTable> model_;
   rime::connection commit_connection_;

@@ -40,6 +40,11 @@ const char* const kNegEmbedVerbs[] = {"不知道", "看看", "問問", "想想",
 const char* const kNegEmbedTargets[] = {"什麼", "怎麼", "誰", "哪", "多少", "為什麼", "幾",
                                         "是不是", "有沒有", "要不要", "會不會", "能不能"};
 const char* const kNegKeepEnds[] = {"嗎", "呢", "對吧", "是吧"};
+// 嘆詞開頭（11/6）：前一段只有一個招呼、感嘆的嘆詞，這一段不是問句、8 個字以內，補「！」不補「，」。
+// 嘆詞開頭的句子是對人說的，嘆詞後面那一段多半就是整句的重點（嘿，好主意／哇，好冷／喂，和好吧），收尾用「！」讀得通，
+// 「，」反而像話還沒說完。應答的嘆詞（喔、哦、嗯）不收：「喔，好！」口氣變了；長的一段（嘿，俺那婆娘要是知道……）多半還沒說完
+const char* const kInterjections[] = {"嘿", "哇", "哇塞", "喂", "哎呀", "哎喲", "哎唷", "天啊"};
+const size_t kInterjectionMax = 8;
 const uint32_t kBu = 0x4e0d;   // 不
 const uint32_t kMei = 0x6c92;  // 沒
 
@@ -253,7 +258,51 @@ string TakeProperty(Context* ctx, const char* name) {
   return value;
 }
 
+// [?, end) 這一段的開頭：往前到最後一個標點（英文、數字中間的半形標點不算）或換行之後，再跳過開頭的空白
+size_t SegmentStart(const vector<uint32_t>& cps, size_t end) {
+  size_t from = end;
+  while (from > 0 && !IsNewline(cps[from - 1]) && !(IsPunct(cps[from - 1]) && !InWord(cps, from - 1)))
+    --from;
+  while (from < end && IsSpace(cps[from]))
+    ++from;
+  return from;
+}
+
+// 兩段之間的「，」「！」（半形的也算）：前一段是嘆詞時，這一段可能補「！」
+bool IsClauseBreak(uint32_t cp) {
+  return cp == 0xff0c || cp == 0xff01 || cp == ',' || cp == '!';
+}
+
+// 去掉頭尾的空白
+string Trim(const string& text) {
+  vector<uint32_t> cps;
+  if (!DecodeUtf8(text, &cps))
+    return text;
+  size_t b = 0, e = cps.size();
+  while (b < e && IsSpace(cps[b]))
+    ++b;
+  while (e > b && IsSpace(cps[e - 1]))
+    --e;
+  return EncodeUtf8(cps, b, e);
+}
+
 }  // namespace
+
+bool AfterInterjection(const string& prev, const string& clause) {
+  string head = Trim(prev);
+  bool hit = false;
+  for (const char* w : kInterjections)
+    hit = hit || head == w;
+  if (!hit)
+    return false;
+  vector<uint32_t> cps;
+  if (!DecodeUtf8(clause, &cps))
+    return false;
+  size_t n = 0;
+  for (uint32_t c : cps)
+    n += IsSpace(c) ? 0 : 1;
+  return n > 0 && n <= kInterjectionMax;
+}
 
 string ForeignPunct(const string& before, const string& after, const SortedTable* model) {
   vector<uint32_t> all, tail;
@@ -279,12 +328,21 @@ string ForeignPunct(const string& before, const string& after, const SortedTable
   if (caret < all.size() && (all[caret] == 0x300c || all[caret] == 0x300e || all[caret] == 0x201c))
     return "：";
   // 中文標點：問句看游標前、最後一個標點（或換行）之後那一段，跟送出之後補標點看的範圍一樣
-  size_t from = caret;
-  while (from > 0 && !IsNewline(all[from - 1]) && !(IsPunct(all[from - 1]) && !InWord(all, from - 1)))
-    --from;
-  while (from < caret && IsSpace(all[from]))
-    ++from;
-  return IsQuestion(EncodeUtf8(all, from, caret), model) ? "？" : "，";
+  size_t from = SegmentStart(all, caret);
+  // 前一段：這一段前面緊接著是「，」「！」（半形的也算）時，再往前到上一個標點（或換行）為止
+  size_t gap = from;
+  while (gap > 0 && IsSpace(all[gap - 1]))
+    --gap;
+  string prev;
+  if (gap > 0 && IsClauseBreak(all[gap - 1]))
+    prev = EncodeUtf8(all, SegmentStart(all, gap - 1), gap - 1);
+  return GuessPunct(EncodeUtf8(all, from, caret), prev, model);
+}
+
+string GuessPunct(const string& clause, const string& prev, const SortedTable* model) {
+  if (IsQuestion(clause, model))
+    return "？";
+  return AfterInterjection(prev, clause) ? "！" : "，";
 }
 
 double QuestionScore(const string& text, const vector<string>& chars, const SortedTable& model) {
@@ -357,14 +415,22 @@ PenglaiSpace::PenglaiSpace(const Ticket& ticket) : Processor(ticket) {
     if (!text.empty())
       fresh_ = true;
     // penglai_space/english：結尾是英文詞也接著算這一句（例如「CTO」之後按空白也補標點；要空白就按兩下）
-    if (EndsWithHan(text) || (english_ && EndsWithEnglish(text)))
+    if (EndsWithHan(text) || (english_ && EndsWithEnglish(text))) {
       clause_ = clause_.value_or("") + text;
+      return;
+    }
+    // 標點鍵送出「，」「！」：前一段留著（前一段是嘆詞時，下一段可能補「！」）
+    vector<uint32_t> cps;
+    if (clause_ && DecodeUtf8(text, &cps) && cps.size() == 1 && IsClauseBreak(cps[0]))
+      prev_ = clause_;
     else
-      clause_.reset();
+      prev_.reset();
+    clause_.reset();
   });
   option_connection_ = ctx->option_update_notifier().connect([this](Context* c, const string& name) {
     if (name == "ascii_mode") {
       clause_.reset();
+      prev_.reset();
       mark_.reset();
       fresh_ = false;
     }
@@ -388,6 +454,7 @@ ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
   if (key.keycode() == 0xffffff) {
     if (key.super()) {
       clause_.reset();
+      prev_.reset();
       mark_.reset();
       fresh_ = false;
     }
@@ -414,6 +481,7 @@ ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
   if (code == 0xff0d && plain && !composing && period_ && mark && (*mark == "，" || *mark == ", ")) {
     ctx->set_property(kProperty, "period");
     clause_.reset();
+    prev_.reset();
     fresh_ = false;
     return kNoop;
   }
@@ -422,16 +490,19 @@ ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
       // 緊接著再按一次空白：標成 replace，空白照原本的路走（半形沒人收、交給貂毫，全形是 punctuator 送出「　」），
       // 貂毫用它換掉剛補的標點；換不了就照舊交給 App。再按就沒有 mark、也沒有 clause
       ctx->set_property(kProperty, "replace");
+      prev_.reset();   // 標點換成空白了，前一段跟這一段不再用標點隔開
       fresh_ = false;
       return kNoop;
     }
     if (clause_) {
-      // 這一句是貂毫送出的字：english 開著時英文詞至少兩個、佔八成以上補「, 」，不然照問句補「？」或「，」
+      // 這一句是貂毫送出的字：english 開著時英文詞至少兩個、佔八成以上補「, 」，
+      // 不然像問句補「？」，前一段是嘆詞補「！」，其他補「，」
       vector<uint32_t> cps;
       size_t english = 0, han = 0;
       if (english_ && DecodeUtf8(*clause_, &cps))
         CountWords(cps, 0, cps.size(), &english, &han);
-      string punct = MostlyEnglish(english, han) ? ", " : IsQuestion(*clause_, model_.get()) ? "？" : "，";
+      string punct = MostlyEnglish(english, han) ? ", " : GuessPunct(*clause_, prev_.value_or(""), model_.get());
+      prev_ = clause_;   // 補的標點隔開了這一段：下一段的前一段就是它
       clause_.reset();
       mark_ = punct;
       fresh_ = true;
@@ -457,6 +528,7 @@ ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
   bool printable = code >= 0x21 && code <= 0x7e && !(key.ctrl() || key.alt() || key.super());
   if (!composing && !printable) {
     clause_.reset();
+    prev_.reset();
     fresh_ = false;
   }
   return kNoop;
