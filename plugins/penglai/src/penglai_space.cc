@@ -42,9 +42,44 @@ const char* const kNegEmbedTargets[] = {"什麼", "怎麼", "誰", "哪", "多�
 const char* const kNegKeepEnds[] = {"嗎", "呢", "對吧", "是吧"};
 // 嘆詞開頭（11/6）：前一段只有一個招呼、感嘆的嘆詞，這一段不是問句、8 個字以內，補「！」不補「，」。
 // 嘆詞開頭的句子是對人說的，嘆詞後面那一段多半就是整句的重點（嘿，好主意／哇，好冷／喂，和好吧），收尾用「！」讀得通，
-// 「，」反而像話還沒說完。應答的嘆詞（喔、哦、嗯）不收：「喔，好！」口氣變了；長的一段（嘿，俺那婆娘要是知道……）多半還沒說完
-const char* const kInterjections[] = {"嘿", "哇", "哇塞", "喂", "哎呀", "哎喲", "哎唷", "天啊"};
+// 「，」反而像話還沒說完。應答的嘆詞（喔、哦、嗯）不收：「喔，好！」口氣變了；「喂」多半是講電話、自報身分（喂，我是小明），也不收。
+// 寫法照詞典會送出的（哎喲、唉唷、唉呀、天哪…），加上語音輸入、貼上的常見寫法（哎呦、哎唷、天啊）
+const char* const kInterjections[] = {"嘿", "嗨", "哇", "哇塞", "哎呀", "唉呀", "哎喲", "哎唷", "哎呦", "唉唷", "天啊", "天哪",
+                                      "我的天", "我的天啊", "我的天哪"};
 const size_t kInterjectionMax = 8;
+// 嘆詞後面這一段還沒說完、後面一定還有話的，照舊補「，」：
+//   有從屬連詞（偏句要接正句：嘿，如果你有空｜明天來找我；前面有主詞、時間詞也算：嘿，明天如果有空｜…）。
+//   整段裡有就算，但連詞後面要還有字（嘿，你說了就算、嘿，這是假設是說完的）；整段就是連詞（嘿，因為｜）也算。
+//   複合詞裡的不算：主要是、只要是、需要是…（要是前一個字是 kYaoshiNot 之一）、千萬一定（萬一前一個字是千）
+const char* const kOpenConj[] = {"如果", "要是", "假如", "假設", "萬一", "因為", "由於", "雖然", "既然",
+                                 "除非", "即使", "哪怕", "一旦", "就算", "等到"};
+const char* const kYaoshiNot[] = {"主", "只", "需", "想", "還", "重", "就", "總", "不", "要", "也", "都"};
+//   也是動詞的（那就算了、我終於等到了、等到你了）：後面只剩「了」或「代詞＋了」（可以再接啦、吧…）時是說完的
+const char* const kOpenConjVerb[] = {"就算", "等到"};
+const char* const kLeParticles[] = {"了", "了啦", "了吧", "了啊", "了喔", "了嘛", "了耶"};
+//   也是整段裡有就算，但：後面只剩「了」（不管了）、前面有字而後面沒字（我不管）是說完的；
+//   「只要」後面有「就」是說完的（只要按這裡就好、你只要按這裡就好），沒有「就」照擋（你只要有空｜就來找我）
+const char* const kOpenHeads[] = {"只要", "不管", "無論", "不論"};
+const char* const kPronouns[] = {"我們", "你們", "他們", "她們", "妳們", "我", "你", "他", "她", "妳", "您"};
+//   結尾是要帶子句的動詞、偏句的標記（嘿，我覺得｜…、嘿，我跟你講｜…、…的話、…的時候）
+const char* const kOpenTails[] = {"覺得", "認為", "以為", "我希望", "聽說", "跟你說", "跟你講", "告訴你", "我說", "你說",
+                                  "我想", "想說", "我是說", "你知道", "的話", "的時候", "以後", "之後", "以前", "之前",
+                                  "已經", "正在", "正要", "快要", "打算", "準備", "在想", "發現", "記得", "我猜",
+                                  "想要", "需要", "重點是", "問題是", "意思是", "原因是", "結果是", "主要是"};
+//   「跟／告訴＋對象（＋說、講）」結尾（嘿，跟妳說｜…、嘿，告訴大家｜…）
+const char* const kTellVerbs[] = {"跟", "告訴"};
+const char* const kTellTargets[] = {"你", "妳", "您", "你們", "妳們", "大家", "各位"};
+//   整段就是話語標記、填空詞（嘿，對了｜…、哇，這個｜…）：比整段，「猜對了」「選這個」是說完的
+const char* const kOpenWhole[] = {"對了", "其實", "不過", "但是", "可是", "然後", "所以", "而且", "還有", "另外", "結果",
+                                  "話說", "說真的", "老實說", "坦白說", "說實話", "這個", "那個", "就是"};
+//   稱呼（呼語：嘿，老師｜…）：整段相等；頭銜前面是一個字（姓：王老師）或各位、親愛的（各位同學）也算，謝謝老師不算。
+//   全是英文詞、每個詞大寫開頭也當成稱呼（嘿，Claude、嘿，CC；哇，amazing 不算）。中文人名抓不到
+const char* const kAddress[] = {"大家", "各位", "你們", "兄弟", "寶貝", "親愛的", "媽", "爸", "媽媽", "爸爸", "哥", "姐",
+                                "哥哥", "姐姐", "弟弟", "妹妹", "老婆", "老公", "朋友"};
+const char* const kTitles[] = {"老師", "老闆", "先生", "小姐", "女士", "同學"};
+const char* const kTitlePrefixes[] = {"各位", "親愛的"};
+// 全大寫、當感嘆用的英文詞不是名字（嘿，OK）
+const char* const kCapsWords[] = {"OK", "NO", "YES", "WOW", "OMG", "LOL"};
 const uint32_t kBu = 0x4e0d;   // 不
 const uint32_t kMei = 0x6c92;  // 沒
 
@@ -286,25 +321,176 @@ string Trim(const string& text) {
   return EncodeUtf8(cps, b, e);
 }
 
+// 送出的字以「，」「！」結尾、前面是漢字時，回傳這個標點前面那一段（到上一個標點為止）；不然沒有
+std::optional<string> ClauseBefore(const string& text) {
+  vector<uint32_t> cps;
+  if (!DecodeUtf8(text, &cps) || cps.size() < 2 || !IsClauseBreak(cps.back()) || !IsHan(cps[cps.size() - 2]))
+    return std::nullopt;
+  size_t end = cps.size() - 1;
+  return EncodeUtf8(cps, SegmentStart(cps, end), end);
+}
+
+// 去掉開頭的一個人稱代詞（後面還有字才去）
+string StripPronoun(const string& t) {
+  for (const char* p : kPronouns) {
+    if (t.size() > strlen(p) && t.compare(0, strlen(p), p) == 0)
+      return t.substr(strlen(p));
+  }
+  return t;
+}
+
+// 這一段有從屬連詞、後面一定還有話（kOpenConj 的說明）
+bool OpenConj(const string& t) {
+  for (const char* w : kOpenConj) {
+    size_t len = strlen(w);
+    bool verb = false;
+    for (const char* v : kOpenConjVerb)
+      verb = verb || strcmp(v, w) == 0;
+    for (size_t p = t.find(w); p != string::npos; p = t.find(w, p + 1)) {
+      string before = t.substr(0, p);
+      string rest = t.substr(p + len);
+      if (strcmp(w, "要是") == 0) {
+        bool compound = false;
+        for (const char* c : kYaoshiNot)
+          compound = compound || EndsWith(before, c);
+        if (compound)
+          continue;
+      }
+      if (strcmp(w, "萬一") == 0 && EndsWith(before, "千"))
+        continue;
+      if (strcmp(w, "因為") == 0 && EndsWith(before, "是"))   // 是因為：謂語（都是因為你）
+        continue;
+      if (rest.empty()) {
+        if (before.empty() || StripPronoun(before + w) == w)   // 整段就是連詞、代詞＋連詞（嘿，因為｜、嘿，我們要是｜）
+          return true;
+        continue;             // 連詞在最後（說了就算、這是假設）
+      }
+      if (verb) {
+        bool done = false;
+        for (const char* le : kLeParticles) {
+          done = done || rest == le;
+          for (const char* q : kPronouns)
+            done = done || rest == string(q) + le;
+        }
+        if (done)   // 就算了、那就算了吧、等到了、等到你了
+          continue;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
+// 只要、不管、無論、不論（kOpenHeads 的說明）
+bool OpenHead(const string& t) {
+  for (const char* w : kOpenHeads) {
+    size_t len = strlen(w);
+    for (size_t p = t.find(w); p != string::npos; p = t.find(w, p + 1)) {
+      string before = t.substr(0, p);
+      string rest = t.substr(p + len);
+      if (rest.empty()) {
+        if (before.empty())   // 整段就是連詞（嘿，只要｜）
+          return true;
+        continue;             // 我不管
+      }
+      if (rest == "了")       // 不管了
+        continue;
+      if (strcmp(w, "只要") == 0 && rest.find("就") != string::npos)   // 只要按這裡就好
+        continue;
+      return true;
+    }
+  }
+  return false;
+}
+
 }  // namespace
 
+bool IsInterjection(const string& text) {
+  string t = Trim(text);
+  for (const char* w : kInterjections) {
+    if (t == w)
+      return true;
+  }
+  return false;
+}
+
 bool AfterInterjection(const string& prev, const string& clause) {
-  string head = Trim(prev);
-  bool hit = false;
-  for (const char* w : kInterjections)
-    hit = hit || head == w;
-  if (!hit)
+  if (!IsInterjection(prev) || IsInterjection(clause))   // 嘆詞連打（哇，哇｜）照舊「，」
     return false;
+  string t = Trim(clause);
   vector<uint32_t> cps;
-  if (!DecodeUtf8(clause, &cps))
+  if (!DecodeUtf8(t, &cps))
     return false;
   size_t n = 0;
   for (uint32_t c : cps)
     n += IsSpace(c) ? 0 : 1;
-  return n > 0 && n <= kInterjectionMax;
+  if (n == 0 || n > kInterjectionMax)
+    return false;
+  if (OpenConj(t) || OpenHead(t))
+    return false;
+  for (const char* v : kTellVerbs) {
+    for (const char* q : kTellTargets) {
+      string base = string(v) + q;
+      if (EndsWith(t, base) || EndsWith(t, base + "說") || EndsWith(t, base + "講"))
+        return false;
+    }
+  }
+  for (const char* w : kOpenTails) {
+    if (EndsWith(t, w))
+      return false;
+  }
+  for (const char* w : kOpenWhole) {
+    if (t == w)
+      return false;
+  }
+  for (const char* w : kAddress) {
+    if (t == w)
+      return false;
+  }
+  for (const char* w : kTitles) {
+    if (!EndsWith(t, w))
+      continue;
+    string head = t.substr(0, t.size() - strlen(w));
+    vector<uint32_t> hc;
+    if (head.empty() || (DecodeUtf8(head, &hc) && hc.size() == 1 && IsHan(hc[0])))
+      return false;
+    for (const char* q : kTitlePrefixes) {
+      if (head == q)
+        return false;
+    }
+  }
+  // 全是英文詞、每個詞大寫開頭：名字（Claude Code、CC）
+  size_t english, han;
+  CountWords(cps, 0, cps.size(), &english, &han);
+  if (english > 0 && han == 0) {
+    bool names = true;
+    for (size_t i = 0; i < cps.size(); ++i) {
+      if (IsAsciiLetter(cps[i]) && (i == 0 || !InEnglishWord(cps[i - 1])))
+        names = names && cps[i] >= 'A' && cps[i] <= 'Z';
+    }
+    for (const char* w : kCapsWords)
+      names = names && t != w;
+    if (names)
+      return false;
+  }
+  return true;
 }
 
-string ForeignPunct(const string& before, const string& after, const SortedTable* model) {
+bool FollowedByWord(const string& after) {
+  vector<uint32_t> cps;
+  if (!DecodeUtf8(after, &cps))
+    return false;
+  // 跳過空白和收尾的引號、括號（「嘿，好主意｜」：引號裡的句子說完了）
+  static const std::set<uint32_t> closers = {0x300d, 0x300f, 0xff09, ')', 0x201d, 0x2019, 0x300b, 0x3011, 0x3009,
+                                             0xff3d, ']', 0x3015, 0xff5d, '}'};
+  size_t i = 0;
+  while (i < cps.size() && (IsSpace(cps[i]) || closers.count(cps[i])))
+    ++i;
+  // 同一行後面還有東西（字、開括號、標點）：在句子中間
+  return i < cps.size() && !IsNewline(cps[i]);
+}
+
+string ForeignPunct(const string& before, const string& after, const SortedTable* model, string* clause) {
   vector<uint32_t> all, tail;
   if (!DecodeUtf8(before, &all) || all.empty() || !IsWordChar(all.back()))
     return "";
@@ -336,13 +522,19 @@ string ForeignPunct(const string& before, const string& after, const SortedTable
   string prev;
   if (gap > 0 && IsClauseBreak(all[gap - 1]))
     prev = EncodeUtf8(all, SegmentStart(all, gap - 1), gap - 1);
-  return GuessPunct(EncodeUtf8(all, from, caret), prev, model);
+  string text = EncodeUtf8(all, from, caret);
+  if (clause)
+    *clause = text;
+  return GuessPunct(text, prev, model, FollowedByWord(EncodeUtf8(all, caret, all.size())));
 }
 
-string GuessPunct(const string& clause, const string& prev, const SortedTable* model) {
+string GuessPunct(const string& clause, const string& prev, const SortedTable* model, bool mid) {
+  if (IsInterjection(clause))   // 嘆詞本身（天哪、嘿）不是問句，後面照舊「，」
+    return "，";
   if (IsQuestion(clause, model))
     return "？";
-  return AfterInterjection(prev, clause) ? "！" : "，";
+  // 游標後面還有字（在句子中間按空白）：句子沒完，不補「！」
+  return !mid && AfterInterjection(prev, clause) ? "！" : "，";
 }
 
 double QuestionScore(const string& text, const vector<string>& chars, const SortedTable& model) {
@@ -419,12 +611,8 @@ PenglaiSpace::PenglaiSpace(const Ticket& ticket) : Processor(ticket) {
       clause_ = clause_.value_or("") + text;
       return;
     }
-    // 標點鍵送出「，」「！」：前一段留著（前一段是嘆詞時，下一段可能補「！」）
-    vector<uint32_t> cps;
-    if (clause_ && DecodeUtf8(text, &cps) && cps.size() == 1 && IsClauseBreak(cps[0]))
-      prev_ = clause_;
-    else
-      prev_.reset();
+    // 標點鍵送出「，」「！」（組字中按的連前面的字一起送出：「哇，」）：前一段留著（前一段是嘆詞時，下一段可能補「！」）
+    prev_ = ClauseBefore(clause_.value_or("") + text);
     clause_.reset();
   });
   option_connection_ = ctx->option_update_notifier().connect([this](Context* c, const string& name) {
@@ -501,8 +689,12 @@ ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
       size_t english = 0, han = 0;
       if (english_ && DecodeUtf8(*clause_, &cps))
         CountWords(cps, 0, cps.size(), &english, &han);
-      string punct = MostlyEnglish(english, han) ? ", " : GuessPunct(*clause_, prev_.value_or(""), model_.get());
-      prev_ = clause_;   // 補的標點隔開了這一段：下一段的前一段就是它
+      string punct = MostlyEnglish(english, han) ? ", " : GuessPunct(*clause_, prev_.value_or(""), model_.get(), FollowedByWord(after));
+      // 補的「，」「！」隔開了這一段：下一段的前一段就是它（「？」「, 」不算）
+      if (punct == "，" || punct == "！")
+        prev_ = clause_;
+      else
+        prev_.reset();
       clause_.reset();
       mark_ = punct;
       fresh_ = true;
@@ -513,8 +705,14 @@ ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
     // 游標前是別處的字（penglai_space/foreign）：剛送出過字、之後還沒斷掉時不算（中英混打「Claude Code」中間的空白），
     // 照貂毫給的游標前後文決定；不是字、沒給（讀不到）就照舊出空白。標成 foreign：貂毫核對的是剛給的前文，不是上一筆送出的字
     if (foreign_ && !fresh_) {
-      string punct = ForeignPunct(before, after, model_.get());
+      string clause;
+      string punct = ForeignPunct(before, after, model_.get(), &clause);
       if (!punct.empty()) {
+        // 跟上面一樣記前一段：接著用輸入法打下一段時也看得到（嘿｜按空白補「，」，再打「好主意」）
+        if (punct == "，" || punct == "！")
+          prev_ = clause;
+        else
+          prev_.reset();
         mark_ = punct;
         fresh_ = true;
         ctx->set_property(kProperty, "foreign");

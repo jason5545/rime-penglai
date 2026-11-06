@@ -4,9 +4,11 @@
 //     這裡把 context 的 penglai_space 設成 replace（補標點那次設成 punct），空白照原本的路走；貂毫核對游標前面確實是剛補的標點才換，
 //     核對不到的 App（終端機之類）、別的前端照舊把空白鍵交給 App（標點後面接空白）。也可以先按 BackSpace 刪掉標點再按空白
 //   句子打完了：補了「，」之後緊接著按 Return，「，」換成「。」，Return 照舊交給 App（換段、送出）。也是貂毫換的（patch 0025）：
-//     context 的 penglai_space 設成 period，Return 照原本的路走；貂毫核對游標前面確實是剛補的「，」才換。「？」不換
-//   嘆詞開頭（11/6）：前一段只有一個招呼、感嘆的嘆詞（嘿、哇、喂、哎呀…），這一段不是問句、8 個字以內時補「！」：
-//     嘿，好主意！ 哇，好冷！（嘿，你在幹嘛？照舊是問句）。前一段是補的標點或標點鍵的「，」「！」隔開的；換成空白就不算
+//     context 的 penglai_space 設成 period，Return 照原本的路走；貂毫核對游標前面確實是剛補的「，」才換。「？」「！」不換
+//   嘆詞開頭（11/6）：前一段只有一個招呼、感嘆的嘆詞（嘿、嗨、哇、哎呀…），這一段不是問句、8 個字以內時補「！」：
+//     嘿，好主意！ 哇，好冷！（嘿，你在幹嘛？照舊是問句）。前一段是補的、標點鍵的「，」「！」隔開的；換成空白就不算。
+//     還沒說完的（嘿，如果你有空、嘿，我覺得、嘿，對了）、稱呼（嘿，老師、嘿，Claude）、嘆詞連打照舊補「，」；
+//     游標後面同一行還有東西（在句子中間按空白，貂毫給了後文時）也照舊「，」
 //   要別的標點：直接按標點鍵（Shift+, 是「，」、Shift+. 是「。」），組字區空著時照原本的標點處理
 // 「剛送出的中文」：上一筆送出的字結尾是漢字，中間沒按過送出以外的鍵。BackSpace、方向鍵、Return 送出訊息、切中西文、
 //   Command 組合鍵（貼上、移游標）、在選字窗以外點滑鼠（移動插入點；貂毫補送帶 Command 的 VoidSymbol）都算斷掉，
@@ -42,12 +44,19 @@ namespace penglai {
 bool IsQuestion(const string& text, const SortedTable* model);
 // 模型的分數（gen_punct.py 的 feats，同一個特徵只算一次，照這個順序加總）
 double QuestionScore(const string& text, const vector<string>& chars, const SortedTable& model);
-// 中文的那一段補什麼：像問句「？」，前一段（prev，用「，」「！」隔開的那一段）是嘆詞、這一段 8 個字以內「！」，不然「，」
-string GuessPunct(const string& clause, const string& prev, const SortedTable* model);
-// 前一段只有一個招呼、感嘆的嘆詞（嘿、哇、喂、哎呀…），這一段 1–8 個字（空白不算）
+// 中文的那一段補什麼：這一段本身是嘆詞「，」；像問句「？」；前一段（prev，用「，」「！」隔開的那一段）是嘆詞、
+// 這一段 8 個字以內、mid 是 false（游標後面同一行沒有東西）「！」；不然「，」
+string GuessPunct(const string& clause, const string& prev, const SortedTable* model, bool mid = false);
+// 游標後面（跳過空白）同一行還有東西（字、括號、標點）：在句子中間
+bool FollowedByWord(const string& after);
+// 這一段只有一個招呼、感嘆的嘆詞（嘿、嗨、哇、哎呀…）
+bool IsInterjection(const string& text);
+// 前一段只有一個嘆詞，這一段 1–8 個字（空白不算），而且不是嘆詞、沒有還沒說完的記號（如果…、…覺得、…的話、整段是「對了」）、
+// 不是稱呼（老師、王老師、大寫開頭的英文名字）
 bool AfterInterjection(const string& prev, const string& clause);
-// 游標前是別處的字時按空白補什麼：before、after 是游標前後的字（UTF-8）。回傳「，」「？」「：」「, 」，空字串＝照舊出空白
-string ForeignPunct(const string& before, const string& after, const SortedTable* model);
+// 游標前是別處的字時按空白補什麼：before、after 是游標前後的字（UTF-8）。回傳「，」「？」「！」「：」「, 」，空字串＝照舊出空白。
+// clause 不是空指標時寫進問句看的那一段（游標前、最後一個標點之後）
+string ForeignPunct(const string& before, const string& after, const SortedTable* model, string* clause = nullptr);
 
 class PenglaiSpace : public rime::Processor {
  public:
