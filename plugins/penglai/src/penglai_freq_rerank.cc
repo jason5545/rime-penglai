@@ -24,11 +24,6 @@ bool IsMovable(const string& type) {
   return type == "user_phrase" || type == "phrase" || type == "sentence" || type == "completion";
 }
 
-// 這段輸入有沒有聲調鍵（大千：空白、6 3 4 7）
-bool HasToneKey(const string& seg) {
-  return seg.find_first_of(" 6347") != string::npos;
-}
-
 // Lua 的 input:sub(start + 1, end)
 string Slice(const string& s, size_t start, size_t end) {
   if (end > s.size())
@@ -175,10 +170,10 @@ bool PenglaiFreqRerank::Rerank(vector<an<Candidate>>* buf) const {
     auto phrase = As<Phrase>(g);
     if (gt == "keylid") {
       // 按鍵層語言辨識的候選：不參加
-    } else if (phrase && phrase->correction() && !HasToneKey(Slice(input, c->start(), c->end()))) {
-      // 按鍵模型修過的詞、那段輸入沒有聲調鍵（沒打聲調的模糊音）：不參加（不會被詞頻拉到第一個，也不算進這組的總數）。
-      // 沒打聲調的跟只打首注音分不出來：ㄨㄛ ㄗ ㄚ（我在啊）修成 ㄓㄚ 的「我查」詞頻高，原本會被拉到第一個。
-      // 有聲調鍵的（ㄧㄤˇ ㄒ 修成「影響」）照舊參加
+    } else if (phrase && phrase->untoned_correction()) {
+      // 按鍵模型修過、修的那段是沒打聲調的模糊音建議（引擎標的）：不參加（不會被詞頻拉到第一個，也不算進這組的總數）。
+      // 沒打聲調的跟只打首注音分不出來：ㄨㄛ ㄗ ㄚ、ㄨㄛˇ ㄗ ㄚ（我在啊）修成 ㄓㄚ 的「我查」詞頻高，原本會被拉到第一個。
+      // 有打聲調的修正（ㄧㄤˇ ㄒ 修成「影響」）照舊參加。不能只看整段有沒有聲調鍵：ㄨㄛˇ 的聲調不在修的那段
     } else if (!IsMovable(gt)) {
       // 這段輸入的第一個候選是 custom_phrase 之類：整組不動
       if (!groups.count(key))
