@@ -46,6 +46,8 @@ enum PenglaiCopy {
   static let schemes = PenglaiCopyItem(title: "方案選單", desc: "方案選單裡要列出哪些輸入方案。", keywords: ["輸入方案", "方案"])
   static let redeploy = PenglaiCopyItem(title: "重新部署", desc: "重新整理詞典和設定。平常不需要手動執行。", keywords: ["部署", "重新整理", "重新載入", "沒反應"])
   static let cleanup = PenglaiCopyItem(title: "清除沒有作用的設定", desc: "目前的版本已經不會讀這些設定，清掉不影響打字。", keywords: ["清除", "清理", "失效"])
+  static let dictionary = PenglaiCopyItem(title: "詞庫", desc: "自己加的詞：英文縮寫、人名、專有名詞，還有隱藏起來的詞。",
+                                          keywords: ["自訂詞", "加詞", "新增詞", "造詞", "詞典", "字典", "人名", "專有名詞", "縮寫", "隱藏", "取消隱藏", "刪詞"])
   static let history = PenglaiCopyItem(title: "最近的變更", desc: "從這個視窗做的每一次變更都可以復原。", keywords: ["復原", "還原", "紀錄", "上一步"])
 
   // 讀音（librime patch 0010）：讀音頁和第一次使用的引導共用
@@ -344,6 +346,7 @@ struct PenglaiSettingsView: View {
       case .colors: PenglaiColorsPage()
       case .typing: PenglaiTypingPage()
       case .reading: PenglaiReadingPage()
+      case .dictionary: PenglaiDictionaryPage()
       case .schemas: PenglaiSchemasPage()
       case .all: PenglaiAdvancedPage()
       case .history: PenglaiHistoryPage()
@@ -405,6 +408,7 @@ extension PenglaiSettingsModel.Page {
     case .colors: return "選字窗的顏色，淺色和深色模式各選一個。"
     case .typing: return "注音輸入、組句和學習的方式。"
     case .reading: return PenglaiCopy.readingPage.desc ?? ""
+    case .dictionary: return PenglaiCopy.dictionary.desc ?? ""
     case .schemas: return "方案選單裡要列出哪些輸入方案。"
     case .all: return "其他可以調整的項目，依用途分類。一般使用不需要更動。"
     case .history: return "從這個視窗做的每一次變更都可以復原。"
@@ -417,6 +421,7 @@ extension PenglaiSettingsModel.Page {
     case .colors: return .pink
     case .typing: return .orange
     case .reading: return .teal
+    case .dictionary: return .brown
     case .schemas: return .green
     case .all: return .gray
     case .history: return .indigo
@@ -1386,6 +1391,7 @@ enum PenglaiSearch {
     addCopy(PenglaiCopy.sentences, .typing, available: schemaReady)
     addCopy(PenglaiCopy.phraseLength, .typing, available: schemaReady)
     addCopy(PenglaiCopy.revertSeconds, .typing, available: schemaReady)
+    addCopy(PenglaiCopy.dictionary, .dictionary, available: schemaReady)
     addCopy(PenglaiCopy.schemes, .schemas, available: model.sidebarPages.contains(.schemas))
     addCopy(PenglaiCopy.history, .history)
     addCopy(PenglaiCopy.redeploy, .history)

@@ -25,7 +25,7 @@
   {"title": "讀音與詞典", "pages": [
    {"slug": "readings", "title": "讀音：蓬萊音、中州音、兼收並蓄", "desc": "各種讀音都收，設定只決定誰先出。"},
    {"slug": "dictionary", "title": "詞典從哪來", "desc": "字詞、讀音、詞頻的來源。"},
-   {"slug": "custom-words", "title": "加自己的詞", "desc": "用一個文字檔替常打的詞指定按鍵。"}
+   {"slug": "custom-words", "title": "加自己的詞", "desc": "在蓬萊設定的詞庫頁加自訂詞、詞典詞，取消隱藏的詞。"}
   ]},
   {"title": "設定", "pages": [
    {"slug": "settings", "title": "蓬萊設定", "desc": "設定視窗每一頁有什麼，改了怎麼復原。"},

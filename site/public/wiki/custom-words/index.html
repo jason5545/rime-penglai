@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>加自己的詞｜蓬萊說明書</title>
-<meta name="description" content="用一個文字檔替常打的詞指定按鍵。">
+<meta name="description" content="在蓬萊設定的詞庫頁加自訂詞、詞典詞，取消隱藏的詞。">
 <meta name="theme-color" content="#f5f2ea" media="(prefers-color-scheme: light)">
 <meta name="theme-color" content="#161613" media="(prefers-color-scheme: dark)">
 <meta property="og:type" content="article">
 <meta property="og:url" content="https://penglai.im/wiki/custom-words/">
 <meta property="og:title" content="加自己的詞｜蓬萊說明書">
-<meta property="og:description" content="用一個文字檔替常打的詞指定按鍵。">
+<meta property="og:description" content="在蓬萊設定的詞庫頁加自訂詞、詞典詞，取消隱藏的詞。">
 <meta property="og:image" content="https://penglai.im/img/og.png">
 <meta property="og:image:width" content="1344">
 <meta property="og:image:height" content="768">
@@ -37,28 +37,43 @@
 <aside class="wiki-nav" id="toc" aria-label="說明書目錄"><p class="nav-home"><a href="/wiki/">說明書首頁</a></p><p class="nav-group">開始</p><ul><li><a href="/wiki/about/">蓬萊是什麼</a></li><li><a href="/wiki/install/">安裝</a></li><li><a href="/wiki/first-run/">第一次使用</a></li></ul><p class="nav-group">打字</p><ul><li><a href="/wiki/keyboard/">鍵盤排列與聲調</a></li><li><a href="/wiki/typing/">打字、選字、送出</a></li><li><a href="/wiki/abbrev/">只打第一個注音</a></li><li><a href="/wiki/abbrev-test/">只打第一個注音省多少</a></li><li><a href="/wiki/punctuation/">標點符號</a></li><li><a href="/wiki/english/">英文與數字</a></li><li><a href="/wiki/stroke/">不知道讀音：筆畫查字</a></li><li><a href="/wiki/missing-initial/">漏打聲母</a></li><li><a href="/wiki/switcher/">方案選單（F4）</a></li><li><a href="/wiki/shortcuts/">按鍵一覽</a></li></ul><p class="nav-group">學習</p><ul><li><a href="/wiki/learning/">打過的會記住</a></li><li><a href="/wiki/undo/">選錯了怎麼辦</a></li><li><a href="/wiki/prediction/">聯想</a></li></ul><p class="nav-group">讀音與詞典</p><ul><li><a href="/wiki/readings/">讀音：蓬萊音、中州音、兼收並蓄</a></li><li><a href="/wiki/dictionary/">詞典從哪來</a></li><li><a href="/wiki/custom-words/" aria-current="page">加自己的詞</a></li></ul><p class="nav-group">設定</p><ul><li><a href="/wiki/settings/">蓬萊設定</a></li><li><a href="/wiki/yaml/">自己改設定檔</a></li><li><a href="/wiki/all-settings/">全部設定</a></li><li><a href="/wiki/user-data/">學習紀錄、備份與同步</a></li></ul><p class="nav-group">其他</p><ul><li><a href="/wiki/faq/">常見問題</a></li><li><a href="/wiki/glossary/">名詞解釋</a></li></ul></aside>
 <main class="wiki-main">
 <p class="crumb"><a href="/wiki/">說明書</a> › 讀音與詞典<a class="to-toc" href="#toc">目錄</a></p>
-<article>
-<h1>加自己的詞</h1>
-<p class="lede">常打的詞、名字、縮寫，可以自己指定一組按鍵。寫在使用者資料夾的 <code>custom_phrase.txt</code>，一行一個。</p>
+<article><h1>加自己的詞</h1>
+<p class="lede">常打的詞、名字、縮寫，在蓬萊設定的「詞庫」頁加。加法有兩種：自訂詞替一組按鍵指定要打出的字；詞典是把詞加進詞典，讓它跟前後的字一起組成整句。</p>
 
-<h2>自訂短語：custom_phrase.txt</h2>
-<ol>
-<li>打開使用者資料夾：在 Finder 按 <kbd>⇧⌘G</kbd>，輸入 <code>~/Library/Rime</code>。</li>
-<li>用文字編輯器打開 <code>custom_phrase.txt</code>（沒有就新建一個，存成 UTF-8 純文字）。</li>
-<li>一行寫一個：<b>要打出的字</b>、Tab 鍵、<b>按鍵</b>。</li>
-<li>存檔之後重新部署：輸入法選單的「重新部署」，或蓬萊設定「變更紀錄」頁的「重新部署」。</li>
-</ol>
-<p>按鍵寫的是鍵盤上實際按的英文字母，不是注音。例如「蓬萊韻」想用 ㄆ ㄌ ㄩ 叫出來，大千鍵盤上是 <kbd>q</kbd> <kbd>x</kbd> <kbd>m</kbd>：</p>
-<pre><code>蓬萊韻	qxm</code></pre>
-<p>中間是 Tab，不是空白。寫好之後：</p>
+<h2>打開詞庫頁</h2>
+<p>點選單列的輸入法圖示，選「蓬萊設定…」，左邊選「詞庫」。上面三個按鈕切換自訂詞、詞典、隱藏的詞。</p>
+<p>每一份底下列出已經有的詞，最近加的在最上面。右邊的鉛筆是改，垃圾桶是刪；搜尋欄找得到詞、按鍵、讀音。加、改、刪都會記進「變更紀錄」，按右下角的「復原上一步」就退回去。</p>
+
+<h2>自訂詞：替一組按鍵指定字</h2>
+<p>填「詞」和「碼」，按「加入」。碼是鍵盤上實際按的鍵，可以打英文字母，也可以打注音。例如「蓬萊韻」想用 ㄆ ㄌ ㄩ 叫出來，大千鍵盤上是 <kbd>q</kbd> <kbd>x</kbd> <kbd>m</kbd>，碼填 <code>qxm</code> 或 <code>ㄆㄌㄩ</code> 都行。</p>
 <figure class="ex"><div class="ex-row"><div class="ex-keys"><kbd>ㄆ</kbd><kbd>ㄌ</kbd><kbd>ㄩ</kbd></div><div class="ex-out"><div class="ime-panel"><div class="ime-preedit">qxm</div><ol class="ime-cands"><li class="hl"><span class="n">1</span>蓬萊韻</li><li><span class="n">2</span>頻率</li><li><span class="n">3</span>評論與</li><li><span class="n">4</span>賠率</li><li><span class="n">5</span>評論員</li></ol></div></div></div><figcaption>只打 ㄆ ㄌ ㄩ，「蓬萊韻」排第一。這時組字區顯示按鍵的英文字母。</figcaption></figure>
+<p>碼不好打的時候，先照平常打一次那組按鍵，選字窗開著時按一下 <kbd>Control</kbd>，把輸入複製起來（見<a href="/wiki/shortcuts/">快速鍵</a>）。回到詞庫頁按「帶入上次複製的輸入」，碼就填好了。</p>
 <ul>
-<li>只有整段輸入剛好是這組按鍵時才會出現。它不會組進句子裡，前後接了別的字就叫不出來。</li>
-<li>它會排在同一組按鍵的其他候選前面。按鍵太短（一兩個鍵）的話，會擋住常用詞，挑一組不常撞到的。</li>
+<li>只有整段輸入剛好是這組按鍵時才會出現。它不會組進句子裡，前後接了別的字就叫不出來；要組進句子，改加到詞典。</li>
+<li>它會排在同一組按鍵的其他候選前面。按鍵太短（一兩個鍵）會擋住常用詞，詞庫頁會提醒，挑一組不常撞到的。</li>
 </ul>
 
-<h2>讓自己的詞也能組進句子</h2>
-<p class="todo">還沒寫：用擴充詞典把詞加進整句的組合裡。</p>
+<h2>詞典：讓詞組進句子</h2>
+<p>人名、專有名詞這類要跟前後的字一起打的，加到詞典。通常只要填「詞」，讀音照每個字的讀音配。多音字或念法特別的，再填「讀音」：打注音（<code>ㄐㄧㄢˇ ㄉㄢ</code>），或照鍵盤按鍵打（<code>ru04 2u0</code>），音節之間用聲調或空白分開。</p>
+<p>例如詞典裡沒有「貂毫」，打 ㄉㄧㄠ ㄏㄠˊ 第一個是「叼豪」，打一整句「用貂毫打字」也會變成「用叼豪打字」。把「貂毫」加進詞典之後，兩個都對了。</p>
+<p>「權重」決定跟同一組注音的其他詞比，誰先出來，數字越大越前面。不填就是 50000。只打首注音時，常用詞多半還是排在前面，打完整一點就會出來。</p>
+<p>第一次加詞時，貂毫會在使用者資料夾建一份 <code>penglai_custom.dict.yaml</code>，匯入原本的詞典，再把方案改成用它。原本的詞都還在，<a href="/wiki/readings/">讀音</a>設定也照樣有作用。加了詞典的詞會重新部署，要等幾秒才生效。</p>
+
+<h2>隱藏的詞</h2>
+<p>選字窗開著時按右 <kbd>Command</kbd> 隱藏的詞，列在「隱藏的詞」。按右邊的眼睛就取消隱藏，那個詞會回到候選裡。也可以在這裡直接填一個詞隱藏。隱藏、取消隱藏馬上生效，不用重新部署。</p>
+
+<h2>直接改檔案</h2>
+<p>三份都是使用者資料夾（<code>~/Library/Rime</code>）裡的文字檔，也可以用文字編輯器改。詞庫頁右上角的檔名點一下，會在 Finder 裡顯示那個檔案。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">清單</th><th scope="col">檔案</th><th scope="col">一行的寫法</th></tr></thead>
+<tbody>
+<tr><td>自訂詞</td><td><code>custom_phrase.txt</code></td><td>詞、Tab、按鍵</td></tr>
+<tr><td>詞典</td><td><code>penglai_custom.dict.yaml</code></td><td>詞、Tab、讀音（可以空著）、Tab、權重；寫在 <code>...</code> 那一行後面</td></tr>
+<tr><td>隱藏的詞</td><td><code>penglai_hidden.txt</code></td><td>一行一個詞</td></tr>
+</tbody>
+</table></div>
+<p>中間是 Tab，不是空白。改完自訂詞或詞典，到蓬萊設定「變更紀錄」頁按「重新部署」；隱藏的詞不用。</p>
+<p>想在詞庫改完之後自動做點事（例如從自訂詞再產生別的檔案），在使用者資料夾放一個可執行的 <code>penglai_dict_hook</code>：詞庫頁改了自訂詞或詞典，重新部署之前會先執行它，引數是改了的檔名。</p>
 </article><nav class="pager" aria-label="上一頁、下一頁"><a class="prev" href="/wiki/dictionary/"><small>上一頁</small>詞典從哪來</a><a class="next" href="/wiki/settings/"><small>下一頁</small>蓬萊設定</a></nav>
 </main>
 </div>

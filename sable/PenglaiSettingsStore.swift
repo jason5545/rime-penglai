@@ -582,12 +582,29 @@ final class PenglaiSettingsStore {
     return PenglaiCustomYAML(text: text)
   }
 
+  /// 文字檔（詞庫：custom_phrase.txt、*.dict.yaml、隱藏清單）的改動記成一項：key 固定是這個，
+  /// before、after 是改動的那幾行（每行後面帶 \n，沒有行是空字串），index 是第一行；原本沒有這個檔案時 index 是 nil、復原就刪掉檔案
+  static let textKey = "（整行）"
+
   /// 寫一組改動（同一次點擊可能改兩項，例如文件裡顯示注音／漢字）。沒有實際變化時回傳 nil、不記歷史。
+  /// texts：整份換掉的文字檔（檔名 → 新內容），跟 changes 記成同一筆（詞庫第一次加詞：新建詞典檔＋方案 custom 檔指過去）
   @discardableResult
-  func apply(_ changes: [Change], summary: String) throws -> Entry? {
+  func apply(_ changes: [Change], texts: [String: String] = [:], summary: String) throws -> Entry? {
     var docs: [String: PenglaiCustomYAML] = [:]
     var originals: [String: String] = [:]
     var edits: [Edit] = []
+    for (file, text) in texts.sorted(by: { $0.key < $1.key }) {
+      let path = url(of: file)
+      let existed = fileManager.fileExists(atPath: path.path)
+      let original = existed ? ((try? String(contentsOf: path, encoding: .utf8)) ?? "") : ""
+      guard !existed || original != text else { continue }
+      if existed {
+        let diff = Self.lineDiff(original, text)
+        edits.append(Edit(file: file, key: Self.textKey, before: diff.before, after: diff.after, index: diff.index))
+      } else {
+        edits.append(Edit(file: file, key: Self.textKey, before: nil, after: text, index: nil))
+      }
+    }
     for change in changes {
       if docs[change.file] == nil {
         let path = url(of: change.file)
@@ -627,7 +644,11 @@ final class PenglaiSettingsStore {
     guard !edits.isEmpty else { return nil }
     let date = now()
     let entry = Entry(id: Self.stamp(date), time: date, summary: summary, edits: edits)
-    try snapshot(files: Array(docs.keys), into: entry.id)
+    let textFiles = Set(edits.filter { $0.key == Self.textKey }.map(\.file))
+    try snapshot(files: Array(docs.keys) + Array(textFiles), into: entry.id)
+    for file in textFiles.sorted() {
+      try write(texts[file]!, to: file)
+    }
     for (file, doc) in docs where doc.text != originals[file] {
       try write(doc.text, to: file)
     }
@@ -657,8 +678,19 @@ final class PenglaiSettingsStore {
 
   private func revert(_ entry: Entry) throws {
     var docs: [String: PenglaiCustomYAML] = [:]
+    var texts: [String: String?] = [:]   // 文字檔復原後的內容；nil 是刪掉檔案
     var conflicts: [String] = []
     for edit in entry.edits.reversed() {
+      if edit.key == Self.textKey {
+        let current: String?
+        if let pending = texts[edit.file] { current = pending } else { current = try? String(contentsOf: url(of: edit.file), encoding: .utf8) }
+        guard let current, let restored = Self.revertLines(current, edit) else {
+          conflicts.append("\(edit.file) 的那幾行")
+          continue
+        }
+        texts.updateValue(restored, forKey: edit.file)   // restored 是 nil 時也要留著這個鍵（刪掉檔案）
+        continue
+      }
       var doc = docs[edit.file] ?? read(edit.file)
       if case .unsupported(let reason) = doc.region(edit.key) {
         conflicts.append("\(edit.file) \(edit.key)：\(reason)")
@@ -677,10 +709,57 @@ final class PenglaiSettingsStore {
       docs[edit.file] = doc
     }
     if !conflicts.isEmpty { throw StoreError.conflict(conflicts) }
-    try snapshot(files: Array(docs.keys), into: Self.stamp(now()) + "-undo")
+    try snapshot(files: Array(docs.keys) + Array(texts.keys), into: Self.stamp(now()) + "-undo")
+    for (file, text) in texts.sorted(by: { $0.key < $1.key }) {
+      if let text {
+        try write(text, to: file)
+      } else {
+        do { try fileManager.removeItem(at: url(of: file)) } catch { throw StoreError.io("刪不掉 \(file)：\(error.localizedDescription)") }
+      }
+    }
     for (file, doc) in docs {
       try write(doc.text, to: file)
     }
+  }
+
+  // MARK: 文字檔的整行改動
+
+  /// 一段行：每行後面帶 \n（最後一行沒有換行的檔案，讀回來照樣對得上）
+  static func chunk(_ lines: ArraySlice<String>) -> String { lines.map { $0 + "\n" }.joined() }
+
+  static func chunkLines(_ chunk: String) -> [String] {
+    guard !chunk.isEmpty else { return [] }
+    var lines = chunk.components(separatedBy: "\n")
+    if lines.last == "" { lines.removeLast() }
+    return lines
+  }
+
+  /// 前後相同的行拿掉，剩中間改過的那段
+  static func lineDiff(_ old: String, _ new: String) -> (before: String, after: String, index: Int) {
+    let a = old.components(separatedBy: "\n"), b = new.components(separatedBy: "\n")
+    var prefix = 0
+    while prefix < a.count, prefix < b.count, a[prefix] == b[prefix] { prefix += 1 }
+    var suffix = 0
+    while suffix < a.count - prefix, suffix < b.count - prefix, a[a.count - 1 - suffix] == b[b.count - 1 - suffix] { suffix += 1 }
+    return (chunk(a[prefix..<(a.count - suffix)]), chunk(b[prefix..<(b.count - suffix)]), prefix)
+  }
+
+  /// 把 after 那幾行換回 before。原來的位置對不上時（之後在上面加過行）找檔案裡唯一一處相同的；找不到、不只一處就是衝突（nil）。
+  /// 回傳 .some(nil) 是要刪掉檔案（這一筆新建了它，內容也沒再改過）
+  static func revertLines(_ current: String, _ edit: Edit) -> String?? {
+    guard let after = edit.after else { return nil }
+    guard let index = edit.index else { return current == after ? .some(nil) : nil }
+    var lines = current.components(separatedBy: "\n")
+    let target = chunkLines(after), restore = chunkLines(edit.before ?? "")
+    func matches(_ at: Int) -> Bool { at >= 0 && at + target.count <= lines.count && Array(lines[at..<(at + target.count)]) == target }
+    var at: Int? = matches(index) ? index : nil
+    if at == nil, !target.isEmpty {
+      let found = (0...max(0, lines.count - target.count)).filter(matches)
+      if found.count == 1 { at = found[0] }
+    }
+    guard let at else { return nil }
+    lines.replaceSubrange(at..<(at + target.count), with: restore)
+    return .some(lines.joined(separator: "\n"))
   }
 
   // MARK: 檔案

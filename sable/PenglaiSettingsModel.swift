@@ -280,7 +280,7 @@ struct PenglaiReadingState: Equatable {
 
 final class PenglaiSettingsModel: ObservableObject {
   enum Page: String, CaseIterable, Identifiable {
-    case panel, colors, typing, reading, schemas, all, history
+    case panel, colors, typing, reading, dictionary, schemas, all, history
     var id: String { rawValue }
     var title: String {
       switch self {
@@ -288,6 +288,7 @@ final class PenglaiSettingsModel: ObservableObject {
       case .colors: return "配色"
       case .typing: return "輸入"
       case .reading: return "讀音"
+      case .dictionary: return "詞庫"
       case .schemas: return "輸入方案"
       case .all: return "進階"
       case .history: return "變更紀錄"
@@ -301,6 +302,7 @@ final class PenglaiSettingsModel: ObservableObject {
       case .colors: return "paintpalette.fill"
       case .typing: return "keyboard.fill"
       case .reading: return "textformat"   // 側欄畫 glyph（ㄅ），這個只是備用
+      case .dictionary: return "character.book.closed.fill"
       case .schemas: return "list.bullet"
       case .all: return "slider.horizontal.3"
       case .history: return "clock.arrow.circlepath"
@@ -365,6 +367,10 @@ final class PenglaiSettingsModel: ObservableObject {
   @Published private(set) var predictionSwitch: PenglaiOptionSwitch?
   /// 聯想資料檔（部署後方案的 predictor/db）在使用者資料夾或共用資料夾裡找得到
   @Published private(set) var predictionData = false
+  /// 詞庫頁的三份檔案（PenglaiDictionary.swift）
+  @Published private(set) var dictionaryFiles = PenglaiDictionaryFiles()
+  /// 詞庫頁看的是哪一份
+  @Published var dictionaryKind: PenglaiDictKind = .phrase
   @Published private(set) var history: [PenglaiSettingsStore.Entry] = []
   @Published private(set) var revision = 0
 
@@ -372,6 +378,8 @@ final class PenglaiSettingsModel: ObservableObject {
   var liveOptions: (([String: Bool]) -> Void)?
 
   private var pendingSquirrelOnly = true
+  /// 下次部署前要交給 penglai_dict_hook 的檔名（自訂詞、詞典改了）
+  private var pendingHookFiles: Set<String> = []
   private var deployWork: DispatchWorkItem?
   /// 進階頁一頁最多幾列：分類時每一組都排在這個數以內，超過（別的方案、新加的設定）才翻頁
   static let rowsPerPage = 8
@@ -410,6 +418,7 @@ final class PenglaiSettingsModel: ObservableObject {
     readingSwitch = readReadingSwitch()
     predictionSwitch = readPredictionSwitch()
     predictionData = findPredictionData()
+    dictionaryFiles = PenglaiDictionaryFiles.read(schemaID: schemaID, userDir: userDir, sharedDir: sharedDir)
     revision += 1
   }
 
@@ -1027,11 +1036,14 @@ final class PenglaiSettingsModel: ObservableObject {
     apply(changes, summary: "清除 \(changes.count) 項沒有作用的設定")
   }
 
-  func apply(_ changes: [PenglaiSettingsStore.Change], summary: String) {
+  /// 寫進檔案、排部署。texts 是整份換掉的文字檔（詞庫）。失敗時回傳給人看的錯誤
+  @discardableResult
+  func apply(_ changes: [PenglaiSettingsStore.Change], texts: [String: String] = [:], summary: String) -> String? {
     do {
-      guard let entry = try store.apply(changes, summary: summary) else { return }
+      guard let entry = try store.apply(changes, texts: texts, summary: summary) else { return nil }
       message = nil
-      scheduleDeploy(onlySquirrel: entry.edits.allSatisfy { $0.file == PenglaiConfigID.squirrel.customFile })
+      scheduleDeploy(onlySquirrel: entry.edits.allSatisfy { $0.file == PenglaiConfigID.squirrel.customFile },
+                     files: Set(entry.edits.map(\.file)))
     } catch let error as PenglaiSettingsStore.StoreError {
       message = Self.friendly(error)
       status = .failed(Self.friendly(error))
@@ -1041,28 +1053,30 @@ final class PenglaiSettingsModel: ObservableObject {
     history = store.history
     rows = buildRows()
     revision += 1
+    return message
   }
 
   func undoLast() {
     guard let last = store.history.last else { return }
-    runUndo(onlySquirrel: last.edits.allSatisfy { $0.file == PenglaiConfigID.squirrel.customFile },
+    runUndo(onlySquirrel: last.edits.allSatisfy { $0.file == PenglaiConfigID.squirrel.customFile }, files: Set(last.edits.map(\.file)),
             reading: touchesReading(store.history.suffix(1)), prediction: touchesPrediction(store.history.suffix(1))) { try self.store.undoLast() }
   }
 
   func undo(through id: String) {
     guard let position = store.history.firstIndex(where: { $0.id == id }) else { return }
     let squirrelOnly = store.history[position...].allSatisfy { $0.edits.allSatisfy { $0.file == PenglaiConfigID.squirrel.customFile } }
-    runUndo(onlySquirrel: squirrelOnly, reading: touchesReading(store.history[position...]),
+    runUndo(onlySquirrel: squirrelOnly, files: Set(store.history[position...].flatMap { $0.edits.map(\.file) }),
+            reading: touchesReading(store.history[position...]),
             prediction: touchesPrediction(store.history[position...])) { try self.store.undo(through: id) }
   }
 
-  private func runUndo(onlySquirrel: Bool, reading: Bool = false, prediction: Bool = false, _ body: () throws -> Void) {
+  private func runUndo(onlySquirrel: Bool, files: Set<String> = [], reading: Bool = false, prediction: Bool = false, _ body: () throws -> Void) {
     do {
       try body()
       message = nil
       if reading { syncLiveReading() }
       if prediction { syncLivePrediction() }
-      scheduleDeploy(onlySquirrel: onlySquirrel)
+      scheduleDeploy(onlySquirrel: onlySquirrel, files: files)
     } catch let error as PenglaiSettingsStore.StoreError {
       message = Self.friendly(error)
     } catch {
@@ -1077,8 +1091,15 @@ final class PenglaiSettingsModel: ObservableObject {
     scheduleDeploy(onlySquirrel: false, delay: 0)
   }
 
-  /// 連續點的時候等最後一下過 0.6 秒才部署。
-  private func scheduleDeploy(onlySquirrel: Bool, delay: Double = 0.6) {
+  /// 連續點的時候等最後一下過 0.6 秒才部署。files 是這次改了的檔案：只改隱藏清單時不部署（引擎看檔案變了自己重讀），
+  /// 改了自訂詞、詞典時，部署之前先跑使用者資料夾的 penglai_dict_hook（PenglaiDictionaryHook）
+  private func scheduleDeploy(onlySquirrel: Bool, files: Set<String> = [], delay: Double = 0.6) {
+    if !files.isEmpty, let hidden = dictionaryFiles.hidden, files == [hidden] {
+      if status != .applying { status = .applied(Date()) }
+      return
+    }
+    let dictFiles = [dictionaryFiles.phrase, dictionaryFiles.dict].compactMap { $0 }
+    pendingHookFiles.formUnion(files.filter { dictFiles.contains($0) || $0.hasSuffix(".dict.yaml") })
     pendingSquirrelOnly = pendingSquirrelOnly && onlySquirrel
     deployWork?.cancel()
     status = .applying
@@ -1086,11 +1107,25 @@ final class PenglaiSettingsModel: ObservableObject {
       guard let self else { return }
       let squirrelOnly = self.pendingSquirrelOnly
       self.pendingSquirrelOnly = true
-      self.store.deployStarted = Date()
-      self.deployer(squirrelOnly) { ok in
+      let hookFiles = self.pendingHookFiles.sorted()
+      self.pendingHookFiles = []
+      let deploy = {
+        self.deployWork = nil
+        self.store.deployStarted = Date()
+        self.deployer(squirrelOnly) { ok in
+          DispatchQueue.main.async {
+            self.status = ok ? .applied(Date()) : .failed("套用失敗，可以按「復原上一步」")
+            self.reload()
+          }
+        }
+      }
+      guard !hookFiles.isEmpty, PenglaiDictionaryHook.exists(self.userDir) else { return deploy() }
+      let userDir = self.userDir
+      DispatchQueue.global(qos: .userInitiated).async {
+        let failure = PenglaiDictionaryHook.run(userDir, files: hookFiles)
         DispatchQueue.main.async {
-          self.status = ok ? .applied(Date()) : .failed("套用失敗，可以按「復原上一步」")
-          self.reload()
+          if let failure { self.message = failure }
+          deploy()
         }
       }
     }

@@ -179,6 +179,14 @@ enum PenglaiSettingsStandalone {
         let name = page.rawValue + (filter.map { "-" + $0.rawValue } ?? "")
         save(controller.window, to: dir.appendingPathComponent("\(name).png"))
       }
+      // 詞庫頁三份都截（dictionary-<phrase|dict|hidden>.png）
+      model.page = .dictionary
+      for kind in PenglaiDictKind.allCases {
+        model.dictionaryKind = kind
+        RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+        save(controller.window, to: dir.appendingPathComponent("dictionary-\(kind.rawValue).png"))
+      }
+      model.dictionaryKind = .phrase
       // 進階頁每一類每一組都截（all-<類>-<組>.png；超過一頁的再加 -<第幾頁>）
       for section in model.advancedSections {
         for segment in model.advancedSegments(section.id) {
@@ -219,6 +227,16 @@ enum PenglaiSettingsStandalone {
       exit(0)
     }
     app.run()
+  }
+
+  /// 詞庫頁那一份：檔名、幾個詞、最後五個（文字、碼、權重、分區）
+  static func dictionary(_ model: PenglaiSettingsModel, _ kind: PenglaiDictKind) -> String {
+    if let reason = model.dictionaryUnavailable(kind) { return "\(kind.title)：\(reason)" }
+    let files = model.dictionaryFiles
+    let doc = model.dictionaryDocument(kind)
+    let tail = (doc?.entries.suffix(5) ?? []).map { [$0.text, $0.code, $0.weight].filter { !$0.isEmpty }.joined(separator: "/") + "〔\($0.section)〕" }
+    return "\(kind.title) \(model.dictionaryFile(kind) ?? "") \(doc?.entries.count ?? 0) 個" + (kind == .dict ? "（方案詞典 \(files.dictionary ?? "")\(files.dictCreates ? "，要新建" : "")）" : "")
+      + "；最後：" + tail.joined(separator: "、")
   }
 
   /// 視窗存成 PNG：先用系統的 screencapture 擷取真正的畫面；沒有螢幕錄影權限時退回自己畫整個視窗框（含背景）。
@@ -341,6 +359,26 @@ enum PenglaiSettingsStandalone {
       return probe.select(value)
     case "panel":
       return probe.panel(to: URL(fileURLWithPath: value))
+    case "phrase+", "word+", "hide":
+      // 詞庫頁「加入」：phrase+=文字|碼|權重、word+=詞|讀音|權重、hide=詞（| 隔開，後面的可以不寫）
+      let fields = value.components(separatedBy: "|")
+      let kind: PenglaiDictKind = name == "phrase+" ? .phrase : name == "word+" ? .dict : .hidden
+      let field = { (index: Int) in index < fields.count ? fields[index] : "" }
+      if let failure = model.saveDictionaryEntry(kind, original: nil, text: field(0), code: field(1), weight: field(2)) { return "失敗：\(failure)" }
+      waitForDeploy(model)
+      return "ok；" + dictionary(model, kind)
+    case "dict-", "unhide":
+      // 詞庫頁的刪掉、取消隱藏：dict-=<phrase|dict>|文字、unhide=詞
+      let fields = value.components(separatedBy: "|")
+      let kind: PenglaiDictKind = name == "unhide" ? .hidden : (PenglaiDictKind(rawValue: fields[0]) ?? .phrase)
+      let text = name == "unhide" ? value : fields.dropFirst().joined(separator: "|")
+      guard let entry = model.dictionaryDocument(kind)?.entries.last(where: { $0.text == text }) else { return "\(kind.title)裡沒有 \(text)" }
+      if let failure = model.removeDictionaryEntry(kind, entry) { return "失敗：\(failure)" }
+      waitForDeploy(model)
+      return "ok；" + dictionary(model, kind)
+    case "dict":
+      // dict=<phrase|dict|hidden>：印那一份詞庫的檔案和最後幾個詞
+      return dictionary(model, PenglaiDictKind(rawValue: value) ?? .phrase)
     case "schema+", "schema-":
       var list = model.activeSchemas
       if name == "schema+" { list.append(value) } else { list.removeAll { $0 == value } }

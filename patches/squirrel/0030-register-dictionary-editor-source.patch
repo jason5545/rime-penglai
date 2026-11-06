@@ -1,0 +1,52 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Fri, 6 Nov 2026 13:37:20 +0800
+Subject: [PATCH] Register the Penglai dictionary editor source file
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+sable/PenglaiDictionary.swift: the 詞庫 page of the Penglai settings window (custom phrases, the extension dictionary, hidden words). This only adds the file to the Xcode project; the source lives in the rime-penglai repo and build.sh links it into sources/.
+---
+ Squirrel.xcodeproj/project.pbxproj | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index 91cc6fb..8def729 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -103,6 +103,7 @@
+ 		B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */; };
+ 		B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */; };
+ 		B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */; };
++		B3F0A0102F26020000AA0001 /* PenglaiDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -328,6 +329,7 @@
+ 		B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiOnboarding.swift; path = sources/PenglaiOnboarding.swift; sourceTree = "<group>"; };
+ 		B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiAXDiag.swift; path = sources/PenglaiAXDiag.swift; sourceTree = "<group>"; };
+ 		B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiInstall.swift; path = sources/PenglaiInstall.swift; sourceTree = "<group>"; };
++		B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiDictionary.swift; path = sources/PenglaiDictionary.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -365,6 +367,7 @@
+ 				B3F0A0092F26020000AA0001 /* PenglaiOnboarding.swift */,
+ 				B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */,
+ 				B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */,
++				B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -642,6 +645,7 @@
+ 				B3F0A00A2F26020000AA0001 /* PenglaiOnboarding.swift in Sources */,
+ 				B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */,
+ 				B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */,
++				B3F0A0102F26020000AA0001 /* PenglaiDictionary.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+-- 
+2.56.0
+
