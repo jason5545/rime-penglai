@@ -77,8 +77,8 @@
   "sable:style/preedit_font_face": {"title": "組字區字型", "desc": "選字窗頂端注音那一行的字型，沒設定時跟著字型。", "probe": {"class": "影響顯示", "example": "squirrel.yaml style/preedit_font_face: \"Menlo\"，淺色 preedit_font（）：Avenir 16.0 → Menlo 16.0"}},
 
   "default:switcher/caption": {"title": "方案選單標題", "desc": "F4 方案選單在組字區顯示的標題。例：清空就變成程式內建的「:-)」。", "probe": {"class": "影響顯示", "example": "default.yaml switcher/caption: \"\"，F4（{F4}）：〔方案選單〕 → :-)"}},
-  "default:switcher/fold_options": {"title": "方案選單裡的開關收成一行", "desc": "中西、全半形這些開關擠在同一行。例：關掉，F4 選單從「中／半／臺」一行變成「中文、半角、傳統漢字…」一個一列。", "probe": {"class": "影響排序", "example": "default.yaml switcher/fold_options: false，F4（{F4}）：蓬萊注音、中／半／臺 → 蓬萊注音、中文、半角、傳統漢字、简化字"}},
-  "default:switcher/abbreviate_options": {"title": "開關用簡稱", "desc": "收成一行時每個開關只顯示一個字。例：關掉，「中／半／臺」變「中文／半角／臺灣字形」。", "probe": {"class": "影響排序", "example": "default.yaml switcher/abbreviate_options: false，F4（{F4}）：蓬萊注音、中／半／臺 → 蓬萊注音、中文／半角／臺灣字形"}},
+  "default:switcher/fold_options": {"title": "方案選單裡的開關收成一行", "desc": "中西、全半形這些開關擠在同一行。例：關掉，F4 選單從「中／半／臺」一行變成「中文、半形、傳統漢字…」一個一列。", "probe": {"class": "影響排序", "example": "default.yaml switcher/fold_options: false，F4（{F4}）：蓬萊注音、中／半／臺 → 蓬萊注音、中文、半形、傳統漢字、簡體字"}},
+  "default:switcher/abbreviate_options": {"title": "開關用簡稱", "desc": "收成一行時每個開關只顯示一個字。例：關掉，「中／半／臺」變「中文／半形／臺灣字形」。", "probe": {"class": "影響排序", "example": "default.yaml switcher/abbreviate_options: false，F4（{F4}）：蓬萊注音、中／半／臺 → 蓬萊注音、中文／半形／臺灣字形"}},
   "default:switcher/option_list_separator": {"title": "收成一行時的分隔符號", "desc": "例：設「 | 」，F4 那一行變「中 | 半 | 臺」。", "probe": {"class": "影響排序", "example": "default.yaml switcher/option_list_separator: \" | \"，F4（{F4}）：蓬萊注音、中／半／臺 → 蓬萊注音、中 | 半 | 臺"}},
   "default:switcher/fix_schema_list_order": {"title": "方案選單順序固定", "desc": "〔要先有兩個以上方案〕不要把最近用過的方案排到前面。蓬萊注音的方案清單只有一個，看不出差別。", "probe": {"class": "需要別的元件或設定", "example": "要方案選單裡有兩個以上方案才有順序可排（schema_list_translator.cc:118），蓬萊注音的 schema_list 只有一個"}},
   "default:schema_list": {"title": "方案清單", "desc": "F4 方案選單列出的方案。例：加上 stroke，F4 選單多一列「五筆畫」。", "probe": {"class": "影響排序", "example": "default.yaml schema_list: [{schema: penglai_zhuyin}, {schema: stroke}]，F4（{F4}）：蓬萊注音、中／半／臺 → 蓬萊注音、中／半／臺、五筆畫"}},

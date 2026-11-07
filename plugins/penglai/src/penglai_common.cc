@@ -198,8 +198,15 @@ an<SortedTable> SortedTable::Open(const string& file_path) {
   // 讀的期間被原地重寫（同一個 inode 被截斷、改寫）：讀完再看一次，inode、大小、修改時間有不同就當作沒有這個表，
   // 跟舊 Lua 讀到一半的檔 require 失敗一樣。不重試、不加鎖
   struct stat after;
+#ifdef __APPLE__
+  const auto& m0 = st.st_mtimespec;
+  const auto& m1 = after.st_mtimespec;
+#else  // Linux、Android（penglai-android）
+  const auto& m0 = st.st_mtim;
+  const auto& m1 = after.st_mtim;
+#endif
   bool same = fstat(fd, &after) == 0 && after.st_ino == st.st_ino && after.st_size == st.st_size &&
-              after.st_mtimespec.tv_sec == st.st_mtimespec.tv_sec && after.st_mtimespec.tv_nsec == st.st_mtimespec.tv_nsec;
+              m1.tv_sec == m0.tv_sec && m1.tv_nsec == m0.tv_nsec;
   close(fd);
   if (got != t->data_.size() || !same)
     return nullptr;

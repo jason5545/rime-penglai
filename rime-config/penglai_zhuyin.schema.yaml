@@ -33,7 +33,7 @@ switches:
     reset: 0
     states: [ 中文, 西文 ]
   - name: full_shape
-    states: [ 半角, 全角 ]
+    states: [ 半形, 全形 ]
   - options:
       - zh_hant
       - zh_hans
@@ -41,7 +41,7 @@ switches:
     reset: 2
     states:
       - 傳統漢字
-      - 简化字
+      - 簡體字
       - 臺灣字形
   # 讀音（10/29，蓬萊改過的 librime 才會讀）：詞典收的讀音三種都一樣，只差哪個先出。
   # 蓬萊音（預設）照教育部辭典、小麥注音排；中州音照地球拼音（CC-CEDICT）原本的比重；兼收並蓄每個讀音取兩者比重大的。
