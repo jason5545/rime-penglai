@@ -222,7 +222,7 @@
    "file": "default.custom.yaml",
    "type": "bool",
    "title": "開關用簡稱",
-   "desc": "收成一行時每個開關只顯示一個字。例：關掉，「中／半／臺」變「中文／半角／臺灣字形」。",
+   "desc": "收成一行時每個開關只顯示一個字。例：關掉，「中／半／臺」變「中文／半形／臺灣字形」。",
    "value": "true",
    "builtin": "false",
    "where": {
@@ -267,7 +267,7 @@
    "file": "default.custom.yaml",
    "type": "bool",
    "title": "方案選單裡的開關收成一行",
-   "desc": "中西、全半形這些開關擠在同一行。例：關掉，F4 選單從「中／半／臺」一行變成「中文、半角、傳統漢字…」一個一列。",
+   "desc": "中西、全半形這些開關擠在同一行。例：關掉，F4 選單從「中／半／臺」一行變成「中文、半形、傳統漢字…」一個一列。",
    "value": "true",
    "builtin": "false",
    "where": {
@@ -2696,8 +2696,8 @@
    "path": "translator/revert_learning_seconds",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "int",
-   "title": "撤銷學習的時限（秒）",
-   "desc": "剛送出的字選錯了，這段時間內按一下 BackSpace 就不學，只有蓬萊版引擎認得。例：改回 3，送出「手術室」4 秒後按 BackSpace 撤銷不了。",
+   "title": "取消學習的時限（秒）",
+   "desc": "剛送出的字選錯了，這段時間內按一下 BackSpace 就不學，只有蓬萊版引擎認得。例：改回 3，送出「手術室」4 秒後按 BackSpace 取消不了。",
    "value": "15",
    "builtin": "3",
    "options": [
@@ -3332,7 +3332,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "string",
    "title": "學習紀錄格式",
-   "desc": "〔小心〕整句翻譯器換格式等於換一份空的學習紀錄，撤銷學習也不靈了；custom_phrase 一定要 stabledb，改掉就讀不到 custom_phrase.txt。",
+   "desc": "〔小心〕整句翻譯器換格式等於換一份空的學習紀錄，取消學習也不靈了；custom_phrase 一定要 stabledb，改掉就讀不到 custom_phrase.txt。",
    "value": "stabledb",
    "builtin": "userdb",
    "options": [
@@ -3350,7 +3350,7 @@
    "file": "penglai_zhuyin.custom.yaml",
    "type": "string",
    "title": "學習紀錄格式",
-   "desc": "〔小心〕整句翻譯器換格式等於換一份空的學習紀錄，撤銷學習也不靈了；custom_phrase 一定要 stabledb，改掉就讀不到 custom_phrase.txt。",
+   "desc": "〔小心〕整句翻譯器換格式等於換一份空的學習紀錄，取消學習也不靈了；custom_phrase 一定要 stabledb，改掉就讀不到 custom_phrase.txt。",
    "value": null,
    "builtin": "userdb",
    "options": [
@@ -4148,6 +4148,216 @@
     "section": "composing",
     "segment": "key_model",
     "order": 48
+   }
+  },
+  {
+   "id": "translator:key_model/touch_abbreviations",
+   "path": "custom_phrase/key_model/touch_abbreviations",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：只打第一個注音時也照觸控修",
+   "desc": "只打第一個注音時，按偏的聲母也照按下去的位置換成旁邊的聲母。只打完整注音的人不做。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_abbreviations",
+   "path": "translator/key_model/touch_abbreviations",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：只打第一個注音時也照觸控修",
+   "desc": "只打第一個注音時，按偏的聲母也照按下去的位置換成旁邊的聲母。只打完整注音的人不做。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/touch_close",
+   "path": "custom_phrase/key_model/touch_close",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控換成聲調鍵時要多靠近",
+   "desc": "按在聲調鍵旁邊的鍵時，要多靠近那個聲調鍵，才當成打完了這個音節。比上一項嚴，只打第一個注音時，最後一鍵才不會被讀成聲調。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.4",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_close",
+   "path": "translator/key_model/touch_close",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控換成聲調鍵時要多靠近",
+   "desc": "按在聲調鍵旁邊的鍵時，要多靠近那個聲調鍵，才當成打完了這個音節。比上一項嚴，只打第一個注音時，最後一鍵才不會被讀成聲調。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.4",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/touch_max_edits",
+   "path": "custom_phrase/key_model/touch_max_edits",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：觸控時一個音節最多錯幾次",
+   "desc": "手機上一個音節最多修幾個錯，按偏到旁邊的鍵也算一次。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "2",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_max_edits",
+   "path": "translator/key_model/touch_max_edits",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：觸控時一個音節最多錯幾次",
+   "desc": "手機上一個音節最多修幾個錯，按偏到旁邊的鍵也算一次。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "2",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/touch_near",
+   "path": "custom_phrase/key_model/touch_near",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控多靠近別的鍵才算按偏",
+   "desc": "按下去的位置要多靠近旁邊的鍵，才當成可能按偏了；按在鍵中間的照實體鍵盤的規則。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.95",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_near",
+   "path": "translator/key_model/touch_near",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控多靠近別的鍵才算按偏",
+   "desc": "按下去的位置要多靠近旁邊的鍵，才當成可能按偏了；按在鍵中間的照實體鍵盤的規則。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.95",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/touch_prior",
+   "path": "custom_phrase/key_model/touch_prior",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏的整體比重",
+   "desc": "照按下去的位置算出按偏的機率之後，再乘上這個數。1 是照算出來的用，調小比較少修。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "1.0",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_prior",
+   "path": "translator/key_model/touch_prior",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏的整體比重",
+   "desc": "照按下去的位置算出按偏的機率之後，再乘上這個數。1 是照算出來的用，調小比較少修。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "1.0",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/touch_sigma",
+   "path": "custom_phrase/key_model/touch_sigma",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏的範圍",
+   "desc": "手機上按下去的位置離鍵中心多遠，還算可能是要按旁邊的鍵（以鍵寬為單位）。調大比較會修按偏的鍵，但照打本來就對的詞也比較常被換掉。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.25",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_sigma",
+   "path": "translator/key_model/touch_sigma",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏的範圍",
+   "desc": "手機上按下去的位置離鍵中心多遠，還算可能是要按旁邊的鍵（以鍵寬為單位）。調大比較會修按偏的鍵，但照打本來就對的詞也比較常被換掉。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.25",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "translator:key_model/touch_valid",
+   "path": "custom_phrase/key_model/touch_valid",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏、照打合法時多扣的分",
+   "desc": "照打的注音本身就是合法音節，按下去的位置又很靠近別的鍵時，修過的詞再乘上這個機率，而且可以排進整句。越小越相信照打的。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.1",
+   "penglai": true,
+   "where": {
+    "section": "other",
+    "segment": "other",
+    "order": 129
+   }
+  },
+  {
+   "id": "translator:key_model/touch_valid",
+   "path": "translator/key_model/touch_valid",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏、照打合法時多扣的分",
+   "desc": "照打的注音本身就是合法音節，按下去的位置又很靠近別的鍵時，修過的詞再乘上這個機率，而且可以排進整句。越小越相信照打的。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.1",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
    }
   },
   {
