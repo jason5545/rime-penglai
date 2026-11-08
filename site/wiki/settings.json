@@ -2501,12 +2501,63 @@
    }
   },
   {
+   "id": "script_translator:key_model/abbreviations",
+   "path": "translator/key_model/abbreviations",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "string",
+   "title": "打錯也對得到：只打第一個注音時也修",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "none",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/closed_type",
+   "path": "translator/key_model/closed_type",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：修過的音節當照打的算",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/double_press",
+   "path": "translator/key_model/double_press",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：同一鍵連按兩下的機率",
+   "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "options": [
+    0.001,
+    0.01,
+    0.03
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 51
+   }
+  },
+  {
    "id": "script_translator:key_model/enable",
    "path": "translator/key_model/enable",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
    "title": "打錯也對得到",
-   "desc": "打完整注音時，按到旁邊的鍵、漏打聲母（ㄧㄝˋ → ㄒㄧㄝˋ）、漏打介音（ㄒㄢ → ㄒㄧㄢ）、同一鍵連按兩下，也找得到原本要打的詞。每種錯有自己的機率，錯幾次扣幾次分，跟詞典、前後文一起排。只修以聲調鍵結尾的音節，只打第一個注音的輸入不改；照打的注音本身就是合法音節時，修過的詞只當建議、排在第二。只有蓬萊版引擎認得。 同「輸入」頁的「打錯也對得到」。只有蓬萊版引擎認得。",
+   "desc": "打完整注音時，按到旁邊的鍵、漏打聲母（ㄧㄝˋ → ㄒㄧㄝˋ）、漏打介音（ㄒㄢ → ㄒㄧㄢ）、同一鍵連按兩下，也找得到原本要打的詞。每種錯有自己的機率，錯幾次扣幾次分，跟詞典、前後文一起排。只修以聲調鍵結尾的音節，只打第一個注音的輸入不改；照打的注音本身就是合法音節時，修過的詞只當建議、排在第二。只有蓬萊版引擎認得。",
    "value": "true",
    "builtin": "false",
    "options": [
@@ -2520,6 +2571,71 @@
    }
   },
   {
+   "id": "script_translator:key_model/extra",
+   "path": "translator/key_model/extra",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：多按一個別的鍵的機率",
+   "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.002",
+   "options": [
+    0.0002,
+    0.002,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 52
+   }
+  },
+  {
+   "id": "script_translator:key_model/fuzzy",
+   "path": "translator/key_model/fuzzy",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：模糊音的機率",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/fuzzy_pairs",
+   "path": "translator/key_model/fuzzy_pairs",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "list",
+   "title": "打錯也對得到：模糊音",
+   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄡㄛ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞，沒打聲調（ㄖㄥ）也一樣。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": null,
+   "penglai": true,
+   "where": {
+    "file": true
+   }
+  },
+  {
+   "id": "script_translator:key_model/fuzzy_untoned",
+   "path": "translator/key_model/fuzzy_untoned",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：模糊音不用打聲調",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
    "id": "script_translator:key_model/max_corrections",
    "path": "translator/key_model/max_corrections",
    "file": "penglai_zhuyin.custom.yaml",
@@ -2530,6 +2646,285 @@
    "builtin": "30",
    "min": 1,
    "max": 60,
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/max_edits",
+   "path": "translator/key_model/max_edits",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：一個音節最多錯幾次",
+   "desc": "一個音節裡最多修幾個錯。2 修得比較多，但比較慢、照打的詞比較常被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "1",
+   "options": [
+    1,
+    2
+   ],
+   "min": 1,
+   "max": 3,
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/omit_initial",
+   "path": "translator/key_model/omit_initial",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：漏打聲母的機率",
+   "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.003",
+   "options": [
+    0.0003,
+    0.003,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 49
+   }
+  },
+  {
+   "id": "script_translator:key_model/omit_medial",
+   "path": "translator/key_model/omit_medial",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：漏打介音的機率",
+   "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.003",
+   "options": [
+    0.0003,
+    0.003,
+    0.01
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 50
+   }
+  },
+  {
+   "id": "script_translator:key_model/require_tone",
+   "path": "translator/key_model/require_tone",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：只修打了聲調的音節",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/show_reading",
+   "path": "translator/key_model/show_reading",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：修過的詞標出讀音",
+   "desc": "修過的詞在選字窗旁邊寫上修成的讀音（打 ㄈㄡ ㄓㄣ 出現「佛振 ㄈㄛˊ ㄓㄣˋ」），看得出這個詞是改過的。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 53
+   }
+  },
+  {
+   "id": "script_translator:key_model/sigma",
+   "path": "translator/key_model/sigma",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：鍵距的範圍",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.6",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/substitution",
+   "path": "translator/key_model/substitution",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：按到旁邊的鍵的機率",
+   "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.01",
+   "options": [
+    0.001,
+    0.01,
+    0.03
+   ],
+   "min": 0,
+   "max": 0.1,
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 48
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_abbreviations",
+   "path": "translator/key_model/touch_abbreviations",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：只打第一個注音時也照觸控修",
+   "desc": "只打第一個注音時，按偏的聲母也照按下去的位置換成旁邊的聲母。只打完整注音的人不做。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_close",
+   "path": "translator/key_model/touch_close",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控換成聲調鍵時要多靠近",
+   "desc": "按在聲調鍵旁邊的鍵時，要多靠近那個聲調鍵，才當成打完了這個音節。比上一項嚴，只打第一個注音時，最後一鍵才不會被讀成聲調。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.4",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_max_edits",
+   "path": "translator/key_model/touch_max_edits",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "int",
+   "title": "打錯也對得到：觸控時一個音節最多錯幾次",
+   "desc": "手機上一個音節最多修幾個錯，按偏到旁邊的鍵也算一次。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "2",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_near",
+   "path": "translator/key_model/touch_near",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控多靠近別的鍵才算按偏",
+   "desc": "按下去的位置要多靠近旁邊的鍵，才當成可能按偏了；按在鍵中間的照實體鍵盤的規則。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.95",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_prior",
+   "path": "translator/key_model/touch_prior",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏的整體比重",
+   "desc": "照按下去的位置算出按偏的機率之後，再乘上這個數。1 是照算出來的用，調小比較少修。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "1.0",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_sigma",
+   "path": "translator/key_model/touch_sigma",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏的範圍",
+   "desc": "手機上按下去的位置離鍵中心多遠，還算可能是要按旁邊的鍵（以鍵寬為單位）。調大比較會修按偏的鍵，但照打本來就對的詞也比較常被換掉。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.25",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/touch_valid",
+   "path": "translator/key_model/touch_valid",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：觸控按偏、照打合法時多扣的分",
+   "desc": "照打的注音本身就是合法音節，按下去的位置又很靠近別的鍵時，修過的詞再乘上這個機率，而且可以排進整句。越小越相信照打的。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.1",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/valid",
+   "path": "translator/key_model/valid",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "打錯也對得到：照打合法時多扣的分",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "0.0001",
+   "penglai": true,
+   "where": {
+    "unused": "hidden"
+   }
+  },
+  {
+   "id": "script_translator:key_model/valid_first",
+   "path": "translator/key_model/valid_first",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：照打合法時也可以排第一",
+   "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "false",
+   "options": [
+    false,
+    true
+   ],
+   "penglai": true,
+   "where": {
+    "section": "composing",
+    "segment": "key_model",
+    "order": 46
+   }
+  },
+  {
+   "id": "script_translator:key_model/valid_suggest",
+   "path": "translator/key_model/valid_suggest",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "打錯也對得到：照打合法時只當建議",
+   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "true",
    "penglai": true,
    "where": {
     "unused": "hidden"
@@ -3618,846 +4013,6 @@
     "section": "ranking",
     "segment": "sentence",
     "order": 115
-   }
-  },
-  {
-   "id": "translator:key_model/abbreviations",
-   "path": "custom_phrase/key_model/abbreviations",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "string",
-   "title": "打錯也對得到：只打第一個注音時也修",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "none",
-   "penglai": true,
-   "where": {
-    "file": true
-   }
-  },
-  {
-   "id": "translator:key_model/abbreviations",
-   "path": "translator/key_model/abbreviations",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "string",
-   "title": "打錯也對得到：只打第一個注音時也修",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "none",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/closed_type",
-   "path": "custom_phrase/key_model/closed_type",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：修過的音節當照打的算",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "false",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/closed_type",
-   "path": "translator/key_model/closed_type",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：修過的音節當照打的算",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "false",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/double_press",
-   "path": "custom_phrase/key_model/double_press",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：同一鍵連按兩下的機率",
-   "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.01",
-   "options": [
-    0.001,
-    0.01,
-    0.03
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/double_press",
-   "path": "translator/key_model/double_press",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：同一鍵連按兩下的機率",
-   "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.01",
-   "options": [
-    0.001,
-    0.01,
-    0.03
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 51
-   }
-  },
-  {
-   "id": "translator:key_model/enable",
-   "path": "custom_phrase/key_model/enable",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到",
-   "desc": "同「輸入」頁的「打錯也對得到」。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "false",
-   "options": [
-    true,
-    false
-   ],
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/extra",
-   "path": "custom_phrase/key_model/extra",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：多按一個別的鍵的機率",
-   "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.002",
-   "options": [
-    0.0002,
-    0.002,
-    0.01
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/extra",
-   "path": "translator/key_model/extra",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：多按一個別的鍵的機率",
-   "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.002",
-   "options": [
-    0.0002,
-    0.002,
-    0.01
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 52
-   }
-  },
-  {
-   "id": "translator:key_model/fuzzy",
-   "path": "custom_phrase/key_model/fuzzy",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：模糊音的機率",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.01",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/fuzzy",
-   "path": "translator/key_model/fuzzy",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：模糊音的機率",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.01",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/fuzzy_pairs",
-   "path": "custom_phrase/key_model/fuzzy_pairs",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "list",
-   "title": "打錯也對得到：模糊音",
-   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄡㄛ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞，沒打聲調（ㄖㄥ）也一樣。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": null,
-   "penglai": true,
-   "where": {
-    "file": true
-   }
-  },
-  {
-   "id": "translator:key_model/fuzzy_pairs",
-   "path": "translator/key_model/fuzzy_pairs",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "list",
-   "title": "打錯也對得到：模糊音",
-   "desc": "分不清的注音兩兩一對，例如 [ㄣㄥ, ㄓㄗ, ㄔㄘ, ㄕㄙ, ㄡㄛ]：打 ㄖㄥˊ 也找得到 ㄖㄣˊ 的詞，沒打聲調（ㄖㄥ）也一樣。每換一次扣一次分。空的＝沒有模糊音。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": null,
-   "penglai": true,
-   "where": {
-    "file": true
-   }
-  },
-  {
-   "id": "translator:key_model/fuzzy_untoned",
-   "path": "custom_phrase/key_model/fuzzy_untoned",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：模糊音不用打聲調",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/fuzzy_untoned",
-   "path": "translator/key_model/fuzzy_untoned",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：模糊音不用打聲調",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/max_edits",
-   "path": "custom_phrase/key_model/max_edits",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "int",
-   "title": "打錯也對得到：一個音節最多錯幾次",
-   "desc": "一個音節裡最多修幾個錯。2 修得比較多，但比較慢、照打的詞比較常被換掉。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "1",
-   "options": [
-    1,
-    2
-   ],
-   "min": 1,
-   "max": 3,
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/max_edits",
-   "path": "translator/key_model/max_edits",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "int",
-   "title": "打錯也對得到：一個音節最多錯幾次",
-   "desc": "一個音節裡最多修幾個錯。2 修得比較多，但比較慢、照打的詞比較常被換掉。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "1",
-   "options": [
-    1,
-    2
-   ],
-   "min": 1,
-   "max": 3,
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/omit_initial",
-   "path": "custom_phrase/key_model/omit_initial",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：漏打聲母的機率",
-   "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.003",
-   "options": [
-    0.0003,
-    0.003,
-    0.01
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/omit_initial",
-   "path": "translator/key_model/omit_initial",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：漏打聲母的機率",
-   "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.003",
-   "options": [
-    0.0003,
-    0.003,
-    0.01
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 49
-   }
-  },
-  {
-   "id": "translator:key_model/omit_medial",
-   "path": "custom_phrase/key_model/omit_medial",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：漏打介音的機率",
-   "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.003",
-   "options": [
-    0.0003,
-    0.003,
-    0.01
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/omit_medial",
-   "path": "translator/key_model/omit_medial",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：漏打介音的機率",
-   "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.003",
-   "options": [
-    0.0003,
-    0.003,
-    0.01
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 50
-   }
-  },
-  {
-   "id": "translator:key_model/require_tone",
-   "path": "custom_phrase/key_model/require_tone",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：只修打了聲調的音節",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/require_tone",
-   "path": "translator/key_model/require_tone",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：只修打了聲調的音節",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/show_reading",
-   "path": "custom_phrase/key_model/show_reading",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：修過的詞標出讀音",
-   "desc": "修過的詞在選字窗旁邊寫上修成的讀音（打 ㄈㄡ ㄓㄣ 出現「佛振 ㄈㄛˊ ㄓㄣˋ」），看得出這個詞是改過的。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/show_reading",
-   "path": "translator/key_model/show_reading",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：修過的詞標出讀音",
-   "desc": "修過的詞在選字窗旁邊寫上修成的讀音（打 ㄈㄡ ㄓㄣ 出現「佛振 ㄈㄛˊ ㄓㄣˋ」），看得出這個詞是改過的。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 53
-   }
-  },
-  {
-   "id": "translator:key_model/sigma",
-   "path": "custom_phrase/key_model/sigma",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：鍵距的範圍",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.6",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/sigma",
-   "path": "translator/key_model/sigma",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：鍵距的範圍",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.6",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/substitution",
-   "path": "custom_phrase/key_model/substitution",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：按到旁邊的鍵的機率",
-   "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.01",
-   "options": [
-    0.001,
-    0.01,
-    0.03
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/substitution",
-   "path": "translator/key_model/substitution",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：按到旁邊的鍵的機率",
-   "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.01",
-   "options": [
-    0.001,
-    0.01,
-    0.03
-   ],
-   "min": 0,
-   "max": 0.1,
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 48
-   }
-  },
-  {
-   "id": "translator:key_model/touch_abbreviations",
-   "path": "custom_phrase/key_model/touch_abbreviations",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：只打第一個注音時也照觸控修",
-   "desc": "只打第一個注音時，按偏的聲母也照按下去的位置換成旁邊的聲母。只打完整注音的人不做。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_abbreviations",
-   "path": "translator/key_model/touch_abbreviations",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：只打第一個注音時也照觸控修",
-   "desc": "只打第一個注音時，按偏的聲母也照按下去的位置換成旁邊的聲母。只打完整注音的人不做。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/touch_close",
-   "path": "custom_phrase/key_model/touch_close",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控換成聲調鍵時要多靠近",
-   "desc": "按在聲調鍵旁邊的鍵時，要多靠近那個聲調鍵，才當成打完了這個音節。比上一項嚴，只打第一個注音時，最後一鍵才不會被讀成聲調。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.4",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_close",
-   "path": "translator/key_model/touch_close",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控換成聲調鍵時要多靠近",
-   "desc": "按在聲調鍵旁邊的鍵時，要多靠近那個聲調鍵，才當成打完了這個音節。比上一項嚴，只打第一個注音時，最後一鍵才不會被讀成聲調。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.4",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/touch_max_edits",
-   "path": "custom_phrase/key_model/touch_max_edits",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "int",
-   "title": "打錯也對得到：觸控時一個音節最多錯幾次",
-   "desc": "手機上一個音節最多修幾個錯，按偏到旁邊的鍵也算一次。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "2",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_max_edits",
-   "path": "translator/key_model/touch_max_edits",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "int",
-   "title": "打錯也對得到：觸控時一個音節最多錯幾次",
-   "desc": "手機上一個音節最多修幾個錯，按偏到旁邊的鍵也算一次。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "2",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/touch_near",
-   "path": "custom_phrase/key_model/touch_near",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控多靠近別的鍵才算按偏",
-   "desc": "按下去的位置要多靠近旁邊的鍵，才當成可能按偏了；按在鍵中間的照實體鍵盤的規則。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.95",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_near",
-   "path": "translator/key_model/touch_near",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控多靠近別的鍵才算按偏",
-   "desc": "按下去的位置要多靠近旁邊的鍵，才當成可能按偏了；按在鍵中間的照實體鍵盤的規則。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.95",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/touch_prior",
-   "path": "custom_phrase/key_model/touch_prior",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控按偏的整體比重",
-   "desc": "照按下去的位置算出按偏的機率之後，再乘上這個數。1 是照算出來的用，調小比較少修。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "1.0",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_prior",
-   "path": "translator/key_model/touch_prior",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控按偏的整體比重",
-   "desc": "照按下去的位置算出按偏的機率之後，再乘上這個數。1 是照算出來的用，調小比較少修。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "1.0",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/touch_sigma",
-   "path": "custom_phrase/key_model/touch_sigma",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控按偏的範圍",
-   "desc": "手機上按下去的位置離鍵中心多遠，還算可能是要按旁邊的鍵（以鍵寬為單位）。調大比較會修按偏的鍵，但照打本來就對的詞也比較常被換掉。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.25",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_sigma",
-   "path": "translator/key_model/touch_sigma",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控按偏的範圍",
-   "desc": "手機上按下去的位置離鍵中心多遠，還算可能是要按旁邊的鍵（以鍵寬為單位）。調大比較會修按偏的鍵，但照打本來就對的詞也比較常被換掉。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.25",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/touch_valid",
-   "path": "custom_phrase/key_model/touch_valid",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控按偏、照打合法時多扣的分",
-   "desc": "照打的注音本身就是合法音節，按下去的位置又很靠近別的鍵時，修過的詞再乘上這個機率，而且可以排進整句。越小越相信照打的。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.1",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/touch_valid",
-   "path": "translator/key_model/touch_valid",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：觸控按偏、照打合法時多扣的分",
-   "desc": "照打的注音本身就是合法音節，按下去的位置又很靠近別的鍵時，修過的詞再乘上這個機率，而且可以排進整句。越小越相信照打的。這是蓬萊引擎的內部參數，調了一般打字會變差。只在手機的觸控鍵盤有作用，只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.1",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/valid",
-   "path": "custom_phrase/key_model/valid",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：照打合法時多扣的分",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.0001",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/valid",
-   "path": "translator/key_model/valid",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "double",
-   "title": "打錯也對得到：照打合法時多扣的分",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "0.0001",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
-   }
-  },
-  {
-   "id": "translator:key_model/valid_first",
-   "path": "custom_phrase/key_model/valid_first",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：照打合法時也可以排第一",
-   "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "false",
-   "options": [
-    false,
-    true
-   ],
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/valid_first",
-   "path": "translator/key_model/valid_first",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：照打合法時也可以排第一",
-   "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "false",
-   "options": [
-    false,
-    true
-   ],
-   "penglai": true,
-   "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 46
-   }
-  },
-  {
-   "id": "translator:key_model/valid_suggest",
-   "path": "custom_phrase/key_model/valid_suggest",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：照打合法時只當建議",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 129
-   }
-  },
-  {
-   "id": "translator:key_model/valid_suggest",
-   "path": "translator/key_model/valid_suggest",
-   "file": "penglai_zhuyin.custom.yaml",
-   "type": "bool",
-   "title": "打錯也對得到：照打合法時只當建議",
-   "desc": "這是蓬萊引擎的內部參數，調了一般打字會變差。只有蓬萊版引擎認得。",
-   "value": null,
-   "builtin": "true",
-   "penglai": true,
-   "where": {
-    "unused": "hidden"
    }
   },
   {
