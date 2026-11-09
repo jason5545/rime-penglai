@@ -128,9 +128,11 @@ section { padding: 5rem 0; }
 .status-chip {
   display: inline-flex; align-items: center; gap: .55rem;
   margin: 0; padding: .45rem .9rem;
-  border: 1px solid var(--line); border-radius: 999px;
+  border: 1px solid var(--line); border-radius: 1.4em;
   background: var(--surface); font-size: .95rem; text-align: left;
 }
+.status-chip > span:last-child { min-width: 0; }
+.status-next { margin: .7rem 0 0; color: var(--muted); font-size: .9rem; }
 .dot { flex: none; width: .55rem; height: .55rem; border-radius: 50%; background: #d08a2c; box-shadow: 0 0 0 3px color-mix(in srgb, #d08a2c 25%, transparent); }
 @media (max-width: 560px) { .hero { padding-top: 3rem; } .lead { font-size: 1.08rem; } }
 
