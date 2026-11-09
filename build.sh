@@ -38,6 +38,14 @@ else
     echo "⛔ $L 有沒 commit 的改動，切到釘住的 commit 會清掉：先 commit（或 git stash），要建這份就加 LIBRIME_LOCAL=1"; exit 1
   fi
   fetch "$LIBRIME_REPO" "$L" "$LIBRIME_PENGLAI_COMMIT"
+  # 本機 penglai 分支就是釘住的 commit 時切回分支，不留 detached：detached 時接著改、commit 的東西不在分支上，
+  # git push origin penglai 會說 up-to-date、什麼都沒推（11/9 0073 就這樣漏推一次）。分支不是這個 commit 時照舊 detached，印出來提醒
+  pin=$(git -C "$L" rev-parse "$LIBRIME_PENGLAI_COMMIT^{commit}")
+  if [[ $(git -C "$L" rev-parse -q --verify refs/heads/penglai 2>/dev/null) == "$pin" ]]; then
+    git -C "$L" checkout -q penglai
+  else
+    echo "   ⚠ $L 停在 ${pin:0:8}（detached），本機 penglai 分支不是這個 commit；要改 librime 先 git -C $L checkout penglai"
+  fi
   git -C "$L" remote get-url upstream >/dev/null 2>&1 || git -C "$L" remote add upstream https://github.com/rime/librime.git
   git -C "$L" merge-base --is-ancestor "$LIBRIME_COMMIT" HEAD || { echo "⛔ LIBRIME_PENGLAI_COMMIT 不是從 LIBRIME_COMMIT 長出來的"; exit 1; }
 fi

@@ -650,9 +650,11 @@ final class PenglaiSettingsModel: ObservableObject {
 
   /// 附屬資料：被別的方案拿來當 dependencies 或反查詞典、自己又不在 schema_list 裡的方案（例如蓬萊注音的筆畫反查 stroke）。
   /// 不能單獨用，方案頁不列；使用者自己加進 schema_list 的照樣列，才取消得掉。規則從部署後的方案讀，不寫死名字。
+  /// 只看 schema_list 裡的方案的依賴：筆畫反查 stroke 自己依賴 luna_pinyin，看全部會把使用者自己放進來的朙月拼音也當成附屬
+  /// （手機版 PenglaiSchemas.kt 同一條規則，11/8）。
   private func auxiliarySchemas(_ ids: [String]) -> Set<String> {
     var used = Set<String>()
-    for id in ids {
+    for id in ids where activeSchemas.contains(id) {
       let schema = PenglaiRimeConfig(.schema(id))
       guard schema.isOpen else { continue }
       used.formUnion(schema.listStrings("schema/dependencies"))

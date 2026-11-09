@@ -53,6 +53,13 @@ usage: python3 -I tools/gen_terra_tw.py [--rime DIR] [--upstream FILE] [--static
 3. 輕聲字也能用本調打（10/28）：讀音有輕聲的詞，補上輕聲字換成本調的讀音（認識 ㄖㄣˋ ㄕ˙ → ㄖㄣˋ ㄕˋ）。
    讀音集合：每個輕聲字換成那個字音相同（只差聲調）的任何一個非輕聲讀音，或不換，全部組合都收（跟政策無關）。
    比重：輕聲字全部換成這個政策下比重最高的同音本調，那一個照 essay 詞頻排，其他 0%；原本那個讀音政策要排才排。
+4. 一、不的變調（11/9，docs/optimization.md 第 8 項；三種政策都做）：「一」接一、二、三聲補 ㄧˋ，接四聲補 ㄧˊ，「不」接四聲補 ㄅㄨˊ，
+   接輕聲不補；「一」的前一個字是數字、第、初、統、唯這類（YI_KEEP_AFTER），或後一個字是數字時不補。本調讀音照留，兩種打法都打得到。
+   單字「一」的 ㄧˋ、ㄧˊ 各 1%，librime 自動編碼只用 ≥ 5% 的讀音，essay 才有的詞（一隻、一些、一直）原本只有本調 ㄧ，打變調叫不出來。
+   這裡只推有讀音的詞（原始表、規則 3 的本調）；沒寫讀音的詞（essay 才有的、擴充詞典裡沒寫讀音的）由 librime 0074
+   在自動編碼時照同一條規則補（encoder.cc），公開版設定視窗加的詞也一樣。變調讀音的比重是 essay 詞頻的 SANDHI_PCT
+   （原本的讀音政策不排就 0%；引擎那邊是 kSandhiRatio，兩邊要一樣）：全額時「異常」被「一場」、「疑慮」被「一律」搶走，
+   打折主要擋這種（數字在 SANDHI_PCT 旁邊）。不放進原始讀音表：跟規則 3 一樣是推出來的。
 大陸優先（mainland；畫面上叫中州音）：地球拼音的讀音照地球拼音原本的比重；只有教育部、小麥注音有的讀音 0%（地球拼音沒有這個詞的照 essay 排）。
 兩岸同等（equal；畫面上叫兼收並蓄）：每個讀音取臺灣優先、大陸優先兩者比重大的那個（柏 ㄅㄛˊ、ㄅㄞˇ 都是 90%，像唯音的各讀音同頻次，
   但兩邊都壓低的讀音照樣壓低）。
@@ -94,6 +101,12 @@ GLUE_BEGIN = "  # >>> 罕用黏合音節（tools/gen_terra_tw.py 產生，不要
 GLUE_END = "  # <<< 罕用黏合音節"
 # 臺灣優先的單字比重另外指定（檔頭規則 1 最後一條）：語氣詞 ㄟ 要「欸」不要「誒」
 PARTICLE_PCT = {("欸", "ㄟ"): "100%", ("欸", "ㄟˋ"): "100%", ("誒", "ㄟ"): f"{PRC_PCT:g}%"}
+# 一、不的變調（檔頭規則 4）：數字後面、序數、「統一」「唯一」這類的「一」不變調
+NUMERALS = set("〇零一二三四五六七八九十百千萬億兩廿卅")
+YI_KEEP_AFTER = NUMERALS | set("第初統唯專單逐獨惟")
+# 變調讀音的比重（essay 詞頻的 20%）：11/9 新詞句全碼 100% 改對 131、改錯 14，50% 131／12，20% 130／11，5% 122／9。
+# 沒寫讀音的詞由 librime 0074 補（encoder.cc 的 kSandhiRatio），兩邊要一樣
+SANDHI_PCT = 20.0
 
 
 def is_char(text, code):
@@ -441,6 +454,61 @@ def weigh(rows, S):
     return out, derived
 
 
+# ── 一、不的變調（檔頭規則 4）────────────────────────────
+
+def sandhi_code(t, c):
+    """一、不的變調讀音：一接一二三聲 → ㄧˋ、接四聲 → ㄧˊ；不接四聲 → ㄅㄨˊ。接輕聲不換。沒得換回 None"""
+    syl = c.split()
+    if len(syl) != len(t):
+        return None
+    out = list(syl)
+    for i in range(len(t) - 1):
+        nxt = syl[i + 1]
+        if neutral(nxt):
+            continue
+        if t[i] == "一" and syl[i] == "ㄧ":
+            if t[i + 1] in NUMERALS or (i > 0 and t[i - 1] in YI_KEEP_AFTER):
+                continue
+            out[i] = "ㄧˊ" if nxt.endswith("ˋ") else "ㄧˋ"
+        elif t[i] == "不" and syl[i] == "ㄅㄨˋ" and nxt.endswith("ˋ"):
+            out[i] = "ㄅㄨˊ"
+    v = " ".join(out)
+    return v if v != c else None
+
+
+def add_sandhi(weights, pct=100.0):
+    """把一、不的變調讀音加進三種政策的比重，回傳 (新加的 (字詞, 碼) 清單, 原本 0% 改排的處數)。
+    有讀音的詞（原始表、輕聲字的本調）：每個讀音推出變調讀音，原本的讀音政策有排，變調照 essay 詞頻 × pct，沒排就 0%。
+    原本就有這個變調讀音、但政策排 0% 的，原本的讀音有排就改成照 essay 詞頻 × pct。
+    沒寫讀音的詞（essay 才有的一隻、一些，擴充詞典裡沒寫讀音的）由 librime 0074 在自動編碼時補，這裡不寫。"""
+    sw = "" if pct == 100 else f"{pct:g}%"   # 變調讀音的比重（照 essay 詞頻乘上 pct）
+    have = set(weights[DEFAULT_POLICY])
+    new, raised = {}, 0
+    texts = collections.defaultdict(list)
+    for t, c in have:
+        if not is_char(t, c):
+            texts[t].append(c)
+    for t in sorted(texts):
+        for c in sorted(texts[t]):
+            v = sandhi_code(t, c)
+            if not v:
+                continue
+            for p, wp in weights.items():
+                ranked = wp[(t, c)] != KEEP_PCT
+                if (t, v) in have:
+                    if ranked and wp[(t, v)] == KEEP_PCT:
+                        wp[(t, v)] = sw
+                        raised += 1
+                else:
+                    d = new.setdefault((t, v), {})
+                    if d.get(p, KEEP_PCT) == KEEP_PCT:
+                        d[p] = sw if ranked else KEEP_PCT
+    for k, ws in new.items():
+        for p, wp in weights.items():
+            wp[k] = ws.get(p, KEEP_PCT)
+    return list(new), raised
+
+
 # ── 罕用黏合音節（方案檔）──────────────────────────────
 
 def glue_syllables(wp, essay, ratio=GLUE_RATIO):
@@ -503,6 +571,7 @@ def main():
     ap.add_argument("--report", help="把任何一種政策跟地球拼音原本不同的讀音寫成 TSV")
     ap.add_argument("--schema", default=DEFAULT_SCHEMA, help="方案檔：罕用黏合音節的規則寫在標記之間（變了才寫回）")
     ap.add_argument("--glue-ratio", type=float, default=GLUE_RATIO, help="罕用黏合音節的門檻（試門檻用；0＝不列）")
+    ap.add_argument("--sandhi-pct", type=float, default=SANDHI_PCT, help="一、不的變調讀音照 essay 詞頻乘上幾 %%（試比重用）")
     a = ap.parse_args()
 
     S = load_sources(a.upstream or up.path("terra_pinyin.dict.yaml"))
@@ -516,6 +585,7 @@ def main():
         print(f"{a.readings}：原始表更新，多 {len(n - o)} 行、少 {len(o - n)} 行（共 {len(n)} 行）")
     rows = read_readings(a.readings)
     weights, derived = weigh(rows, S)
+    sandhi, raised = add_sandhi(weights, a.sandhi_pct)
     main_policy = a.static or DEFAULT_POLICY
     others = [] if a.static else [p for p in NAMES if p != DEFAULT_POLICY]
     wp = weights[main_policy]
@@ -543,7 +613,9 @@ def main():
         sec["terra" if "terra" in s else "add" if "add" in s else "other"].append(line(t, c))
     body_ = (sec["terra"] + ["", "# 臺灣用語（rime-config/penglai_zhuyin.add.txt）"] + sec["add"]
              + ["", "# 教育部、小麥注音才有的讀音"] + sec["other"]
-             + ["", "# 輕聲字的本調讀音"] + [line(t, v) for t, v in derived])
+             + ["", "# 輕聲字的本調讀音"] + [line(t, v) for t, v in derived]
+             + ["", "# 一、不的變調讀音（沒寫讀音的詞由 librime 0074 在自動編碼時補）"]
+             + [line(t, v) for t, v in sandhi])
     out = os.path.join(a.rime, "penglai_zhuyin.dict.yaml")
     open(out, "w", encoding="utf-8").write("\n".join(head[:1] + note + head[1:] + body_) + "\n")
 
@@ -556,6 +628,7 @@ def main():
         print(f"{out}（{POLICIES[p]}，{NAMES[p][0]}）：刪 {S['removed']} 行、手加 {len(S['add'])} 行；讀音 {len(w)}（單字 {nch}、詞 {len(w) - nch}，"
               f"其中本調 {len(derived)}）；排最後（{KEEP_PCT}）的 {sum(1 for x in w.values() if x == KEEP_PCT)}；"
               f"單字比重跟地球拼音不同 {len(changed_chars)} 字{extra}")
+    print(f"一、不的變調：加 {len(sandhi)} 行，原本 0% 改排 {raised} 處（沒寫讀音的詞由 librime 0074 補）")
     # 罕用黏合音節照蓬萊音（臺灣優先）的比重算，方案檔三種讀音共用一份
     glued, skipped = glue_syllables(weights[DEFAULT_POLICY], S["essay"], a.glue_ratio) if a.glue_ratio > 0 else ([], {})
     changed, old_list = write_glue(a.schema, glued, a.glue_ratio)
@@ -567,6 +640,7 @@ def main():
         print(f"{a.schema}：罕用黏合音節更新，{len(n)} 個（多 {len(n - o)}：{' '.join(sorted(n - o))}；少 {len(o - n)}：{' '.join(sorted(o - n))}）")
     if a.report:
         src = {(t, c): s for t, c, s, w in rows}
+        sandhi_set = set(sandhi)
         with open(a.report, "w", encoding="utf-8") as f:
             f.write("類別\t字詞\t碼\t來源\t地球拼音比重\t" + "\t".join(POLICIES.values()) + "\n")
             for k in wp:
@@ -574,7 +648,7 @@ def main():
                 xs = [weights[p][k] for p in POLICIES]
                 if s is not None and "terra" in s and all(x == terra_w[k] for x in xs):
                     continue
-                kind = "本調" if s is None else "單字" if is_char(*k) else "詞"
+                kind = "變調" if k in sandhi_set else "本調" if s is None else "單字" if is_char(*k) else "詞"
                 f.write("\t".join([kind, k[0], k[1], ",".join(y for y in SOURCES if s and y in s) or "-",
                                    terra_w.get(k, "-") or "（沒標）"] + [x or "（essay）" for x in xs]) + "\n")
 

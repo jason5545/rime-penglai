@@ -41,8 +41,8 @@ enum PenglaiCopy {
                                             keywords: ["反查", "筆畫", "不會念", "讀音"])
   static let sentences = PenglaiCopyItem(title: "整句候選數", desc: "一次列出幾種不同的整句組合。", keywords: ["整句", "組句"])
   static let phraseLength = PenglaiCopyItem(title: "記住整句的長度", desc: "這個字數以內的句子，打過一次之後就能整句叫回來。", keywords: ["學習", "記憶", "長句"])
-  static let revertSeconds = PenglaiCopyItem(title: "撤銷學習的時限（秒）", desc: "送出後在這段時間內按 ⌫，這次選的字就不會被記住。",
-                                             keywords: ["撤銷", "學習", "選錯", "刪除", "BackSpace"])
+  static let revertSeconds = PenglaiCopyItem(title: "取消學習的時限（秒）", desc: "送出後在這段時間內按 ⌫，這次選的字就不會被記住。",
+                                             keywords: ["取消學習", "撤銷", "學習", "選錯", "刪除", "BackSpace"])
   static let lightScheme = PenglaiCopyItem(title: "淺色模式配色", desc: "系統是淺色外觀時，選字窗用的顏色。", keywords: ["顏色", "主題", "外觀", "配色"])
   static let darkScheme = PenglaiCopyItem(title: "深色模式配色", desc: "系統是深色外觀時，選字窗用的顏色。", keywords: ["顏色", "主題", "外觀", "配色", "夜間"])
   static let schemes = PenglaiCopyItem(title: "方案選單", desc: "方案選單裡要列出哪些輸入方案。", keywords: ["輸入方案", "方案"])
@@ -953,6 +953,10 @@ enum PenglaiAdvanced {
     "translator/key_model/valid",
     "translator/key_model/valid_suggest", "translator/key_model/closed_type", "translator/key_model/sigma",
     "translator/key_model/fuzzy", "translator/key_model/max_corrections", "translator/key_model/max_edits",
+    // 觸控（手機前端傳按下去的位置時才有作用）：一樣是按鍵模型的內部參數，Mac 沒有觸控
+    "translator/key_model/touch_sigma", "translator/key_model/touch_prior", "translator/key_model/touch_valid",
+    "translator/key_model/touch_near", "translator/key_model/touch_close", "translator/key_model/touch_abbreviations",
+    "translator/key_model/touch_max_edits",
     "custom_phrase/enable_charset_filter", "custom_phrase/enable_encoder", "custom_phrase/enable_sentence",
     "custom_phrase/encode_commit_history", "custom_phrase/max_homographs", "custom_phrase/max_phrase_length",
     "custom_phrase/sentence_over_completion", "custom_phrase/max_sentences", "custom_phrase/sentence_cutoff_threshold",

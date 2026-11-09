@@ -35,7 +35,7 @@ REL_FAMILY = {
     "translator_commons.cc": "translator",
     "dictionary.cc": "translator",
     "user_dictionary.cc": "translator",
-    "corrector.cc": "translator",
+    "corrector.cc": "script_translator",   # 修正器（按鍵模型）只有整句翻譯器會建（script_translator.cc），碼表翻譯器、custom_phrase 不讀
     "reverse_lookup_dictionary.cc": "reverse_lookup",
     "reverse_lookup_translator.cc": "reverse_lookup_translator",
     "reverse_lookup_filter.cc": "reverse_lookup_filter",

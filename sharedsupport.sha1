@@ -12,7 +12,7 @@ d1d88a1d4690eb8a48ca25732e3a1901b445cf52  ./penglai_judge.tbl
 4fe297dbe9ad43d2c4f366bb4d299af9417da77e  ./penglai_keylid.tbl
 5b37e8fdfe24fb70d1358ba749a97ffb25f166bd  ./penglai_predict.LICENSE.txt
 285ba12613588bd9af17bc88e5d55e3c4f4788cc  ./penglai_predict.db
-23688cc988a5f954f21ad1da8c5beb915a847a83  ./penglai_zhuyin.dict.yaml
+8c77acf120373c6f8bce43d56894cd3b742f8510  ./penglai_zhuyin.dict.yaml
 5fe954a3564b39dcc8e3acdb4123e08e0b98c845  ./penglai_zhuyin.schema.yaml
 e0622538eea967875b3afccbea19150e90758e78  ./punctuation.yaml
 913357df52605d21f8d4a1b9180fe3d41efd3540  ./sable.yaml
