@@ -19,15 +19,12 @@
 //  這一下有別的作用（↓ 數字選字、聲調換聲調、送出了東西）時輸入對不上，就不換。
 //  App 自己把組字送出（commitComposition）的情況（11/10 T3：單獨一個 / 顯示成「/」，T3 輸入框開頭出現 / 就開斜線指令選單、
 //  把組字送出，iMessage 沒有）：送出去的就是這一鍵、按下去之前組字區是空的，記著；時間到時游標前面確實是它，就先刪掉再換。
-//  診斷：每一步寫系統記錄（subsystem im.penglai.sable、category longpress，只記鍵和步驟，不記打的字；notice 等級才會存檔）：
-//    log show --last 10m --predicate 'subsystem == "im.penglai.sable"'
 //  修飾鍵沒變的 flagsChanged 不算（11/10 T3：輸入框開頭的 / 讓 T3 開斜線指令選單，長按被清掉，重複照一般鍵打成一串 /）。
 //
 //  設定：sable.yaml 的 long_press_symbols（預設開；蓬萊設定「輸入」頁）。
 //
 
 import AppKit
-import os
 
 final class PenglaiLongPress {
   /// 記著的這一鍵：按下去之前的輸入（換回去用）、按下去之後的輸入（核對還沒變），要送的符號
@@ -53,22 +50,12 @@ final class PenglaiLongPress {
     NSApp.squirrelAppDelegate.config?.getBool("long_press_symbols") ?? true
   }
 
-  static let log = Logger(subsystem: "im.penglai.sable", category: "longpress")
-
   private(set) var armed: Armed?
   private var fired = false
   /// 時間到之前 App 把組字送出了（送出去的就是這一鍵）
   private(set) var clientCommitted = false
   /// 時間到、還按著時呼叫；回傳 false＝輸入已經變了，沒換
   var onFire: ((Armed) -> Bool)?
-
-  /// 記著、還沒換的時候被清掉，記下原因（診斷用）
-  func cancel(_ reason: StaticString) {
-    if let a = armed, !fired {
-      Self.log.notice("cancel \(String(a.symbol), privacy: .public): \(reason, privacy: .public)")
-    }
-    reset()
-  }
 
   func reset() {
     armed = nil
@@ -94,7 +81,6 @@ final class PenglaiLongPress {
     }
     armed = Armed(keyCode: keyCode, symbol: symbol, digit: char.isNumber, restore: restore.0, restoreCaret: restore.1,
                   input: after.input, caret: after.caret, downTime: downTime)
-    Self.log.notice("armed \(String(symbol), privacy: .public) fresh=\(restore.0.isEmpty, privacy: .public)")
   }
 
   enum Repeat {
@@ -107,7 +93,6 @@ final class PenglaiLongPress {
   func noteClientCommit(input: String) {
     guard let a = armed, !fired else { return }
     clientCommitted = input == a.input && a.restore.isEmpty
-    Self.log.notice("client commit while armed \(String(a.symbol), privacy: .public) same=\(self.clientCommitted, privacy: .public)")
     if !clientCommitted { reset() }
   }
 
@@ -121,9 +106,7 @@ final class PenglaiLongPress {
   func fire() {
     guard let a = armed, !fired else { return }
     fired = true
-    let ok = onFire?(a) == true
-    Self.log.notice("fire \(String(a.symbol), privacy: .public) ok=\(ok, privacy: .public) clientCommitted=\(self.clientCommitted, privacy: .public)")
-    if !ok { reset() }
+    if onFire?(a) != true { reset() }
   }
 
 }

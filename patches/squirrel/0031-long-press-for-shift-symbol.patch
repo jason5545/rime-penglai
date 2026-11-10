@@ -6,11 +6,11 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one until it auto-repeats types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before; on its first auto-repeat, if the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. Later repeats are dropped. A flagsChanged event with no modifier change does not end it (T3 sends one when a "/" at the start opens its slash-command menu). If the client committed the composition in the meantime and it was just that key, take the key's character back out from before the caret first. Each step is logged (subsystem im.penglai.sable, category longpress; keys and steps only). Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
+sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one until it auto-repeats types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before; on its first auto-repeat, if the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. Later repeats are dropped. A flagsChanged event with no modifier change does not end it (T3 sends one when a "/" at the start opens its slash-command menu). If the client committed the composition in the meantime and it was just that key, take the key's character back out from before the caret first. Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
 ---
  Squirrel.xcodeproj/project.pbxproj    |  4 ++
- sources/SquirrelInputController.swift | 73 +++++++++++++++++++++++++++
- 2 files changed, 77 insertions(+)
+ sources/SquirrelInputController.swift | 69 +++++++++++++++++++++++++++
+ 2 files changed, 73 insertions(+)
 
 diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
 index 8def729..b088356 100644
@@ -49,7 +49,7 @@ index 8def729..b088356 100644
  			runOnlyForDeploymentPostprocessing = 0;
  		};
 diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
-index 5c88a8b..7836a28 100644
+index 5c88a8b..a7e1496 100644
 --- a/sources/SquirrelInputController.swift
 +++ b/sources/SquirrelInputController.swift
 @@ -42,6 +42,8 @@ final class SquirrelInputController: IMKInputController {
@@ -65,7 +65,7 @@ index 5c88a8b..7836a28 100644
          handled = true
          break
        }
-+      longPress.cancel("modifier changed")
++      longPress.reset()
        var rimeModifiers: UInt32 = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
        // Some remote desktop tools send flagsChanged with keyCode 0; infer the real modifier key when needed.
        var keyCode = event.keyCode
@@ -84,7 +84,7 @@ index 5c88a8b..7836a28 100644
 +          return true
 +        }
 +      } else {
-+        longPress.cancel("another key")
++        longPress.reset()
 +      }
        // The AX experiment (sable/PenglaiAXDiag.swift) is off unless the flag file penglai-axdiag is in the user folder;
        // off, these calls only check for that file every 2 seconds.
@@ -112,18 +112,15 @@ index 5c88a8b..7836a28 100644
  
      NotificationCenter.default.addObserver(
        forName: .init("SableSetASCIIModeNotification"),
-@@ -314,6 +337,10 @@ final class SquirrelInputController: IMKInputController {
+@@ -314,6 +337,7 @@ final class SquirrelInputController: IMKInputController {
    }
  
    override func deactivateServer(_ sender: Any!) {
-+    if let armed = longPress.armed {
-+      PenglaiLongPress.log.notice("deactivate while armed \(String(armed.symbol), privacy: .public)")
-+    }
 +    longPress.reset()
      hidePalettes()
      commitComposition(sender)
      client = nil
-@@ -330,6 +357,7 @@ final class SquirrelInputController: IMKInputController {
+@@ -330,6 +354,7 @@ final class SquirrelInputController: IMKInputController {
      self.client ?= sender as? IMKTextInput
      if session != 0 {
        if let input = rimeAPI.get_input(session) {
@@ -131,7 +128,7 @@ index 5c88a8b..7836a28 100644
          commit(string: String(cString: input))
          rimeAPI.clear_composition(session)
        }
-@@ -396,6 +424,7 @@ final class SquirrelInputController: IMKInputController {
+@@ -396,6 +421,7 @@ final class SquirrelInputController: IMKInputController {
    }
  
    deinit {
@@ -139,7 +136,7 @@ index 5c88a8b..7836a28 100644
      destroySession()
    }
  }
-@@ -503,6 +532,50 @@ private extension SquirrelInputController {
+@@ -503,6 +529,49 @@ private extension SquirrelInputController {
      }
    }
  
@@ -180,7 +177,6 @@ index 5c88a8b..7836a28 100644
 +    let count = text.utf16.count
 +    guard caret.location != NSNotFound, caret.length == 0, caret.location >= count,
 +          client.attributedSubstring(from: NSRange(location: caret.location - count, length: count))?.string == text else {
-+      PenglaiLongPress.log.notice("long press: committed key not found before the caret")
 +      return false
 +    }
 +    client.insertText("", replacementRange: NSRange(location: caret.location - count, length: count))
