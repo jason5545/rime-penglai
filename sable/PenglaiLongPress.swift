@@ -17,11 +17,16 @@
 //  數字鍵組字中按 ⇧數字是選字，所以數字鍵先把組字區送出再送符號（標點鍵不用：⇧, ⇧. 本來就連前面的字一起送出，
 //  有選單的 ⇧/ ⇧; ⇧- 選單接在組字區後面）。之後的自動重複都吃掉，按了別的鍵就結束。
 //  這一下有別的作用（↓ 數字選字、聲調換聲調、送出了東西）時輸入對不上，就不換。
+//  App 自己把組字送出（commitComposition）的情況（11/10 T3：單獨一個 / 顯示成「/」，T3 輸入框開頭出現 / 就開斜線指令選單、
+//  把組字送出，iMessage 沒有）：送出去的就是這一鍵、按下去之前組字區是空的，記著；時間到時游標前面確實是它，就先刪掉再換。
+//  診斷：每一步寫系統記錄（subsystem im.penglai.sable、category longpress，只記鍵和步驟，不記打的字）：
+//    log show --last 10m --predicate 'subsystem == "im.penglai.sable"' --info
 //
 //  設定：sable.yaml 的 long_press_symbols（預設開；蓬萊設定「輸入」頁）。
 //
 
 import AppKit
+import os
 
 final class PenglaiLongPress {
   /// 記著的這一鍵：按下去之前的輸入（換回去用）、按下去之後的輸入（核對還沒變），要送的符號
@@ -48,8 +53,12 @@ final class PenglaiLongPress {
     NSApp.squirrelAppDelegate.config?.getBool("long_press_symbols") ?? true
   }
 
+  static let log = Logger(subsystem: "im.penglai.sable", category: "longpress")
+
   private(set) var armed: Armed?
   private var fired = false
+  /// 時間到之前 App 把組字送出了（送出去的就是這一鍵）
+  private(set) var clientCommitted = false
   private var timer: Timer?
   /// 時間到、還按著時呼叫；回傳 false＝輸入已經變了，沒換
   var onFire: ((Armed) -> Bool)?
@@ -57,6 +66,7 @@ final class PenglaiLongPress {
   func reset() {
     armed = nil
     fired = false
+    clientCommitted = false
     timer?.invalidate()
     timer = nil
   }
@@ -79,6 +89,7 @@ final class PenglaiLongPress {
     }
     armed = Armed(keyCode: keyCode, symbol: symbol, digit: char.isNumber, restore: restore.0, restoreCaret: restore.1,
                   input: after.input, caret: after.caret, downTime: downTime, keyDownCount: Self.keyDownCount())
+    Self.log.info("armed \(String(symbol), privacy: .public) fresh=\(restore.0.isEmpty, privacy: .public)")
     let wait = max(0.05, NSEvent.keyRepeatDelay - (ProcessInfo.processInfo.systemUptime - downTime))
     timer = Timer.scheduledTimer(withTimeInterval: wait, repeats: false) { [weak self] _ in self?.timeUp() }
   }
@@ -87,6 +98,14 @@ final class PenglaiLongPress {
     case pass     // 不是記著的鍵：照舊重複
     case swallow  // 記著的鍵：吃掉（換過了，或還沒到時間）
     case fire     // 已經按夠久：換成符號
+  }
+
+  /// App 要求送出組字（commitComposition）：送出去的是記著的這一鍵、按下去之前組字區是空的，才記著（之後換的時候要先刪掉它）
+  func noteClientCommit(input: String) {
+    guard let a = armed, !fired else { return }
+    clientCommitted = input == a.input && a.restore.isEmpty
+    Self.log.info("client commit while armed \(String(a.symbol), privacy: .public) same=\(self.clientCommitted, privacy: .public)")
+    if !clientCommitted { reset() }
   }
 
   /// 自動重複的 keyDown：重複只有鍵按著才會來
@@ -102,13 +121,17 @@ final class PenglaiLongPress {
     fired = true
     timer?.invalidate()
     timer = nil
-    if onFire?(a) != true { reset() }
+    let ok = onFire?(a) == true
+    Self.log.info("fire \(String(a.symbol), privacy: .public) ok=\(ok, privacy: .public) clientCommitted=\(self.clientCommitted, privacy: .public)")
+    if !ok { reset() }
   }
 
   private func timeUp() {
     timer = nil
     guard let a = armed, !fired else { return }
-    if Self.stillHeld(a) { fire() } else { reset() }
+    let held = Self.stillHeld(a)
+    Self.log.info("timer \(String(a.symbol), privacy: .public) held=\(held, privacy: .public)")
+    if held { fire() } else { reset() }
   }
 
   /// 按下去之後沒有任何鍵放開（上次放開比按下去還早），也沒有按別的鍵（按鍵次數沒變）

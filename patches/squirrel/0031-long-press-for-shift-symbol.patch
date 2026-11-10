@@ -6,11 +6,11 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one past the key repeat delay types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before and starts a timer; when it fires, if the window server saw no key released and no other key pressed since, and the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. An auto-repeat of the key, if the client sends one, fires it too; later repeats are dropped. Many clients send no auto-repeats while press-and-hold is on, so the repeats alone are not enough. Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
+sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one past the key repeat delay types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before and starts a timer; when it fires, if the window server saw no key released and no other key pressed since, and the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. An auto-repeat of the key, if the client sends one, fires it too; later repeats are dropped. Many clients send no auto-repeats while press-and-hold is on, so the repeats alone are not enough. If the client committed the composition in the meantime and it was just that key (T3 opens its slash-command menu on a "/" at the start and commits it), take the key's character back out from before the caret first. Each step is logged (subsystem im.penglai.sable, category longpress; keys and steps only). Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
 ---
- Squirrel.xcodeproj/project.pbxproj    |  4 +++
- sources/SquirrelInputController.swift | 51 +++++++++++++++++++++++++++
- 2 files changed, 55 insertions(+)
+ Squirrel.xcodeproj/project.pbxproj    |  4 ++
+ sources/SquirrelInputController.swift | 74 +++++++++++++++++++++++++++
+ 2 files changed, 78 insertions(+)
 
 diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
 index 8def729..b088356 100644
@@ -49,7 +49,7 @@ index 8def729..b088356 100644
  			runOnlyForDeploymentPostprocessing = 0;
  		};
 diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
-index 5c88a8b..ac2b9ce 100644
+index 5c88a8b..0dc962b 100644
 --- a/sources/SquirrelInputController.swift
 +++ b/sources/SquirrelInputController.swift
 @@ -42,6 +42,8 @@ final class SquirrelInputController: IMKInputController {
@@ -113,15 +113,26 @@ index 5c88a8b..ac2b9ce 100644
  
      NotificationCenter.default.addObserver(
        forName: .init("SableSetASCIIModeNotification"),
-@@ -314,6 +338,7 @@ final class SquirrelInputController: IMKInputController {
+@@ -314,6 +338,10 @@ final class SquirrelInputController: IMKInputController {
    }
  
    override func deactivateServer(_ sender: Any!) {
++    if let armed = longPress.armed {
++      PenglaiLongPress.log.info("deactivate while armed \(String(armed.symbol), privacy: .public)")
++    }
 +    longPress.reset()
      hidePalettes()
      commitComposition(sender)
      client = nil
-@@ -396,6 +421,7 @@ final class SquirrelInputController: IMKInputController {
+@@ -330,6 +358,7 @@ final class SquirrelInputController: IMKInputController {
+     self.client ?= sender as? IMKTextInput
+     if session != 0 {
+       if let input = rimeAPI.get_input(session) {
++        longPress.noteClientCommit(input: String(cString: input))
+         commit(string: String(cString: input))
+         rimeAPI.clear_composition(session)
+       }
+@@ -396,6 +425,7 @@ final class SquirrelInputController: IMKInputController {
    }
  
    deinit {
@@ -129,7 +140,7 @@ index 5c88a8b..ac2b9ce 100644
      destroySession()
    }
  }
-@@ -503,6 +529,31 @@ private extension SquirrelInputController {
+@@ -503,6 +533,50 @@ private extension SquirrelInputController {
      }
    }
  
@@ -142,10 +153,16 @@ index 5c88a8b..ac2b9ce 100644
 +  // The long press fires only if the input is still what the key left (nothing else changed it in between): put back the
 +  // input from before the key, commit the composition first for digit keys (Shift+digit selects a candidate while
 +  // composing), then send the Shift symbol like a real Shift+key.
++  // If the client took the composition in the meantime (T3 opens its slash-command menu on a "/" at the start and commits
++  // it), the key's character was committed as is: take it back out of the client first, if it is right before the caret.
 +  func fireLongPress(_ armed: PenglaiLongPress.Armed) -> Bool {
-+    guard let now = currentInput(), now.input == armed.input, now.caret == armed.caret,
-+          !rimeAPI.get_option(session, "ascii_mode"),
++    guard let now = currentInput(), !rimeAPI.get_option(session, "ascii_mode"),
 +          let symbol = armed.symbol.asciiValue else { return false }
++    if longPress.clientCommitted && now.input.isEmpty {
++      guard removeBeforeCaret(armed.input) else { return false }
++    } else if now.input != armed.input || now.caret != armed.caret {
++      return false
++    }
 +    _ = rimeAPI.set_input(session, armed.restore)
 +    if Int(rimeAPI.get_caret_pos(session)) != armed.restoreCaret {
 +      rimeAPI.set_caret_pos(session, armed.restoreCaret)
@@ -155,6 +172,19 @@ index 5c88a8b..ac2b9ce 100644
 +    }
 +    _ = processKey(UInt32(symbol), modifiers: kShiftMask.rawValue)
 +    rimeUpdate()
++    return true
++  }
++
++  func removeBeforeCaret(_ text: String) -> Bool {
++    guard let client, preedit.isEmpty else { return false }
++    let caret = client.selectedRange()
++    let count = text.utf16.count
++    guard caret.location != NSNotFound, caret.length == 0, caret.location >= count,
++          client.attributedSubstring(from: NSRange(location: caret.location - count, length: count))?.string == text else {
++      PenglaiLongPress.log.info("long press: committed key not found before the caret")
++      return false
++    }
++    client.insertText("", replacementRange: NSRange(location: caret.location - count, length: count))
 +    return true
 +  }
 +
