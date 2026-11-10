@@ -1,0 +1,149 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Tue, 10 Nov 2026 08:47:25 +0800
+Subject: [PATCH] Long press a digit or punctuation key for its Shift symbol
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one until it auto-repeats types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before; on its first auto-repeat, if the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. Later repeats are dropped. Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
+---
+ Squirrel.xcodeproj/project.pbxproj    |  4 +++
+ sources/SquirrelInputController.swift | 48 +++++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index 8def729..b088356 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -104,6 +104,7 @@
+ 		B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */; };
+ 		B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */; };
+ 		B3F0A0102F26020000AA0001 /* PenglaiDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */; };
++		B3F0A0122F26020000AA0001 /* PenglaiLongPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0112F26020000AA0001 /* PenglaiLongPress.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -330,6 +331,7 @@
+ 		B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiAXDiag.swift; path = sources/PenglaiAXDiag.swift; sourceTree = "<group>"; };
+ 		B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiInstall.swift; path = sources/PenglaiInstall.swift; sourceTree = "<group>"; };
+ 		B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiDictionary.swift; path = sources/PenglaiDictionary.swift; sourceTree = "<group>"; };
++		B3F0A0112F26020000AA0001 /* PenglaiLongPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiLongPress.swift; path = sources/PenglaiLongPress.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -368,6 +370,7 @@
+ 				B3F0A00B2F26020000AA0001 /* PenglaiAXDiag.swift */,
+ 				B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */,
+ 				B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */,
++				B3F0A0112F26020000AA0001 /* PenglaiLongPress.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -646,6 +649,7 @@
+ 				B3F0A00C2F26020000AA0001 /* PenglaiAXDiag.swift in Sources */,
+ 				B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */,
+ 				B3F0A0102F26020000AA0001 /* PenglaiDictionary.swift in Sources */,
++				B3F0A0122F26020000AA0001 /* PenglaiLongPress.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index 5c88a8b..c19cbf6 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -42,6 +42,8 @@ final class SquirrelInputController: IMKInputController {
+   private var chordTimer: Timer?
+   private var chordDuration: TimeInterval = 0
+   private var currentApp: String = ""
++  // 長按數字列、標點鍵打出 Shift 的符號（sable/PenglaiLongPress.swift）
++  private var longPress = PenglaiLongPress()
+ 
+   // swiftlint:disable:next cyclomatic_complexity
+   override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
+@@ -67,6 +69,7 @@ final class SquirrelInputController: IMKInputController {
+ 
+     switch event.type {
+     case .flagsChanged:
++      longPress.reset()
+       if lastModifiers == modifiers {
+         handled = true
+         break
+@@ -123,6 +126,19 @@ final class SquirrelInputController: IMKInputController {
+       rimeUpdate()
+ 
+     case .keyDown:
++      // Long press (sable/PenglaiLongPress.swift): the first auto-repeat of a key that only added itself to the input turns
++      // it into that key's Shift symbol; later repeats are dropped. Any other key ends it.
++      if event.isARepeat {
++        switch longPress.onRepeat(keyCode: event.keyCode) {
++        case .pass: break
++        case .swallow: return true
++        case .fire(let armed):
++          if !fireLongPress(armed) { longPress.reset() }
++          return true
++        }
++      } else {
++        longPress.reset()
++      }
+       // The AX experiment (sable/PenglaiAXDiag.swift) is off unless the flag file penglai-axdiag is in the user folder;
+       // off, these calls only check for that file every 2 seconds.
+       PenglaiAXDiag.shared.noteKeyDown(command: modifiers.contains(.command))
+@@ -179,8 +195,14 @@ final class SquirrelInputController: IMKInputController {
+                                                  pendingPunct: autoPunct)
+           }
+           let rimeModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
++          let inputBefore = event.isARepeat ? nil : currentInput()
+           handled = processKey(rimeKeycode, modifiers: rimeModifiers)
+           rimeUpdate()
++          if let inputBefore, let inputAfter = currentInput() {
++            longPress.noteKey(keyCode: keyCode, char: char,
++                              plain: modifiers.isDisjoint(with: [.shift, .control, .option, .command, .capsLock, .numericPad, .function]),
++                              handled: handled, before: inputBefore, after: inputAfter)
++          }
+           spaceContext = nil
+           if !handled {
+             handled = replaceGuessedPunct()
+@@ -314,6 +336,7 @@ final class SquirrelInputController: IMKInputController {
+   }
+ 
+   override func deactivateServer(_ sender: Any!) {
++    longPress.reset()
+     hidePalettes()
+     commitComposition(sender)
+     client = nil
+@@ -503,6 +526,31 @@ private extension SquirrelInputController {
+     }
+   }
+ 
++  func currentInput() -> (input: String, caret: Int)? {
++    guard session != 0 else { return nil }
++    let input = rimeAPI.get_input(session).map { String(cString: $0) } ?? ""
++    return (input, Int(rimeAPI.get_caret_pos(session)))
++  }
++
++  // The long press fires only if the input is still what the key left (nothing else changed it in between): put back the
++  // input from before the key, commit the composition first for digit keys (Shift+digit selects a candidate while
++  // composing), then send the Shift symbol like a real Shift+key.
++  func fireLongPress(_ armed: PenglaiLongPress.Armed) -> Bool {
++    guard let now = currentInput(), now.input == armed.input, now.caret == armed.caret,
++          !rimeAPI.get_option(session, "ascii_mode"),
++          let symbol = armed.symbol.asciiValue else { return false }
++    _ = rimeAPI.set_input(session, armed.restore)
++    if Int(rimeAPI.get_caret_pos(session)) != armed.restoreCaret {
++      rimeAPI.set_caret_pos(session, armed.restoreCaret)
++    }
++    if armed.digit && !armed.restore.isEmpty {
++      _ = rimeAPI.commit_composition(session)
++    }
++    _ = processKey(UInt32(symbol), modifiers: kShiftMask.rawValue)
++    rimeUpdate()
++    return true
++  }
++
+   func processKey(_ rimeKeycode: UInt32, modifiers rimeModifiers: UInt32) -> Bool {
+     if let panel = NSApp.squirrelAppDelegate.panel {
+       if panel.linear != rimeAPI.get_option(session, "_linear") {
+-- 
+2.56.0
+

@@ -2,7 +2,8 @@
  "pages": [
   "選字窗",
   "配色",
-  "輸入"
+  "輸入",
+  "組句與學習"
  ],
  "sections": [
   {
@@ -376,6 +377,20 @@
    }
   },
   {
+   "id": "sable:long_press_symbols",
+   "path": "long_press_symbols",
+   "file": "sable.custom.yaml",
+   "type": "bool",
+   "title": "長按出符號",
+   "desc": "數字鍵和 , . / ; - 這幾個在注音裡是注音、聲調的鍵，按著不放就打出按 Shift 的那個符號：. 是「。」、, 是「，」、/ 是「？」、; 是「：」「；」選單、1 是「！」，有選單的跟按 Shift 一樣出選單。組字中長按數字鍵，先送出組字區再打符號。按多久算長按照系統設定「鍵盤」的「重複前延遲」，關掉按鍵重複就沒有長按。",
+   "value": null,
+   "builtin": "true",
+   "where": {
+    "page": "輸入",
+    "order": 9
+   }
+  },
+  {
    "id": "sable:show_notifications_when",
    "path": "show_notifications_when",
    "file": "sable.custom.yaml",
@@ -530,7 +545,7 @@
    "builtin": null,
    "where": {
     "page": "配色",
-    "order": 13
+    "order": 14
    }
   },
   {
@@ -544,7 +559,7 @@
    "builtin": null,
    "where": {
     "page": "配色",
-    "order": 15
+    "order": 16
    }
   },
   {
@@ -1452,7 +1467,7 @@
    "builtin": null,
    "where": {
     "page": "輸入",
-    "order": 9
+    "order": 10
    }
   },
   {
@@ -2986,8 +3001,8 @@
    "max": 20,
    "penglai": true,
    "where": {
-    "page": "輸入",
-    "order": 11
+    "page": "組句與學習",
+    "order": 12
    }
   },
   {
@@ -3106,8 +3121,8 @@
    "max": 120,
    "penglai": true,
    "where": {
-    "page": "輸入",
-    "order": 12
+    "page": "組句與學習",
+    "order": 13
    }
   },
   {
@@ -4084,8 +4099,8 @@
    "min": 1,
    "max": 9,
    "where": {
-    "page": "輸入",
-    "order": 10
+    "page": "組句與學習",
+    "order": 11
    }
   },
   {

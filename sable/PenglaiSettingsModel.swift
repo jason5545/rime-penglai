@@ -280,13 +280,14 @@ struct PenglaiReadingState: Equatable {
 
 final class PenglaiSettingsModel: ObservableObject {
   enum Page: String, CaseIterable, Identifiable {
-    case panel, colors, typing, reading, dictionary, schemas, all, history
+    case panel, colors, typing, learning, reading, dictionary, schemas, all, history
     var id: String { rawValue }
     var title: String {
       switch self {
       case .panel: return "選字窗"
       case .colors: return "配色"
       case .typing: return "輸入"
+      case .learning: return "組句與學習"
       case .reading: return "讀音"
       case .dictionary: return "詞庫"
       case .schemas: return "輸入方案"
@@ -301,6 +302,7 @@ final class PenglaiSettingsModel: ObservableObject {
       case .panel: return "rectangle.grid.1x2.fill"
       case .colors: return "paintpalette.fill"
       case .typing: return "keyboard.fill"
+      case .learning: return "brain.head.profile"
       case .reading: return "textformat"   // 側欄畫 glyph（ㄅ），這個只是備用
       case .dictionary: return "character.book.closed.fill"
       case .schemas: return "list.bullet"
@@ -695,6 +697,8 @@ final class PenglaiSettingsModel: ObservableObject {
   static let englishKey = "translator/english_lexicon"
   /// 送出之後按空白補標點（外掛模組 penglai_space 讀，沒寫時開）
   static let spacePunctKey = "penglai_space/punct"
+  /// 長按出符號（sable/PenglaiLongPress.swift），前端設定 sable.yaml
+  static let longPressKey = "long_press_symbols"
   /// 打錯也對得到（按鍵模型，librime 0052）
   static let keyModelKey = "translator/key_model/enable"
   /// 模糊音（按鍵模型的 fuzzy_pairs；librime 0054 起沒打聲調也修）
@@ -1211,7 +1215,7 @@ final class PenglaiSettingsModel: ObservableObject {
     "style/candidate_list_layout", "style/font_point", "style/inline_preedit", "style/inline_candidate", "status_icon/show",
     "style/color_scheme", "style/color_scheme_dark", "menu/page_size", "translator/max_sentences",
     "translator/max_user_phrase_syllables", "translator/revert_learning_seconds", reverseLookupKey, englishKey, spacePunctKey,
-    keyModelKey,
+    keyModelKey, longPressKey,
   ]
 
   /// 進階頁不列的技術項目：值是檔名或資料格式，使用者不會需要換

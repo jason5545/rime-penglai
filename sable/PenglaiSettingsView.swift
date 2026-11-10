@@ -33,6 +33,8 @@ enum PenglaiCopy {
                                           keywords: ["預測", "聯想詞", "下一個詞", "接下來", "接著打", "自動完成"])
   static let spacePunct = PenglaiCopyItem(title: "送出之後按空白補標點", desc: "中文送出之後按空白，補上「，」，像問句時補「？」。緊接著再按一次空白換成空白。",
                                           keywords: ["標點", "逗號", "問號", "句號", "空白鍵", "自動標點", "猜標點"])
+  static let longPress = PenglaiCopyItem(title: "長按出符號", desc: "數字鍵和 , . / ; - 按著不放，打出按 Shift 的那個符號：. 是「。」、/ 是「？」、1 是「！」。按多久算長按，照系統設定的「重複前延遲」。",
+                                         keywords: ["長按", "按住", "符號", "標點", "句號", "問號", "冒號", "驚嘆號", "Shift", "不用 Shift"])
   static let keyModel = PenglaiCopyItem(title: "打錯也對得到", desc: "打完整注音時按到旁邊的鍵、漏打聲母或介音、同一鍵連按兩下，也找得到原本要打的詞（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）。只打第一個注音時不改。",
                                         keywords: ["容錯", "糾錯", "聲母", "漏打", "打錯", "按錯", "模糊音", "連按"])
   static let fuzzy = PenglaiCopyItem(title: "模糊音", desc: "分不清的注音勾起來：勾了 ㄣㄥ，打 ㄖㄥˊ ㄕㄥ 也找得到「人生」，沒打聲調也行。只勾自己真的會混的那幾對，勾越多，照打本來就對的詞越容易被換掉。",
@@ -347,6 +349,7 @@ struct PenglaiSettingsView: View {
       case .panel: PenglaiPanelPage()
       case .colors: PenglaiColorsPage()
       case .typing: PenglaiTypingPage()
+      case .learning: PenglaiLearningPage()
       case .reading: PenglaiReadingPage()
       case .dictionary: PenglaiDictionaryPage()
       case .schemas: PenglaiSchemasPage()
@@ -408,7 +411,8 @@ extension PenglaiSettingsModel.Page {
     switch self {
     case .panel: return "候選字視窗的版面和顯示方式。"
     case .colors: return "選字窗的顏色，淺色和深色模式各選一個。"
-    case .typing: return "注音輸入、組句和學習的方式。"
+    case .typing: return "注音輸入的方式。"
+    case .learning: return "整句怎麼組、打過的怎麼記住，還有快速鍵。"
     case .reading: return PenglaiCopy.readingPage.desc ?? ""
     case .dictionary: return PenglaiCopy.dictionary.desc ?? ""
     case .schemas: return "方案選單裡要列出哪些輸入方案。"
@@ -422,6 +426,7 @@ extension PenglaiSettingsModel.Page {
     case .panel: return .blue
     case .colors: return .pink
     case .typing: return .orange
+    case .learning: return .purple
     case .reading: return .teal
     case .dictionary: return .brown
     case .schemas: return .green
@@ -641,6 +646,13 @@ struct PenglaiTypingPage: View {
             PenglaiSwitch(isOn: row.shownValue.map { $0 != "false" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
           }
         }
+        if let row = model.row(PenglaiSettingsModel.longPressKey, config: .squirrel) {
+          PenglaiFormRow(PenglaiCopy.longPress, row: row) {
+            PenglaiSwitch(isOn: (row.shownValue ?? "true") != "false", enabled: row.blocked == nil) {
+              model.set(row, .bool($0), summary: "長按出符號：\($0 ? "開" : "關")")
+            }
+          }
+        }
         if let row = model.schemaRow(PenglaiSettingsModel.reverseLookupKey) {
           let available = model.reverseLookupPattern != nil && row.blocked == nil
           PenglaiFormRow(PenglaiCopy.strokeLookup, row: row,
@@ -649,6 +661,27 @@ struct PenglaiTypingPage: View {
           }
         }
       }
+    }
+    .penglaiForm()
+  }
+
+  private func recipeNote(_ state: PenglaiRecipe.State) -> String? {
+    switch state {
+    case .unavailable: return PenglaiSettingsModel.unsupportedText
+    case .partial: return "這個功能的設定不完整，這裡沒辦法切換"
+    default: return nil
+    }
+  }
+}
+
+// MARK: - 組句與學習
+
+/// 11/10 從輸入頁拆出來：輸入頁加了模糊音、長按出符號之後放不下（頁面不捲動，一根手指在觸控板上捲不動）
+struct PenglaiLearningPage: View {
+  @EnvironmentObject var model: PenglaiSettingsModel
+
+  var body: some View {
+    Form {
       Section {
         if let row = model.schemaRow("translator/max_sentences") {
           PenglaiFormRow(PenglaiCopy.sentences, row: row) {
@@ -682,14 +715,6 @@ struct PenglaiTypingPage: View {
       }
     }
     .penglaiForm()
-  }
-
-  private func recipeNote(_ state: PenglaiRecipe.State) -> String? {
-    switch state {
-    case .unavailable: return PenglaiSettingsModel.unsupportedText
-    case .partial: return "這個功能的設定不完整，這裡沒辦法切換"
-    default: return nil
-    }
   }
 }
 
@@ -1452,10 +1477,11 @@ enum PenglaiSearch {
     addCopy(PenglaiCopy.spacePunct, .typing, available: model.schemaRow(PenglaiSettingsModel.spacePunctKey) != nil)
     addCopy(PenglaiCopy.keyModel, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
     addCopy(PenglaiCopy.fuzzy, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
+    addCopy(PenglaiCopy.longPress, .typing, available: model.row(PenglaiSettingsModel.longPressKey, config: .squirrel) != nil)
     addCopy(PenglaiCopy.strokeLookup, .typing, available: model.schemaRow(PenglaiSettingsModel.reverseLookupKey) != nil)
-    addCopy(PenglaiCopy.sentences, .typing, available: schemaReady)
-    addCopy(PenglaiCopy.phraseLength, .typing, available: schemaReady)
-    addCopy(PenglaiCopy.revertSeconds, .typing, available: schemaReady)
+    addCopy(PenglaiCopy.sentences, .learning, available: schemaReady)
+    addCopy(PenglaiCopy.phraseLength, .learning, available: schemaReady)
+    addCopy(PenglaiCopy.revertSeconds, .learning, available: schemaReady)
     addCopy(PenglaiCopy.dictionary, .dictionary, available: schemaReady)
     addCopy(PenglaiCopy.schemes, .schemas, available: model.sidebarPages.contains(.schemas))
     addCopy(PenglaiCopy.history, .history)
