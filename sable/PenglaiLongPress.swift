@@ -7,7 +7,7 @@
 //  手機的畫荻這幾個鍵也是長按出同一個符號。
 //
 //  什麼叫長按：鍵按著超過系統設定「鍵盤 › 重複前延遲」（NSEvent.keyRepeatDelay）。按下去開一個計時器，時間到的時候
-//  看視窗伺服器記的「上次放開鍵是幾秒前」「按下鍵的次數」：這個鍵按下去之後沒有任何鍵放開、也沒有按別的鍵，就是還按著。
+//  看視窗伺服器記的「上次放開鍵是幾秒前」：這個鍵按下去之後沒有任何鍵放開，就是還按著（按了別的鍵，那個 keyDown 先到就結束了）。
 //  不靠自動重複：系統預設的「按住出變音字母」（ApplePressAndHoldEnabled）在很多 App（T3、VS Code 這類 Electron）
 //  按住鍵根本不重複，輸入法收不到（11/10 第一版只看重複，實測 / 長按沒反應）。也不讀鍵盤狀態（那要輸入監控權限）；
 //  App 卡住、事件晚到時，視窗伺服器的時間照樣是真的，放開過的鍵不會被當成長按。重複有來的話也算（重複只有按著才會來）。
@@ -19,8 +19,9 @@
 //  這一下有別的作用（↓ 數字選字、聲調換聲調、送出了東西）時輸入對不上，就不換。
 //  App 自己把組字送出（commitComposition）的情況（11/10 T3：單獨一個 / 顯示成「/」，T3 輸入框開頭出現 / 就開斜線指令選單、
 //  把組字送出，iMessage 沒有）：送出去的就是這一鍵、按下去之前組字區是空的，記著；時間到時游標前面確實是它，就先刪掉再換。
-//  診斷：每一步寫系統記錄（subsystem im.penglai.sable、category longpress，只記鍵和步驟，不記打的字）：
-//    log show --last 10m --predicate 'subsystem == "im.penglai.sable"' --info
+//  診斷：每一步寫系統記錄（subsystem im.penglai.sable、category longpress，只記鍵和步驟，不記打的字；notice 等級才會存檔）：
+//    log show --last 10m --predicate 'subsystem == "im.penglai.sable"'
+//  修飾鍵沒變的 flagsChanged 不算（11/10 T3：輸入框開頭的 / 讓 T3 開斜線指令選單，長按被清掉，重複照一般鍵打成一串 /）。
 //
 //  設定：sable.yaml 的 long_press_symbols（預設開；蓬萊設定「輸入」頁）。
 //
@@ -63,6 +64,14 @@ final class PenglaiLongPress {
   /// 時間到、還按著時呼叫；回傳 false＝輸入已經變了，沒換
   var onFire: ((Armed) -> Bool)?
 
+  /// 記著、還沒換的時候被清掉，記下原因（診斷用）
+  func cancel(_ reason: StaticString) {
+    if let a = armed, !fired {
+      Self.log.notice("cancel \(String(a.symbol), privacy: .public): \(reason, privacy: .public)")
+    }
+    reset()
+  }
+
   func reset() {
     armed = nil
     fired = false
@@ -89,7 +98,7 @@ final class PenglaiLongPress {
     }
     armed = Armed(keyCode: keyCode, symbol: symbol, digit: char.isNumber, restore: restore.0, restoreCaret: restore.1,
                   input: after.input, caret: after.caret, downTime: downTime, keyDownCount: Self.keyDownCount())
-    Self.log.info("armed \(String(symbol), privacy: .public) fresh=\(restore.0.isEmpty, privacy: .public)")
+    Self.log.notice("armed \(String(symbol), privacy: .public) fresh=\(restore.0.isEmpty, privacy: .public)")
     let wait = max(0.05, NSEvent.keyRepeatDelay - (ProcessInfo.processInfo.systemUptime - downTime))
     timer = Timer.scheduledTimer(withTimeInterval: wait, repeats: false) { [weak self] _ in self?.timeUp() }
   }
@@ -104,7 +113,7 @@ final class PenglaiLongPress {
   func noteClientCommit(input: String) {
     guard let a = armed, !fired else { return }
     clientCommitted = input == a.input && a.restore.isEmpty
-    Self.log.info("client commit while armed \(String(a.symbol), privacy: .public) same=\(self.clientCommitted, privacy: .public)")
+    Self.log.notice("client commit while armed \(String(a.symbol), privacy: .public) same=\(self.clientCommitted, privacy: .public)")
     if !clientCommitted { reset() }
   }
 
@@ -122,7 +131,7 @@ final class PenglaiLongPress {
     timer?.invalidate()
     timer = nil
     let ok = onFire?(a) == true
-    Self.log.info("fire \(String(a.symbol), privacy: .public) ok=\(ok, privacy: .public) clientCommitted=\(self.clientCommitted, privacy: .public)")
+    Self.log.notice("fire \(String(a.symbol), privacy: .public) ok=\(ok, privacy: .public) clientCommitted=\(self.clientCommitted, privacy: .public)")
     if !ok { reset() }
   }
 
@@ -130,15 +139,15 @@ final class PenglaiLongPress {
     timer = nil
     guard let a = armed, !fired else { return }
     let held = Self.stillHeld(a)
-    Self.log.info("timer \(String(a.symbol), privacy: .public) held=\(held, privacy: .public)")
+    Self.log.notice("timer \(String(a.symbol), privacy: .public) held=\(held, privacy: .public)")
     if held { fire() } else { reset() }
   }
 
-  /// 按下去之後沒有任何鍵放開（上次放開比按下去還早），也沒有按別的鍵（按鍵次數沒變）
+  /// 按下去之後沒有任何鍵放開（上次放開比按下去還早）。按鍵次數不看：可能把系統的自動重複也算進去
   static func stillHeld(_ a: Armed) -> Bool {
     let elapsed = ProcessInfo.processInfo.systemUptime - a.downTime
     let sinceKeyUp = CGEventSource.secondsSinceLastEventType(.combinedSessionState, eventType: .keyUp)
-    return sinceKeyUp > elapsed - 0.005 && keyDownCount() == a.keyDownCount
+    return sinceKeyUp > elapsed - 0.005
   }
 
   static func keyDownCount() -> UInt32 {

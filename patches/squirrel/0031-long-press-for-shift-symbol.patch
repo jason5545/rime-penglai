@@ -49,7 +49,7 @@ index 8def729..b088356 100644
  			runOnlyForDeploymentPostprocessing = 0;
  		};
 diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
-index 5c88a8b..0dc962b 100644
+index 5c88a8b..a45354e 100644
 --- a/sources/SquirrelInputController.swift
 +++ b/sources/SquirrelInputController.swift
 @@ -42,6 +42,8 @@ final class SquirrelInputController: IMKInputController {
@@ -61,14 +61,14 @@ index 5c88a8b..0dc962b 100644
  
    // swiftlint:disable:next cyclomatic_complexity
    override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
-@@ -67,6 +69,7 @@ final class SquirrelInputController: IMKInputController {
- 
-     switch event.type {
-     case .flagsChanged:
-+      longPress.reset()
-       if lastModifiers == modifiers {
+@@ -71,6 +73,7 @@ final class SquirrelInputController: IMKInputController {
          handled = true
          break
+       }
++      longPress.cancel("modifier changed")
+       var rimeModifiers: UInt32 = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
+       // Some remote desktop tools send flagsChanged with keyCode 0; infer the real modifier key when needed.
+       var keyCode = event.keyCode
 @@ -123,6 +126,20 @@ final class SquirrelInputController: IMKInputController {
        rimeUpdate()
  
@@ -85,7 +85,7 @@ index 5c88a8b..0dc962b 100644
 +          return true
 +        }
 +      } else {
-+        longPress.reset()
++        longPress.cancel("another key")
 +      }
        // The AX experiment (sable/PenglaiAXDiag.swift) is off unless the flag file penglai-axdiag is in the user folder;
        // off, these calls only check for that file every 2 seconds.
@@ -118,7 +118,7 @@ index 5c88a8b..0dc962b 100644
  
    override func deactivateServer(_ sender: Any!) {
 +    if let armed = longPress.armed {
-+      PenglaiLongPress.log.info("deactivate while armed \(String(armed.symbol), privacy: .public)")
++      PenglaiLongPress.log.notice("deactivate while armed \(String(armed.symbol), privacy: .public)")
 +    }
 +    longPress.reset()
      hidePalettes()
@@ -181,7 +181,7 @@ index 5c88a8b..0dc962b 100644
 +    let count = text.utf16.count
 +    guard caret.location != NSNotFound, caret.length == 0, caret.location >= count,
 +          client.attributedSubstring(from: NSRange(location: caret.location - count, length: count))?.string == text else {
-+      PenglaiLongPress.log.info("long press: committed key not found before the caret")
++      PenglaiLongPress.log.notice("long press: committed key not found before the caret")
 +      return false
 +    }
 +    client.insertText("", replacementRange: NSRange(location: caret.location - count, length: count))
