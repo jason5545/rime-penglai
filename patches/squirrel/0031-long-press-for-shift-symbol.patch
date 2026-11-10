@@ -6,11 +6,11 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one until it auto-repeats types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before; on its first auto-repeat, if the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. Later repeats are dropped. Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
+sable/PenglaiLongPress.swift: in Penglai Zhuyin the number row and , . / ; - are zhuyin or tones; holding one past the key repeat delay types the key's Shift symbol instead (。 ？ ： ！ ...), as Shift+key would, with the schema's punctuation menus. The key's own press goes to librime as before and starts a timer; when it fires, if the window server saw no key released and no other key pressed since, and the input is still just that key added, put back the input from before it (digit keys commit the composition first, since Shift+digit selects a candidate) and send the Shift symbol. An auto-repeat of the key, if the client sends one, fires it too; later repeats are dropped. Many clients send no auto-repeats while press-and-hold is on, so the repeats alone are not enough. Setting: long_press_symbols in sable.yaml (on unless false). This adds the file to the Xcode project and hooks it into the input controller.
 ---
  Squirrel.xcodeproj/project.pbxproj    |  4 +++
- sources/SquirrelInputController.swift | 48 +++++++++++++++++++++++++++
- 2 files changed, 52 insertions(+)
+ sources/SquirrelInputController.swift | 51 +++++++++++++++++++++++++++
+ 2 files changed, 55 insertions(+)
 
 diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
 index 8def729..b088356 100644
@@ -49,7 +49,7 @@ index 8def729..b088356 100644
  			runOnlyForDeploymentPostprocessing = 0;
  		};
 diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
-index 5c88a8b..c19cbf6 100644
+index 5c88a8b..ac2b9ce 100644
 --- a/sources/SquirrelInputController.swift
 +++ b/sources/SquirrelInputController.swift
 @@ -42,6 +42,8 @@ final class SquirrelInputController: IMKInputController {
@@ -57,7 +57,7 @@ index 5c88a8b..c19cbf6 100644
    private var chordDuration: TimeInterval = 0
    private var currentApp: String = ""
 +  // 長按數字列、標點鍵打出 Shift 的符號（sable/PenglaiLongPress.swift）
-+  private var longPress = PenglaiLongPress()
++  private let longPress = PenglaiLongPress()
  
    // swiftlint:disable:next cyclomatic_complexity
    override func handle(_ event: NSEvent!, client sender: Any!) -> Bool {
@@ -69,18 +69,19 @@ index 5c88a8b..c19cbf6 100644
        if lastModifiers == modifiers {
          handled = true
          break
-@@ -123,6 +126,19 @@ final class SquirrelInputController: IMKInputController {
+@@ -123,6 +126,20 @@ final class SquirrelInputController: IMKInputController {
        rimeUpdate()
  
      case .keyDown:
-+      // Long press (sable/PenglaiLongPress.swift): the first auto-repeat of a key that only added itself to the input turns
-+      // it into that key's Shift symbol; later repeats are dropped. Any other key ends it.
++      // Long press (sable/PenglaiLongPress.swift): a key that only added itself to the input, still held after the key
++      // repeat delay, turns into that key's Shift symbol (a timer, or its auto-repeat if the client sends those); its
++      // repeats are dropped. Any other key ends it.
 +      if event.isARepeat {
-+        switch longPress.onRepeat(keyCode: event.keyCode) {
++        switch longPress.onRepeat(keyCode: event.keyCode, timestamp: event.timestamp) {
 +        case .pass: break
 +        case .swallow: return true
-+        case .fire(let armed):
-+          if !fireLongPress(armed) { longPress.reset() }
++        case .fire:
++          longPress.fire()
 +          return true
 +        }
 +      } else {
@@ -89,7 +90,7 @@ index 5c88a8b..c19cbf6 100644
        // The AX experiment (sable/PenglaiAXDiag.swift) is off unless the flag file penglai-axdiag is in the user folder;
        // off, these calls only check for that file every 2 seconds.
        PenglaiAXDiag.shared.noteKeyDown(command: modifiers.contains(.command))
-@@ -179,8 +195,14 @@ final class SquirrelInputController: IMKInputController {
+@@ -179,8 +196,14 @@ final class SquirrelInputController: IMKInputController {
                                                   pendingPunct: autoPunct)
            }
            let rimeModifiers = SquirrelKeycode.osxModifiersToRime(modifiers: modifiers)
@@ -99,12 +100,20 @@ index 5c88a8b..c19cbf6 100644
 +          if let inputBefore, let inputAfter = currentInput() {
 +            longPress.noteKey(keyCode: keyCode, char: char,
 +                              plain: modifiers.isDisjoint(with: [.shift, .control, .option, .command, .capsLock, .numericPad, .function]),
-+                              handled: handled, before: inputBefore, after: inputAfter)
++                              handled: handled, downTime: event.timestamp, before: inputBefore, after: inputAfter)
 +          }
            spaceContext = nil
            if !handled {
              handled = replaceGuessedPunct()
-@@ -314,6 +336,7 @@ final class SquirrelInputController: IMKInputController {
+@@ -290,6 +313,7 @@ final class SquirrelInputController: IMKInputController {
+     super.init(server: server, delegate: delegate, client: client)
+     createSession()
+     PenglaiAXDiag.shared.userDir = SquirrelApp.userDir
++    longPress.onFire = { [weak self] armed in self?.fireLongPress(armed) ?? false }
+ 
+     NotificationCenter.default.addObserver(
+       forName: .init("SableSetASCIIModeNotification"),
+@@ -314,6 +338,7 @@ final class SquirrelInputController: IMKInputController {
    }
  
    override func deactivateServer(_ sender: Any!) {
@@ -112,7 +121,15 @@ index 5c88a8b..c19cbf6 100644
      hidePalettes()
      commitComposition(sender)
      client = nil
-@@ -503,6 +526,31 @@ private extension SquirrelInputController {
+@@ -396,6 +421,7 @@ final class SquirrelInputController: IMKInputController {
+   }
+ 
+   deinit {
++    longPress.reset()
+     destroySession()
+   }
+ }
+@@ -503,6 +529,31 @@ private extension SquirrelInputController {
      }
    }
  

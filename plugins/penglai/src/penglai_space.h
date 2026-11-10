@@ -1,3 +1,6 @@
+// 連打三個 .（ㄡㄡㄡ）變成「…」（penglai_space/ellipsis，11/10，沒寫時開；跟補標點分開，補標點關著也有）：
+//   第三個 . 按下去時，前面組字中的字用第一個候選先送出（跟按標點鍵一樣），再送出「…」。連打六個就是「……」。
+//   只看游標在輸入結尾、結尾剛好兩個 . 的時候；三個 ㄡ 連著的字詞（歐歐歐、ㄉㄡ 再兩個 ㄡ）實際上不會打。
 // 送出之後按空白補標點（原 penglai_space.lua，10/30）：很多人打字不加標點、用空白隔開。中文送出之後、組字區空著時按空白，
 // 不出空白，直接送出猜的標點：剛送出的那一句像問句時是「？」，前一段是嘆詞時是「！」，不然是「，」。
 //   要真的空白：緊接著再按一次空白，剛補的標點換成空白（中文␣）；再按就是一般的空白。換標點是貂毫做的（patch 0023）：
@@ -71,6 +74,8 @@ class PenglaiSpace : public rime::Processor {
   bool period_ = true;
   bool foreign_ = false;
   bool english_ = false;   // penglai_space/english：送出英文詞之後按空白也補標點（11/3，方案預設關）
+  bool ellipsis_ = true;   // penglai_space/ellipsis：連打三個 . 變成「…」（11/10）
+  void OnCommit(const string& text);   // 送出了字（commit_notifier，或這裡直接送出的「…」）
   // 剛送出字（任何字，含自己補的標點），之後還沒有斷掉 clause_ 的事件：這時的空白不看游標前後文
   bool fresh_ = false;
   std::optional<string> clause_;   // 這一句貂毫送出的字（結尾是漢字的才接著算；english 開著時英文詞也算）

@@ -878,7 +878,7 @@ enum PenglaiAdvanced {
     Section(id: "keys", title: "按鍵", desc: "空白鍵、送出之後補標點、Caps Lock、選字鍵、翻頁", symbol: "keyboard", tint: .orange, segments: [
       Segment(id: "keys", title: "按鍵", keys: [
         "speller/use_space", "punctuator/use_space", "ascii_composer/good_old_caps_lock", "menu/alternative_select_keys",
-        "menu/page_down_cycle", "translator/raw_lead_keys",
+        "menu/page_down_cycle", "translator/raw_lead_keys", "penglai_space/ellipsis",
       ]),
       Segment(id: "space_punct", title: "送出之後補標點", keys: [
         "penglai_space/replace", "penglai_space/period", "penglai_space/foreign", "penglai_space/english",

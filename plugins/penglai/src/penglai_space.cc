@@ -591,6 +591,8 @@ PenglaiSpace::PenglaiSpace(const Ticket& ticket) : Processor(ticket) {
     replace_ = false;
   if (config->GetBool(name_space_ + "/period", &value) && !value)
     period_ = false;
+  if (config->GetBool(name_space_ + "/ellipsis", &value) && !value)
+    ellipsis_ = false;
   if (config->GetBool(name_space_ + "/foreign", &value) && value)
     foreign_ = on_;   // 要先開 punct
   if (config->GetBool(name_space_ + "/english", &value) && value)
@@ -601,20 +603,7 @@ PenglaiSpace::PenglaiSpace(const Ticket& ticket) : Processor(ticket) {
   string announce = foreign_ ? engine_->schema()->schema_id() : "";
   if (ctx->get_property(kForeignProperty) != announce)
     ctx->set_property(kForeignProperty, announce);
-  commit_connection_ = ctx->commit_notifier().connect([this](Context* c) {
-    string text = c->GetCommitText();
-    mark_.reset();   // 滑鼠點候選也會送出，不經過按鍵
-    if (!text.empty())
-      fresh_ = true;
-    // penglai_space/english：結尾是英文詞也接著算這一句（例如「CTO」之後按空白也補標點；要空白就按兩下）
-    if (EndsWithHan(text) || (english_ && EndsWithEnglish(text))) {
-      clause_ = clause_.value_or("") + text;
-      return;
-    }
-    // 標點鍵送出「，」「！」（組字中按的連前面的字一起送出：「哇，」）：前一段留著（前一段是嘆詞時，下一段可能補「！」）
-    prev_ = ClauseBefore(clause_.value_or("") + text);
-    clause_.reset();
-  });
+  commit_connection_ = ctx->commit_notifier().connect([this](Context* c) { OnCommit(c->GetCommitText()); });
   option_connection_ = ctx->option_update_notifier().connect([this](Context* c, const string& name) {
     if (name == "ascii_mode") {
       clause_.reset();
@@ -625,12 +614,44 @@ PenglaiSpace::PenglaiSpace(const Ticket& ticket) : Processor(ticket) {
   });
 }
 
+void PenglaiSpace::OnCommit(const string& text) {
+  mark_.reset();   // 滑鼠點候選也會送出，不經過按鍵
+  if (!text.empty())
+    fresh_ = true;
+  // penglai_space/english：結尾是英文詞也接著算這一句（例如「CTO」之後按空白也補標點；要空白就按兩下）
+  if (EndsWithHan(text) || (english_ && EndsWithEnglish(text))) {
+    clause_ = clause_.value_or("") + text;
+    return;
+  }
+  // 標點鍵送出「，」「！」（組字中按的連前面的字一起送出：「哇，」）：前一段留著（前一段是嘆詞時，下一段可能補「！」）
+  prev_ = ClauseBefore(clause_.value_or("") + text);
+  clause_.reset();
+}
+
 PenglaiSpace::~PenglaiSpace() {
   commit_connection_.disconnect();
   option_connection_.disconnect();
 }
 
 ProcessResult PenglaiSpace::ProcessKeyEvent(const KeyEvent& key) {
+  // 連打三個 .：第三個按下去時，前面的字先送出，再送出「…」
+  if (ellipsis_ && key.keycode() == '.' && !key.release() && !(key.shift() || key.ctrl() || key.alt() || key.super())) {
+    Context* ctx = engine_->context();
+    const string& input = ctx->input();
+    if (!ctx->get_option("ascii_mode") && ctx->caret_pos() == input.size() && input.size() >= 2 &&
+        input.compare(input.size() - 2, 2, "..") == 0 && (input.size() == 2 || input[input.size() - 3] != '.')) {
+      string before = input.substr(0, input.size() - 2);
+      if (before.empty()) {
+        ctx->Clear();
+      } else {
+        ctx->set_input(before);
+        ctx->Commit();   // 前面的字照第一個候選送出（commit_notifier 照常：學習、這一句記著）
+      }
+      engine_->CommitText("…");
+      OnCommit("…");
+      return kAccepted;
+    }
+  }
   if (!on_)
     return kNoop;
   // 貂毫補送的 VoidSymbol 放開事件：
