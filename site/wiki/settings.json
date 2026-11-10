@@ -229,7 +229,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 80
+    "order": 81
    }
   },
   {
@@ -244,7 +244,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 78
+    "order": 79
    }
   },
   {
@@ -259,7 +259,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 84
+    "order": 85
    }
   },
   {
@@ -274,7 +274,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 79
+    "order": 80
    }
   },
   {
@@ -302,7 +302,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 81
+    "order": 82
    }
   },
   {
@@ -317,7 +317,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 82
+    "order": 83
    }
   },
   {
@@ -332,7 +332,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 83
+    "order": 84
    }
   },
   {
@@ -382,7 +382,7 @@
    "file": "sable.custom.yaml",
    "type": "bool",
    "title": "長按出符號",
-   "desc": "數字鍵和 , . / ; - 這幾個在注音裡是注音、聲調的鍵，按著不放就打出按 Shift 的那個符號：. 是「。」、, 是「，」、/ 是「？」、; 是「：」「；」選單、1 是「！」，有選單的跟按 Shift 一樣出選單。組字中長按數字鍵，先送出組字區再打符號。按多久算長按照系統設定「鍵盤」的「重複前延遲」，關掉按鍵重複就沒有長按。",
+   "desc": "數字鍵和 , . / ; - 這幾個在注音裡是注音、聲調的鍵，按著不放就打出按 Shift 的那個符號：. 是「。」、, 是「，」、/ 是「？」、; 是「：」「；」選單、1 是「！」，有選單的跟按 Shift 一樣出選單。組字中長按數字鍵，先送出組字區再打符號。按多久算長按照系統設定「鍵盤」的「重複前延遲」（按鍵重複關掉也照這個時間）。",
    "value": null,
    "builtin": "true",
    "where": {
@@ -412,7 +412,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 85
+    "order": 86
    }
   },
   {
@@ -1164,7 +1164,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 116
+    "order": 117
    }
   },
   {
@@ -1179,7 +1179,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 117
+    "order": 118
    }
   },
   {
@@ -1194,7 +1194,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 118
+    "order": 119
    }
   },
   {
@@ -1222,7 +1222,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 119
+    "order": 120
    }
   },
   {
@@ -1237,7 +1237,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 121
+    "order": 122
    }
   },
   {
@@ -1252,7 +1252,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 120
+    "order": 121
    }
   },
   {
@@ -1364,7 +1364,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 69
+    "order": 70
    }
   },
   {
@@ -1380,7 +1380,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 70
+    "order": 71
    }
   },
   {
@@ -1395,7 +1395,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 71
+    "order": 72
    }
   },
   {
@@ -1565,7 +1565,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 112
+    "order": 113
    }
   },
   {
@@ -1585,7 +1585,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 111
+    "order": 112
    }
   },
   {
@@ -1706,7 +1706,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 45
+    "order": 46
    }
   },
   {
@@ -1801,7 +1801,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 67
+    "order": 68
    }
   },
   {
@@ -1824,7 +1824,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 109
+    "order": 110
    }
   },
   {
@@ -1847,7 +1847,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 110
+    "order": 111
    }
   },
   {
@@ -1867,7 +1867,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 108
+    "order": 109
    }
   },
   {
@@ -1882,7 +1882,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 43
+    "order": 44
    }
   },
   {
@@ -1897,7 +1897,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 42
+    "order": 43
    }
   },
   {
@@ -1938,7 +1938,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 88
+    "order": 89
    }
   },
   {
@@ -1961,7 +1961,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 87
+    "order": 88
    }
   },
   {
@@ -1985,7 +1985,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 86
+    "order": 87
    }
   },
   {
@@ -2009,7 +2009,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 100
+    "order": 101
    }
   },
   {
@@ -2033,7 +2033,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 107
+    "order": 108
    }
   },
   {
@@ -2056,7 +2056,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 104
+    "order": 105
    }
   },
   {
@@ -2079,7 +2079,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 105
+    "order": 106
    }
   },
   {
@@ -2102,7 +2102,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 102
+    "order": 103
    }
   },
   {
@@ -2125,7 +2125,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 103
+    "order": 104
    }
   },
   {
@@ -2148,7 +2148,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 101
+    "order": 102
    }
   },
   {
@@ -2172,7 +2172,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 106
+    "order": 107
    }
   },
   {
@@ -2195,7 +2195,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 98
+    "order": 99
    }
   },
   {
@@ -2218,7 +2218,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 99
+    "order": 100
    }
   },
   {
@@ -2238,7 +2238,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 96
+    "order": 97
    }
   },
   {
@@ -2261,7 +2261,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 97
+    "order": 98
    }
   },
   {
@@ -2304,7 +2304,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 92
+    "order": 93
    }
   },
   {
@@ -2327,7 +2327,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 90
+    "order": 91
    }
   },
   {
@@ -2350,7 +2350,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 91
+    "order": 92
    }
   },
   {
@@ -2372,7 +2372,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 89
+    "order": 90
    }
   },
   {
@@ -2392,7 +2392,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 94
+    "order": 95
    }
   },
   {
@@ -2416,7 +2416,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 95
+    "order": 96
    }
   },
   {
@@ -2434,7 +2434,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 93
+    "order": 94
    }
   },
   {
@@ -2454,7 +2454,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 54
+    "order": 55
    }
   },
   {
@@ -2480,7 +2480,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 129
+    "order": 130
    }
   },
   {
@@ -2498,7 +2498,7 @@
    "where": {
     "section": "shortcuts",
     "segment": "details",
-    "order": 37
+    "order": 38
    }
   },
   {
@@ -2563,7 +2563,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 51
+    "order": 52
    }
   },
   {
@@ -2605,7 +2605,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 52
+    "order": 53
    }
   },
   {
@@ -2706,7 +2706,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 49
+    "order": 50
    }
   },
   {
@@ -2729,7 +2729,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 50
+    "order": 51
    }
   },
   {
@@ -2759,7 +2759,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 53
+    "order": 54
    }
   },
   {
@@ -2796,7 +2796,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 48
+    "order": 49
    }
   },
   {
@@ -2928,7 +2928,7 @@
    "where": {
     "section": "composing",
     "segment": "key_model",
-    "order": 46
+    "order": 47
    }
   },
   {
@@ -2966,7 +2966,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 57
+    "order": 58
    }
   },
   {
@@ -2981,7 +2981,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 113
+    "order": 114
    }
   },
   {
@@ -3017,7 +3017,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 66
+    "order": 67
    }
   },
   {
@@ -3074,7 +3074,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 58
+    "order": 59
    }
   },
   {
@@ -3098,7 +3098,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 59
+    "order": 60
    }
   },
   {
@@ -3142,7 +3142,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 64
+    "order": 65
    }
   },
   {
@@ -3166,7 +3166,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 60
+    "order": 61
    }
   },
   {
@@ -3189,7 +3189,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 61
+    "order": 62
    }
   },
   {
@@ -3213,7 +3213,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 62
+    "order": 63
    }
   },
   {
@@ -3237,7 +3237,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 63
+    "order": 64
    }
   },
   {
@@ -3278,7 +3278,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 55
+    "order": 56
    }
   },
   {
@@ -3300,7 +3300,7 @@
    "where": {
     "section": "composing",
     "segment": "typing_style",
-    "order": 56
+    "order": 57
    }
   },
   {
@@ -3433,7 +3433,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 76
+    "order": 77
    }
   },
   {
@@ -3448,7 +3448,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 73
+    "order": 74
    }
   },
   {
@@ -3489,7 +3489,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 77
+    "order": 78
    }
   },
   {
@@ -3504,7 +3504,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 74
+    "order": 75
    }
   },
   {
@@ -3519,7 +3519,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 75
+    "order": 76
    }
   },
   {
@@ -3534,7 +3534,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 72
+    "order": 73
    }
   },
   {
@@ -3718,7 +3718,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 126
+    "order": 127
    }
   },
   {
@@ -3733,7 +3733,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 39
+    "order": 40
    }
   },
   {
@@ -3893,7 +3893,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 128
+    "order": 129
    }
   },
   {
@@ -3911,7 +3911,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 68
+    "order": 69
    }
   },
   {
@@ -3952,7 +3952,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 124
+    "order": 125
    }
   },
   {
@@ -3967,7 +3967,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 41
+    "order": 42
    }
   },
   {
@@ -3982,7 +3982,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 123
+    "order": 124
    }
   },
   {
@@ -3997,7 +3997,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 65
+    "order": 66
    }
   },
   {
@@ -4012,7 +4012,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 122
+    "order": 123
    }
   },
   {
@@ -4027,7 +4027,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 115
+    "order": 116
    }
   },
   {
@@ -4043,7 +4043,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 127
+    "order": 128
    }
   },
   {
@@ -4059,7 +4059,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 40
+    "order": 41
    }
   },
   {
@@ -4197,7 +4197,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 114
+    "order": 115
    }
   },
   {
@@ -4212,7 +4212,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 125
+    "order": 126
    }
   },
   {
@@ -4227,7 +4227,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 44
+    "order": 45
    }
   },
   {
@@ -4320,7 +4320,22 @@
    "where": {
     "section": "shortcuts",
     "segment": "details",
-    "order": 36
+    "order": 37
+   }
+  },
+  {
+   "id": "lua:penglai_space/ellipsis",
+   "path": "penglai_space/ellipsis",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "bool",
+   "title": "連打三個 . 變成「…」",
+   "desc": "連按三次 .（ㄡㄡㄡ）打出「…」，連按六次是「……」。第三個 . 按下去時，前面組字中的字用第一個候選先送出，跟按標點鍵一樣。三個 ㄡ 連著的字詞實際上不會打到，所以預設開；要打三個 ㄡ 就關掉。跟「送出之後按空白補標點」分開，那一項關著也有作用。",
+   "value": null,
+   "builtin": "true",
+   "where": {
+    "section": "keys",
+    "segment": "keys",
+    "order": 32
    }
   },
   {
@@ -4335,7 +4350,7 @@
    "where": {
     "section": "keys",
     "segment": "space_punct",
-    "order": 35
+    "order": 36
    }
   },
   {
@@ -4350,7 +4365,7 @@
    "where": {
     "section": "keys",
     "segment": "space_punct",
-    "order": 34
+    "order": 35
    }
   },
   {
@@ -4365,7 +4380,7 @@
    "where": {
     "section": "keys",
     "segment": "space_punct",
-    "order": 33
+    "order": 34
    }
   },
   {
@@ -4394,7 +4409,7 @@
    "where": {
     "section": "keys",
     "segment": "space_punct",
-    "order": 32
+    "order": 33
    }
   },
   {
@@ -4427,7 +4442,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 129
+    "order": 130
    }
   },
   {
