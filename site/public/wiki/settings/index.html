@@ -42,14 +42,91 @@
 <p class="lede">字級、配色、讀音、學習方式都在蓬萊設定裡改。點一下就套用，不用碰設定檔，也不用重新部署；改錯了可以復原。</p>
 
 <h2>打開</h2>
-<p>點選單列的輸入法圖示，選「蓬萊設定…」。</p>
-<p>左邊是分頁，右邊是那一頁的設定。每一項底下有一句說明。視窗底部寫著「變更會立即套用」，右下角的「復原上一步」可以退回剛才的改動。</p>
+<p>點選單列的輸入法圖示，選最上面的「蓬萊設定…」。</p>
+<p>左邊的側欄是分頁，分成四組：打字用的（一般、讀音、打錯修正、標點符號、按鍵）、外觀（選字窗、配色）、詞庫、進階和變更紀錄。右邊是那一頁的設定，每一項底下有一句說明。</p>
+<p>有幾頁的標題底下有一排按鈕，同一件事的細項在那裡換：選字窗的字型、間距，按鍵的快速鍵，打錯修正的細部調整。</p>
+<p>視窗底部寫著「變更會立即套用」，右下角的「復原上一步」可以退回剛才的改動。</p>
 
 <h2>找設定</h2>
-<p>左上角的「搜尋設定」打幾個字，右邊列出符合的項目，點一下就跳到那一頁，那一項會閃一下。進階裡的項目會寫出在哪裡，例如「進階 › 中英混輸 › 字母串」。常見的別種說法也找得到，例如打「字體」會找到字級；打配色的名字（例如「冷漠」）會跳到配色頁。空白隔開的幾個詞要全部對到。</p>
+<p>左上角的「搜尋設定」打幾個字，右邊列出符合的項目，點一下就跳到那一頁，那一項會閃一下。每一項右邊寫著它在哪裡，例如「按鍵 › 快速鍵」「進階 › 中英混輸 › 字母串」。常見的別種說法也找得到，例如打「字體」會找到字級；打配色的名字（例如「冷漠」）會跳到配色頁。空白隔開的幾個詞要全部對到。</p>
 <figure class="shot">
 <img src="/wiki/img/settings-search.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定搜尋「字母串」：找到 4 項，每一項右邊寫著進階 › 中英混輸 › 字母串。">
 <figcaption>搜尋「字母串」。</figcaption>
+</figure>
+
+<h2>一般</h2>
+<p>打字時的輔助功能，還有整句怎麼組、打過的怎麼記住。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">設定</th><th scope="col">預設</th><th scope="col">說明</th></tr></thead>
+<tbody>
+<tr><td>中英混輸</td><td>開</td><td>中文組不成句時，改用英文單字，或照原樣輸出按下的字母、數字，見<a href="/wiki/english/">英文與數字</a>。</td></tr>
+<tr><td>聯想</td><td>關</td><td>送出之後列出接下來可能要打的詞，見<a href="/wiki/prediction/">聯想</a>。</td></tr>
+<tr><td>筆畫查字</td><td>開</td><td>先按 ` 再打筆畫，見<a href="/wiki/stroke/">筆畫查字</a>。</td></tr>
+<tr><td>整句候選數</td><td>5</td><td>一次列出幾種不同的整句組合（1、3、5）。</td></tr>
+<tr><td>記住整句的長度</td><td>10 字</td><td>這個字數以內的句子，打過一次之後就能整句叫回來（5 字、10 字）。</td></tr>
+<tr><td>取消學習的時限</td><td>15 秒</td><td>送出後在這段時間內按 ⌫，這次選的字就不會被記住（3～30 秒）。</td></tr>
+</tbody>
+</table></div>
+<p>中英混輸、聯想旁邊，還有「組句與學習」標題旁邊的「細部調整」，通到進階裡對應的那一類。</p>
+<figure class="shot">
+<img src="/wiki/img/settings-general.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的一般頁：輸入輔助有中英混輸、聯想、筆畫查字三個開關，組句與學習有整句候選數、記住整句的長度、取消學習的時限。">
+<figcaption>「一般」頁。</figcaption>
+</figure>
+
+<h2>讀音</h2>
+<p>蓬萊音、中州音、兼收並蓄三張卡片，點一下就換，正在打的字候選馬上跟著變。見<a href="/wiki/readings/">讀音</a>。</p>
+
+<h2>打錯修正</h2>
+<p>按到旁邊的鍵、漏打、分不清的音，也找得到原本要打的詞。見<a href="/wiki/missing-initial/">打錯也對得到</a>。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">設定</th><th scope="col">預設</th><th scope="col">說明</th></tr></thead>
+<tbody>
+<tr><td>打錯也對得到</td><td>開</td><td>打完整注音時按到旁邊的鍵、漏打聲母或介音、同一鍵連按兩下也找得到。下面三項要它開著才有作用。</td></tr>
+<tr><td>只打第一個注音時，按偏的韻母也修</td><td>開</td><td>只打第一個注音時，單獨一個韻母按到旁邊的韻母鍵也修。</td></tr>
+<tr><td>照打合法時也可以排第一</td><td>關</td><td>照打的注音本身就是合法音節時，修過的詞分數贏了也可以排第一。關著時最多排第二。</td></tr>
+<tr><td>修過的詞標出讀音</td><td>開</td><td>修過的詞在選字窗旁邊寫上修成的讀音。</td></tr>
+<tr><td>模糊音</td><td>都沒開</td><td>分不清的注音按下那一對（ㄣㄥ、ㄓㄗ、ㄔㄘ、ㄕㄙ、ㄡㄛ）。</td></tr>
+</tbody>
+</table></div>
+<p>標題底下的「細部調整」是各種錯的機率：按到旁邊的鍵、漏打聲母、漏打介音、同一鍵連按兩下、多按一個別的鍵。</p>
+<figure class="shot">
+<img src="/wiki/img/settings-correction.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的打錯修正頁：打錯也對得到的總開關和它底下的三個開關，下面是模糊音的五顆按鈕；標題底下有常用、細部調整兩個按鈕。">
+<figcaption>「打錯修正」頁。</figcaption>
+</figure>
+
+<h2>標點符號</h2>
+<p>不按 Shift 也打得出標點。見<a href="/wiki/punctuation/">標點符號</a>。</p>
+<div class="table-wrap"><table>
+<thead><tr><th scope="col">設定</th><th scope="col">預設</th><th scope="col">說明</th></tr></thead>
+<tbody>
+<tr><td>送出之後按空白補標點</td><td>開</td><td>中文送出之後按空白，補上「，」或「？」，見<a href="/wiki/punctuation/#space-punct">送出之後按空白補標點</a>。下面四項要它開著才有作用。</td></tr>
+<tr><td>補了標點之後再按空白換成空白</td><td>開</td><td>緊接著再按一次空白，剛補的標點換成空白。</td></tr>
+<tr><td>補了「，」之後按 Return 換成「。」</td><td>開</td><td>緊接著按 Return，「，」換成「。」。</td></tr>
+<tr><td>游標前是別處的字也補標點</td><td>關</td><td>游標前的字不是剛用貂毫送出的，按空白也照前後文補標點。</td></tr>
+<tr><td>送出英文詞之後也補標點</td><td>關</td><td>送出英文詞之後按空白，也跟中文一樣補標點。</td></tr>
+<tr><td>長按出符號</td><td>開</td><td>數字列和 , . / ; - 按著不放，打出按 Shift 的那個符號，見<a href="/wiki/punctuation/#long-press">長按出符號</a>。</td></tr>
+<tr><td>連打三個 . 變成「…」</td><td>開</td><td>連按三次 . 打出「…」，連按六次是「……」。</td></tr>
+</tbody>
+</table></div>
+<figure class="shot">
+<img src="/wiki/img/settings-punct.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的標點符號頁：送出之後補標點的總開關和四個細項，下面是長按出符號、連打三個點。">
+<figcaption>「標點符號」頁。</figcaption>
+</figure>
+
+<h2>按鍵</h2>
+<p>標題底下三個按鈕，分三組：</p>
+<ul>
+<li><b>常用按鍵</b>：空白鍵當作一聲、打字中空白鍵交給標點、Caps Lock 也鎖大寫、選字鍵、翻到最後一頁再翻回第一頁、開頭是 / 時照按鍵原字。</li>
+<li><b>快速鍵</b>：複製輸入和候選、刪學習紀錄、選第二個、數字選字、一鍵忘掉上一筆各用哪個鍵。選了別的功能正在用的鍵，兩個功能對調。見<a href="/wiki/shortcuts/">按鍵一覽</a>。</li>
+<li><b>快速鍵選項</b>：數字選字蓋住整段要不要直接送出、一鍵忘掉最多往前幾筆、複製最少列幾個候選。</li>
+</ul>
+<figure class="shot">
+<img src="/wiki/img/settings-keys.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的按鍵頁：標題底下是常用按鍵、快速鍵、快速鍵選項三個按鈕，常用按鍵這一組有六項。">
+<figcaption>「按鍵」頁的常用按鍵。</figcaption>
+</figure>
+<figure class="shot">
+<img src="/wiki/img/settings-shortcuts.webp" width="1100" height="915" loading="lazy" alt="按鍵頁的快速鍵：複製輸入和候選、刪學習紀錄、選第二個、數字選字、一鍵忘掉上一筆，每一項一排可以選的鍵。">
+<figcaption>按鍵 › 快速鍵。</figcaption>
 </figure>
 
 <h2>選字窗</h2>
@@ -64,9 +141,9 @@
 <tr><td>顯示中 / 英狀態圖示</td><td>在選單列顯示目前是中文還是西文。</td></tr>
 </tbody>
 </table></div>
-<p>最下面的「更多外觀設定」通到進階的「選字窗外觀」：字型、圓角、間距、讀音提示。</p>
+<p>標題底下的按鈕換到更細的外觀設定：字型與字級、形狀與效果（圓角、陰影、透明度）、間距、顯示內容（讀音提示、候選格式、翻頁箭頭）。</p>
 <figure class="shot">
-<img src="/wiki/img/settings-panel.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的選字窗頁：候選排列、字級、每頁候選數、打字時游標處顯示、顯示中英狀態圖示，最下面是更多外觀設定。">
+<img src="/wiki/img/settings-panel.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的選字窗頁：候選排列、字級、每頁候選數、打字時游標處顯示、顯示中英狀態圖示；標題底下有常用、字型與字級、形狀與效果、間距、顯示內容五個按鈕。">
 <figcaption>「選字窗」頁。</figcaption>
 </figure>
 
@@ -77,45 +154,6 @@
 <figcaption>「配色」頁。</figcaption>
 </figure>
 
-<h2>輸入</h2>
-<p>注音輸入的方式。</p>
-<div class="table-wrap"><table>
-<thead><tr><th scope="col">設定</th><th scope="col">預設</th><th scope="col">說明</th></tr></thead>
-<tbody>
-<tr><td>中英混輸</td><td>開</td><td>中文組不成句時，改用英文單字，或照原樣輸出按下的字母、數字，見<a href="/wiki/english/">英文與數字</a>。</td></tr>
-<tr><td>聯想</td><td>關</td><td>送出之後列出接下來可能要打的詞，見<a href="/wiki/prediction/">聯想</a>。</td></tr>
-<tr><td>打錯也對得到</td><td>開</td><td>打完整注音時按到旁邊的鍵、漏打聲母或介音、同一鍵連按兩下也找得到，見<a href="/wiki/missing-initial/">打錯也對得到</a>。</td></tr>
-<tr><td>模糊音</td><td>都沒開</td><td>分不清的注音按下那一對（ㄣㄥ、ㄓㄗ、ㄔㄘ、ㄕㄙ、ㄡㄛ），見<a href="/wiki/missing-initial/">打錯也對得到</a>的模糊音。</td></tr>
-<tr><td>送出之後按空白補標點</td><td>開</td><td>中文送出之後按空白，補上「，」或「？」，見<a href="/wiki/punctuation/#space-punct">送出之後按空白補標點</a>。</td></tr>
-<tr><td>長按出符號</td><td>開</td><td>數字列和 , . / ; - 按著不放，打出按 Shift 的那個符號，見<a href="/wiki/punctuation/#long-press">長按出符號</a>。</td></tr>
-<tr><td>筆畫查字</td><td>開</td><td>先按 ` 再打筆畫，見<a href="/wiki/stroke/">筆畫查字</a>。</td></tr>
-</tbody>
-</table></div>
-<p>中英混輸、聯想、打錯也對得到、送出之後按空白補標點旁邊的「細部調整」通到進階裡對應的那一類。</p>
-<figure class="shot">
-<img src="/wiki/img/settings-typing.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的輸入頁：中英混輸、聯想、打錯也對得到、送出之後按空白補標點、長按出符號、筆畫查字六個開關，打錯也對得到底下有模糊音的五顆按鈕，有幾項旁邊有細部調整。">
-<figcaption>「輸入」頁。</figcaption>
-</figure>
-
-<h2>組句與學習</h2>
-<p>整句怎麼組、打過的怎麼記住。</p>
-<div class="table-wrap"><table>
-<thead><tr><th scope="col">設定</th><th scope="col">預設</th><th scope="col">說明</th></tr></thead>
-<tbody>
-<tr><td>整句候選數</td><td>5</td><td>一次列出幾種不同的整句組合（1、3、5）。</td></tr>
-<tr><td>記住整句的長度</td><td>10 字</td><td>這個字數以內的句子，打過一次之後就能整句叫回來（5 字、10 字）。</td></tr>
-<tr><td>取消學習的時限</td><td>15 秒</td><td>送出後在這段時間內按 ⌫，這次選的字就不會被記住（3～30 秒）。</td></tr>
-</tbody>
-</table></div>
-<p>「細部調整」通到進階裡的組句與學習。下面的「快速鍵」通到進階裡的快速鍵：複製、刪學習紀錄、選第二個、數字選字、一鍵忘掉用哪個鍵。</p>
-<figure class="shot">
-<img src="/wiki/img/settings-learning.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的組句與學習頁：整句候選數、記住整句的長度、取消學習的時限，下面是通到快速鍵的連結。">
-<figcaption>「組句與學習」頁。</figcaption>
-</figure>
-
-<h2>讀音</h2>
-<p>蓬萊音、中州音、兼收並蓄三張卡片，點一下就換，正在打的字候選馬上跟著變。見<a href="/wiki/readings/">讀音</a>。</p>
-
 <h2>詞庫</h2>
 <p>自訂詞、加進詞典的詞、隱藏的詞，在這裡加、改、刪，也可以取消隱藏。見<a href="/wiki/custom-words/">加自己的詞</a>。</p>
 
@@ -123,15 +161,15 @@
 <p>方案選單裡要列出哪些輸入方案。貂毫只附蓬萊注音一個方案，只有一個方案時側欄不列這一頁；自己加了別的方案才會出現。</p>
 
 <h2>進階</h2>
-<p>其他可以調整的項目，一般使用不需要更動。進階頁先列出一排分類，照用途分：</p>
+<p>比較少用到的項目，一般使用不需要更動。進階頁先列出一排分類，照用途分：</p>
 <ul>
-<li><b>一般</b>：選字窗外觀、按鍵、快速鍵、組句與學習、聯想、字形轉換、方案選單、其他。</li>
+<li><b>功能細項</b>：組句與學習、聯想、字形轉換、方案選單、其他。</li>
 <li><b>引擎參數</b>：中英混輸、排序參數、自訂詞。這幾類改了會直接影響候選怎麼排，不確定時點「還原預設」就回到原本的值。</li>
 </ul>
-<p>點一類進去。項目多的類別上面有一排按鈕再分組，例如中英混輸分成判斷、英文單字、字母串、按鍵層辨識、數字，每一組一頁看得完，不用翻頁。要先打開另一項才有作用的項目會變灰，下面寫著要先開哪一項。改過任何項目之後，分類下面會多一個「已自訂的項目」，列出你改過的。</p>
+<p>點一類進去。項目多的類別上面有一排按鈕再分組，例如中英混輸分成判斷、英文單字、字母串、按鍵層辨識、數字，每一組一頁看得完，不用翻頁。要先打開另一項才有作用的項目會變灰，下面寫著要先開哪一項。改過任何細項之後，分類下面會多一個「已自訂的項目」，列出你改過的，別頁的細項也算。</p>
 <p>每一項的完整說明、寫在設定檔的哪一行、預設值，見<a href="/wiki/all-settings/">全部設定</a>。</p>
 <figure class="shot">
-<img src="/wiki/img/settings-all.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的進階頁：一般和引擎參數兩區，每一類一張卡片，寫著包含哪些設定、有幾項。">
+<img src="/wiki/img/settings-all.webp" width="1100" height="915" loading="lazy" alt="蓬萊設定的進階頁：功能細項和引擎參數兩區，每一類一張卡片，寫著包含哪些設定、有幾項。">
 <figcaption>「進階」頁。</figcaption>
 </figure>
 <figure class="shot">

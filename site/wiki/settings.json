@@ -1,48 +1,66 @@
 {
  "pages": [
+  "一般",
+  "打錯修正",
+  "標點符號",
   "選字窗",
-  "配色",
-  "輸入",
-  "組句與學習"
+  "配色"
  ],
  "sections": [
   {
-   "id": "appearance",
-   "title": "選字窗外觀",
-   "desc": "字型、圓角、間距、讀音提示",
+   "id": "correction",
+   "title": "打錯修正",
+   "desc": "按到旁邊的鍵、漏打、連按兩下的機率",
    "tuning": false,
+   "page": "打錯修正",
    "segments": [
     {
-     "id": "fonts",
-     "title": "字型與字級"
+     "id": "options",
+     "title": "修正",
+     "inline": true,
+     "tab": null
     },
     {
-     "id": "shape",
-     "title": "形狀與效果"
+     "id": "rates",
+     "title": "細部調整",
+     "inline": false,
+     "tab": null
+    }
+   ]
+  },
+  {
+   "id": "punct",
+   "title": "標點符號",
+   "desc": "送出之後補標點的細節、連打三個點",
+   "tuning": false,
+   "page": "標點符號",
+   "segments": [
+    {
+     "id": "space_punct",
+     "title": "送出之後補標點",
+     "inline": true,
+     "tab": null
     },
     {
-     "id": "spacing",
-     "title": "間距"
-    },
-    {
-     "id": "content",
-     "title": "顯示內容"
+     "id": "symbols",
+     "title": "符號",
+     "inline": true,
+     "tab": null
     }
    ]
   },
   {
    "id": "keys",
    "title": "按鍵",
-   "desc": "空白鍵、送出之後補標點、Caps Lock、選字鍵、翻頁",
+   "desc": "空白鍵、Caps Lock、選字鍵、翻頁",
    "tuning": false,
+   "page": "按鍵",
    "segments": [
     {
      "id": "keys",
-     "title": "按鍵"
-    },
-    {
-     "id": "space_punct",
-     "title": "送出之後補標點"
+     "title": "按鍵",
+     "inline": false,
+     "tab": "常用按鍵"
     }
    ]
   },
@@ -51,50 +69,97 @@
    "title": "快速鍵",
    "desc": "複製、刪學習紀錄、選第二個、數字選字、一鍵忘掉用哪個鍵",
    "tuning": false,
+   "page": "按鍵",
    "segments": [
     {
+     "id": "shortcuts",
+     "title": "按鍵",
+     "inline": false,
+     "tab": "快速鍵"
+    },
+    {
      "id": "details",
-     "title": "細部調整"
+     "title": "細部調整",
+     "inline": false,
+     "tab": "快速鍵選項"
+    }
+   ]
+  },
+  {
+   "id": "appearance",
+   "title": "選字窗外觀",
+   "desc": "字型、圓角、間距、讀音提示",
+   "tuning": false,
+   "page": "選字窗",
+   "segments": [
+    {
+     "id": "fonts",
+     "title": "字型與字級",
+     "inline": false,
+     "tab": null
+    },
+    {
+     "id": "shape",
+     "title": "形狀與效果",
+     "inline": false,
+     "tab": null
+    },
+    {
+     "id": "spacing",
+     "title": "間距",
+     "inline": false,
+     "tab": null
+    },
+    {
+     "id": "content",
+     "title": "顯示內容",
+     "inline": false,
+     "tab": null
     }
    ]
   },
   {
    "id": "composing",
    "title": "組句與學習",
-   "desc": "補完、糾錯、參考前文、候選排序、記住選過的字詞",
+   "desc": "補完、參考前文、候選排序、記住選過的字詞",
    "tuning": false,
+   "page": null,
    "segments": [
     {
      "id": "composing",
-     "title": "組句與補完"
-    },
-    {
-     "id": "key_model",
-     "title": "打錯也對得到"
-    },
-    {
-     "id": "key_model_abbrev",
-     "title": "打錯也對得到：只打第一個注音"
+     "title": "組句與補完",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "split",
-     "title": "選字吃幾個鍵"
+     "title": "選字吃幾個鍵",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "typing_style",
-     "title": "打法"
+     "title": "打法",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "order",
-     "title": "候選排序"
+     "title": "候選排序",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "short_sentence",
-     "title": "短輸入也組整句"
+     "title": "短輸入也組整句",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "learning",
-     "title": "學習"
+     "title": "學習",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -103,10 +168,13 @@
    "title": "聯想",
    "desc": "送出之後列出接下來的詞",
    "tuning": false,
+   "page": null,
    "segments": [
     {
      "id": "prediction",
-     "title": "聯想"
+     "title": "聯想",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -115,14 +183,19 @@
    "title": "字形轉換",
    "desc": "臺灣字形、簡化字轉換的細節",
    "tuning": false,
+   "page": null,
    "segments": [
     {
      "id": "zh_hant_tw",
-     "title": "臺灣字形"
+     "title": "臺灣字形",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "zh_hans",
-     "title": "簡化字"
+     "title": "簡化字",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -131,10 +204,13 @@
    "title": "方案選單",
    "desc": "按 F4 叫出的選單怎麼顯示",
    "tuning": false,
+   "page": null,
    "segments": [
     {
      "id": "switcher",
-     "title": "方案選單"
+     "title": "方案選單",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -143,10 +219,13 @@
    "title": "其他",
    "desc": "通知和其他設定",
    "tuning": false,
+   "page": null,
    "segments": [
     {
      "id": "other",
-     "title": "其他"
+     "title": "其他",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -155,26 +234,37 @@
    "title": "中英混輸",
    "desc": "英文、字母串、數字什麼時候出來、排第幾",
    "tuning": true,
+   "page": null,
    "segments": [
     {
      "id": "judge",
-     "title": "判斷"
+     "title": "判斷",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "words",
-     "title": "英文單字"
+     "title": "英文單字",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "letters",
-     "title": "字母串"
+     "title": "字母串",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "keylid",
-     "title": "按鍵層辨識"
+     "title": "按鍵層辨識",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "digits",
-     "title": "數字"
+     "title": "數字",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -183,14 +273,19 @@
    "title": "排序參數",
    "desc": "組整句的同音詞數、截斷門檻、語言模型",
    "tuning": true,
+   "page": null,
    "segments": [
     {
      "id": "sentence",
-     "title": "整句"
+     "title": "整句",
+     "inline": false,
+     "tab": null
     },
     {
      "id": "grammar",
-     "title": "語言模型"
+     "title": "語言模型",
+     "inline": false,
+     "tab": null
     }
    ]
   },
@@ -199,10 +294,13 @@
    "title": "自訂詞",
    "desc": "自訂詞的候選怎麼排、要不要學習",
    "tuning": true,
+   "page": null,
    "segments": [
     {
      "id": "custom_phrase",
-     "title": "自訂詞"
+     "title": "自訂詞",
+     "inline": false,
+     "tab": null
     }
    ]
   }
@@ -233,7 +331,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 82
+    "order": 87
    }
   },
   {
@@ -248,7 +346,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 80
+    "order": 85
    }
   },
   {
@@ -263,7 +361,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 86
+    "order": 91
    }
   },
   {
@@ -278,7 +376,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 81
+    "order": 86
    }
   },
   {
@@ -306,7 +404,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 83
+    "order": 88
    }
   },
   {
@@ -321,7 +419,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 84
+    "order": 89
    }
   },
   {
@@ -336,7 +434,7 @@
    "where": {
     "section": "switcher",
     "segment": "switcher",
-    "order": 85
+    "order": 90
    }
   },
   {
@@ -390,8 +488,8 @@
    "value": null,
    "builtin": "true",
    "where": {
-    "page": "輸入",
-    "order": 9
+    "page": "標點符號",
+    "order": 7
    }
   },
   {
@@ -416,7 +514,7 @@
    "where": {
     "section": "other",
     "segment": "other",
-    "order": 87
+    "order": 92
    }
   },
   {
@@ -430,7 +528,7 @@
    "builtin": "true",
    "where": {
     "page": "選字窗",
-    "order": 5
+    "order": 13
    }
   },
   {
@@ -447,7 +545,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 11
+    "order": 39
    }
   },
   {
@@ -464,7 +562,7 @@
    "where": {
     "section": "appearance",
     "segment": "spacing",
-    "order": 18
+    "order": 46
    }
   },
   {
@@ -481,7 +579,7 @@
    "where": {
     "section": "appearance",
     "segment": "spacing",
-    "order": 14
+    "order": 42
    }
   },
   {
@@ -498,7 +596,7 @@
    "where": {
     "section": "appearance",
     "segment": "spacing",
-    "order": 15
+    "order": 43
    }
   },
   {
@@ -513,7 +611,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 21
+    "order": 49
    }
   },
   {
@@ -535,7 +633,7 @@
    },
    "where": {
     "page": "選字窗",
-    "order": 0
+    "order": 8
    }
   },
   {
@@ -578,7 +676,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 3
+    "order": 31
    }
   },
   {
@@ -595,7 +693,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 4
+    "order": 32
    }
   },
   {
@@ -612,7 +710,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 7
+    "order": 35
    }
   },
   {
@@ -627,7 +725,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 0
+    "order": 28
    }
   },
   {
@@ -643,7 +741,7 @@
    "max": 72,
    "where": {
     "page": "選字窗",
-    "order": 1
+    "order": 9
    }
   },
   {
@@ -660,7 +758,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 8
+    "order": 36
    }
   },
   {
@@ -674,7 +772,7 @@
    "builtin": null,
    "where": {
     "page": "選字窗",
-    "order": 4
+    "order": 12
    }
   },
   {
@@ -688,7 +786,7 @@
    "builtin": null,
    "where": {
     "page": "選字窗",
-    "order": 3
+    "order": 11
    }
   },
   {
@@ -703,7 +801,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 1
+    "order": 29
    }
   },
   {
@@ -720,7 +818,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 2
+    "order": 30
    }
   },
   {
@@ -737,7 +835,7 @@
    "where": {
     "section": "appearance",
     "segment": "spacing",
-    "order": 16
+    "order": 44
    }
   },
   {
@@ -752,7 +850,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 25
+    "order": 53
    }
   },
   {
@@ -767,7 +865,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 13
+    "order": 41
    }
   },
   {
@@ -782,7 +880,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 5
+    "order": 33
    }
   },
   {
@@ -799,7 +897,7 @@
    "where": {
     "section": "appearance",
     "segment": "fonts",
-    "order": 6
+    "order": 34
    }
   },
   {
@@ -816,7 +914,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 9
+    "order": 37
    }
   },
   {
@@ -831,7 +929,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 22
+    "order": 50
    }
   },
   {
@@ -848,7 +946,7 @@
    "where": {
     "section": "appearance",
     "segment": "spacing",
-    "order": 17
+    "order": 45
    }
   },
   {
@@ -873,7 +971,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 23
+    "order": 51
    }
   },
   {
@@ -890,7 +988,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 10
+    "order": 38
    }
   },
   {
@@ -913,7 +1011,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 24
+    "order": 52
    }
   },
   {
@@ -928,7 +1026,7 @@
    "where": {
     "section": "appearance",
     "segment": "shape",
-    "order": 12
+    "order": 40
    }
   },
   {
@@ -957,7 +1055,7 @@
    "where": {
     "section": "keys",
     "segment": "keys",
-    "order": 28
+    "order": 16
    }
   },
   {
@@ -1168,7 +1266,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 118
+    "order": 123
    }
   },
   {
@@ -1183,7 +1281,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 119
+    "order": 124
    }
   },
   {
@@ -1198,7 +1296,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 120
+    "order": 125
    }
   },
   {
@@ -1226,7 +1324,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 121
+    "order": 126
    }
   },
   {
@@ -1241,7 +1339,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 123
+    "order": 128
    }
   },
   {
@@ -1256,7 +1354,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 122
+    "order": 127
    }
   },
   {
@@ -1286,7 +1384,7 @@
    "where": {
     "section": "keys",
     "segment": "keys",
-    "order": 29
+    "order": 17
    }
   },
   {
@@ -1302,7 +1400,7 @@
    "where": {
     "section": "keys",
     "segment": "keys",
-    "order": 30
+    "order": 18
    }
   },
   {
@@ -1326,7 +1424,7 @@
    "default_section": true,
    "where": {
     "page": "選字窗",
-    "order": 2
+    "order": 10
    }
   },
   {
@@ -1368,7 +1466,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 71
+    "order": 76
    }
   },
   {
@@ -1384,7 +1482,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 72
+    "order": 77
    }
   },
   {
@@ -1399,7 +1497,7 @@
    "where": {
     "section": "prediction",
     "segment": "prediction",
-    "order": 73
+    "order": 78
    }
   },
   {
@@ -1457,7 +1555,7 @@
    "where": {
     "section": "keys",
     "segment": "keys",
-    "order": 27
+    "order": 15
    }
   },
   {
@@ -1470,8 +1568,8 @@
    "value": "`[a-z]*'?$",
    "builtin": null,
    "where": {
-    "page": "輸入",
-    "order": 10
+    "page": "一般",
+    "order": 1
    }
   },
   {
@@ -1569,7 +1667,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 114
+    "order": 119
    }
   },
   {
@@ -1589,7 +1687,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 113
+    "order": 118
    }
   },
   {
@@ -1643,7 +1741,7 @@
    "where": {
     "section": "keys",
     "segment": "keys",
-    "order": 26
+    "order": 14
    }
   },
   {
@@ -1710,7 +1808,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 46
+    "order": 60
    }
   },
   {
@@ -1790,7 +1888,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 20
+    "order": 48
    }
   },
   {
@@ -1805,7 +1903,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 69
+    "order": 74
    }
   },
   {
@@ -1828,7 +1926,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 111
+    "order": 116
    }
   },
   {
@@ -1851,7 +1949,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 112
+    "order": 117
    }
   },
   {
@@ -1871,7 +1969,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 110
+    "order": 115
    }
   },
   {
@@ -1886,7 +1984,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 44
+    "order": 58
    }
   },
   {
@@ -1901,7 +1999,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 43
+    "order": 57
    }
   },
   {
@@ -1942,7 +2040,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 90
+    "order": 95
    }
   },
   {
@@ -1965,7 +2063,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 89
+    "order": 94
    }
   },
   {
@@ -1989,7 +2087,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 88
+    "order": 93
    }
   },
   {
@@ -2013,7 +2111,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 102
+    "order": 107
    }
   },
   {
@@ -2037,7 +2135,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 109
+    "order": 114
    }
   },
   {
@@ -2060,7 +2158,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 106
+    "order": 111
    }
   },
   {
@@ -2083,7 +2181,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 107
+    "order": 112
    }
   },
   {
@@ -2106,7 +2204,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 104
+    "order": 109
    }
   },
   {
@@ -2129,7 +2227,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 105
+    "order": 110
    }
   },
   {
@@ -2152,7 +2250,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 103
+    "order": 108
    }
   },
   {
@@ -2176,7 +2274,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 108
+    "order": 113
    }
   },
   {
@@ -2199,7 +2297,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 100
+    "order": 105
    }
   },
   {
@@ -2222,7 +2320,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 101
+    "order": 106
    }
   },
   {
@@ -2242,7 +2340,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 98
+    "order": 103
    }
   },
   {
@@ -2265,7 +2363,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 99
+    "order": 104
    }
   },
   {
@@ -2283,8 +2381,8 @@
    ],
    "penglai": true,
    "where": {
-    "page": "輸入",
-    "order": 6
+    "page": "一般",
+    "order": 0
    }
   },
   {
@@ -2308,7 +2406,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 94
+    "order": 99
    }
   },
   {
@@ -2331,7 +2429,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 92
+    "order": 97
    }
   },
   {
@@ -2354,7 +2452,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 93
+    "order": 98
    }
   },
   {
@@ -2376,7 +2474,7 @@
    "where": {
     "section": "english",
     "segment": "judge",
-    "order": 91
+    "order": 96
    }
   },
   {
@@ -2396,7 +2494,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 96
+    "order": 101
    }
   },
   {
@@ -2420,7 +2518,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 97
+    "order": 102
    }
   },
   {
@@ -2438,7 +2536,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 95
+    "order": 100
    }
   },
   {
@@ -2458,7 +2556,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 56
+    "order": 61
    }
   },
   {
@@ -2482,9 +2580,9 @@
    },
    "penglai": true,
    "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 131
+    "section": "shortcuts",
+    "segment": "shortcuts",
+    "order": 24
    }
   },
   {
@@ -2502,7 +2600,7 @@
    "where": {
     "section": "shortcuts",
     "segment": "details",
-    "order": 38
+    "order": 26
    }
   },
   {
@@ -2552,7 +2650,7 @@
    "path": "translator/key_model/double_press",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "double",
-   "title": "打錯也對得到：同一鍵連按兩下的機率",
+   "title": "同一鍵連按兩下的機率",
    "desc": "同一個鍵不小心按了兩下的機率（ㄒㄒㄧㄝ˙ → ㄒㄧㄝ˙）。只打第一個注音時不算：ㄐㄐ 本來就是「究竟」。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "0.01",
@@ -2565,9 +2663,9 @@
    "max": 0.1,
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 52
+    "section": "correction",
+    "segment": "rates",
+    "order": 7
    }
   },
   {
@@ -2585,8 +2683,8 @@
    ],
    "penglai": true,
    "where": {
-    "page": "輸入",
-    "order": 7
+    "page": "打錯修正",
+    "order": 5
    }
   },
   {
@@ -2594,7 +2692,7 @@
    "path": "translator/key_model/extra",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "double",
-   "title": "打錯也對得到：多按一個別的鍵的機率",
+   "title": "多按一個別的鍵的機率",
    "desc": "一個音節中間多按了一個不相干的鍵的機率。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "0.002",
@@ -2607,9 +2705,9 @@
    "max": 0.1,
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 53
+    "section": "correction",
+    "segment": "rates",
+    "order": 8
    }
   },
   {
@@ -2659,7 +2757,7 @@
    "path": "translator/key_model/lone_finals",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
-   "title": "打錯也對得到：只打第一個注音時，按偏的韻母也修",
+   "title": "只打第一個注音時，按偏的韻母也修",
    "desc": "只打第一個注音、零聲母的字（而、安、愛、歐）按到旁邊的韻母鍵時也修：「而且」打成 ㄢ ㄑㄧㄝˇ，一樣找得到「而且」。照打的那個韻母本身也讀得通，所以修過的詞要通順很多才會排前面。ㄧ、ㄨ、ㄩ 不換（對到的字太多）；只打完整注音、都打聲調的人不做。只在實體鍵盤有作用，只有蓬萊版引擎認得。",
    "value": "true",
    "builtin": "false",
@@ -2669,9 +2767,9 @@
    ],
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model_abbrev",
-    "order": 55
+    "section": "correction",
+    "segment": "options",
+    "order": 0
    }
   },
   {
@@ -2715,7 +2813,7 @@
    "path": "translator/key_model/omit_initial",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "double",
-   "title": "打錯也對得到：漏打聲母的機率",
+   "title": "漏打聲母的機率",
    "desc": "打了韻母、介音開頭的音節，其實漏掉了聲母的機率。前一鍵是聲母時不算（那個聲母多半就是這個字的）。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "0.003",
@@ -2728,9 +2826,9 @@
    "max": 0.1,
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 50
+    "section": "correction",
+    "segment": "rates",
+    "order": 5
    }
   },
   {
@@ -2738,7 +2836,7 @@
    "path": "translator/key_model/omit_medial",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "double",
-   "title": "打錯也對得到：漏打介音的機率",
+   "title": "漏打介音的機率",
    "desc": "聲母後面漏掉 ㄧ、ㄨ、ㄩ 的機率（ㄒㄢ → ㄒㄧㄢ）。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "0.003",
@@ -2751,9 +2849,9 @@
    "max": 0.1,
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 51
+    "section": "correction",
+    "segment": "rates",
+    "order": 6
    }
   },
   {
@@ -2775,15 +2873,15 @@
    "path": "translator/key_model/show_reading",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
-   "title": "打錯也對得到：修過的詞標出讀音",
+   "title": "修過的詞標出讀音",
    "desc": "修過的詞在選字窗旁邊寫上修成的讀音（打 ㄈㄡ ㄓㄣ 出現「佛振 ㄈㄛˊ ㄓㄣˋ」），看得出這個詞是改過的。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "true",
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 54
+    "section": "correction",
+    "segment": "options",
+    "order": 2
    }
   },
   {
@@ -2805,7 +2903,7 @@
    "path": "translator/key_model/substitution",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "double",
-   "title": "打錯也對得到：按到旁邊的鍵的機率",
+   "title": "按到旁邊的鍵的機率",
    "desc": "每一鍵按到旁邊的鍵的機率（加起來），越近的鍵分到越多。調大比較會修，但照打的詞也比較常被換掉。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "0.01",
@@ -2818,9 +2916,9 @@
    "max": 0.1,
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 49
+    "section": "correction",
+    "segment": "rates",
+    "order": 4
    }
   },
   {
@@ -2940,7 +3038,7 @@
    "path": "translator/key_model/valid_first",
    "file": "penglai_zhuyin.custom.yaml",
    "type": "bool",
-   "title": "打錯也對得到：照打合法時也可以排第一",
+   "title": "照打合法時也可以排第一",
    "desc": "照打的注音本身就是合法音節（ㄧㄝˋ）時，修過的詞（ㄒㄧㄝˋ 的「謝謝」）分數贏過照打組的整句就排第一。關著時最多排第二，照打的永遠在第一個。打開時打錯更常第一個就對，但照打本來就對的新詞偶爾會被換掉。只有蓬萊版引擎認得。",
    "value": null,
    "builtin": "false",
@@ -2950,9 +3048,9 @@
    ],
    "penglai": true,
    "where": {
-    "section": "composing",
-    "segment": "key_model",
-    "order": 47
+    "section": "correction",
+    "segment": "options",
+    "order": 1
    }
   },
   {
@@ -2990,7 +3088,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 59
+    "order": 64
    }
   },
   {
@@ -3005,7 +3103,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 115
+    "order": 120
    }
   },
   {
@@ -3025,8 +3123,8 @@
    "max": 20,
    "penglai": true,
    "where": {
-    "page": "組句與學習",
-    "order": 12
+    "page": "一般",
+    "order": 3
    }
   },
   {
@@ -3041,7 +3139,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 68
+    "order": 73
    }
   },
   {
@@ -3074,7 +3172,7 @@
    "where": {
     "section": "keys",
     "segment": "keys",
-    "order": 31
+    "order": 19
    }
   },
   {
@@ -3098,7 +3196,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 60
+    "order": 65
    }
   },
   {
@@ -3122,7 +3220,7 @@
    "where": {
     "section": "composing",
     "segment": "order",
-    "order": 61
+    "order": 66
    }
   },
   {
@@ -3145,8 +3243,8 @@
    "max": 120,
    "penglai": true,
    "where": {
-    "page": "組句與學習",
-    "order": 13
+    "page": "一般",
+    "order": 4
    }
   },
   {
@@ -3166,7 +3264,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 66
+    "order": 71
    }
   },
   {
@@ -3190,7 +3288,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 62
+    "order": 67
    }
   },
   {
@@ -3213,7 +3311,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 63
+    "order": 68
    }
   },
   {
@@ -3237,7 +3335,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 64
+    "order": 69
    }
   },
   {
@@ -3261,7 +3359,7 @@
    "where": {
     "section": "composing",
     "segment": "short_sentence",
-    "order": 65
+    "order": 70
    }
   },
   {
@@ -3278,7 +3376,7 @@
    "where": {
     "section": "appearance",
     "segment": "content",
-    "order": 19
+    "order": 47
    }
   },
   {
@@ -3302,7 +3400,7 @@
    "where": {
     "section": "composing",
     "segment": "split",
-    "order": 57
+    "order": 62
    }
   },
   {
@@ -3324,7 +3422,7 @@
    "where": {
     "section": "composing",
     "segment": "typing_style",
-    "order": 58
+    "order": 63
    }
   },
   {
@@ -3457,7 +3555,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 78
+    "order": 83
    }
   },
   {
@@ -3472,7 +3570,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 75
+    "order": 80
    }
   },
   {
@@ -3513,7 +3611,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 79
+    "order": 84
    }
   },
   {
@@ -3528,7 +3626,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 76
+    "order": 81
    }
   },
   {
@@ -3543,7 +3641,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hans",
-    "order": 77
+    "order": 82
    }
   },
   {
@@ -3558,7 +3656,7 @@
    "where": {
     "section": "conversion",
     "segment": "zh_hant_tw",
-    "order": 74
+    "order": 79
    }
   },
   {
@@ -3742,7 +3840,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 128
+    "order": 133
    }
   },
   {
@@ -3757,7 +3855,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 40
+    "order": 54
    }
   },
   {
@@ -3917,7 +4015,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 130
+    "order": 135
    }
   },
   {
@@ -3935,7 +4033,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 70
+    "order": 75
    }
   },
   {
@@ -3976,7 +4074,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 126
+    "order": 131
    }
   },
   {
@@ -3991,7 +4089,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 42
+    "order": 56
    }
   },
   {
@@ -4006,7 +4104,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 125
+    "order": 130
    }
   },
   {
@@ -4021,7 +4119,7 @@
    "where": {
     "section": "composing",
     "segment": "learning",
-    "order": 67
+    "order": 72
    }
   },
   {
@@ -4036,7 +4134,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 124
+    "order": 129
    }
   },
   {
@@ -4051,7 +4149,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 117
+    "order": 122
    }
   },
   {
@@ -4067,7 +4165,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 129
+    "order": 134
    }
   },
   {
@@ -4083,7 +4181,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 41
+    "order": 55
    }
   },
   {
@@ -4123,8 +4221,8 @@
    "min": 1,
    "max": 9,
    "where": {
-    "page": "組句與學習",
-    "order": 11
+    "page": "一般",
+    "order": 2
    }
   },
   {
@@ -4221,7 +4319,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 116
+    "order": 121
    }
   },
   {
@@ -4236,7 +4334,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 127
+    "order": 132
    }
   },
   {
@@ -4251,7 +4349,7 @@
    "where": {
     "section": "composing",
     "segment": "composing",
-    "order": 45
+    "order": 59
    }
   },
   {
@@ -4344,7 +4442,7 @@
    "where": {
     "section": "shortcuts",
     "segment": "details",
-    "order": 37
+    "order": 25
    }
   },
   {
@@ -4357,9 +4455,9 @@
    "value": null,
    "builtin": "true",
    "where": {
-    "section": "keys",
-    "segment": "keys",
-    "order": 32
+    "section": "punct",
+    "segment": "symbols",
+    "order": 13
    }
   },
   {
@@ -4372,9 +4470,9 @@
    "value": null,
    "builtin": "false",
    "where": {
-    "section": "keys",
+    "section": "punct",
     "segment": "space_punct",
-    "order": 36
+    "order": 12
    }
   },
   {
@@ -4387,9 +4485,9 @@
    "value": null,
    "builtin": "false",
    "where": {
-    "section": "keys",
+    "section": "punct",
     "segment": "space_punct",
-    "order": 35
+    "order": 11
    }
   },
   {
@@ -4402,9 +4500,9 @@
    "value": null,
    "builtin": "true",
    "where": {
-    "section": "keys",
+    "section": "punct",
     "segment": "space_punct",
-    "order": 34
+    "order": 10
    }
   },
   {
@@ -4417,8 +4515,8 @@
    "value": null,
    "builtin": "true",
    "where": {
-    "page": "輸入",
-    "order": 8
+    "page": "標點符號",
+    "order": 6
    }
   },
   {
@@ -4431,9 +4529,9 @@
    "value": null,
    "builtin": "true",
    "where": {
-    "section": "keys",
+    "section": "punct",
     "segment": "space_punct",
-    "order": 33
+    "order": 9
    }
   },
   {
@@ -4464,9 +4562,9 @@
     "Super_R": "右 ⌘"
    },
    "where": {
-    "section": "other",
-    "segment": "other",
-    "order": 131
+    "section": "shortcuts",
+    "segment": "shortcuts",
+    "order": 23
    }
   },
   {

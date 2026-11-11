@@ -61,7 +61,7 @@
 <h2>模糊音</h2>
 <p>分不清 ㄣ 和 ㄥ、ㄓ 和 ㄗ 的人，可以打開分不清的那幾對。打 ㄖㄥˊ ㄕㄥ 想打「人生」（ㄖㄣˊ ㄕㄥ）：</p>
 <figure class="ex"><div class="ex-row"><div class="ex-keys"><kbd>ㄖ</kbd><kbd>ㄥ</kbd><kbd>ˊ</kbd><kbd>ㄕ</kbd><kbd>ㄥ</kbd><kbd>空白</kbd></div><div class="ex-out"><div class="ime-panel"><div class="ime-preedit">ㄖㄥˊ ㄕㄥˉ</div><ol class="ime-cands"><li class="hl"><span class="n">1</span>仍生</li><li><span class="n">2</span>人生<span class="c">ㄖㄣˊ ㄕㄥ</span></li><li><span class="n">3</span>人聲<span class="c">ㄖㄣˊ ㄕㄥ</span></li><li><span class="n">4</span>榮升<span class="c">ㄖㄨㄥˊ ㄕㄥ</span></li><li><span class="n">5</span>人身<span class="c">ㄖㄣˊ ㄕㄣ</span></li></ol></div></div></div><figcaption>開了 ㄣㄥ 的模糊音，「人生」排第二；沒開時找不到。</figcaption></figure>
-<p>預設沒有模糊音。要開的話，在<a href="/wiki/settings/">蓬萊設定</a>的「輸入」頁，「模糊音」那一列按下分不清的那幾對（ㄣㄥ、ㄓㄗ、ㄔㄘ、ㄕㄙ、ㄡㄛ），按下去變藍色就是開了。也可以自己在 <code>penglai_zhuyin.custom.yaml</code> 的 <code>patch:</code> 底下寫（見<a href="/wiki/yaml/">自己改設定檔</a>）：</p>
+<p>預設沒有模糊音。要開的話，在<a href="/wiki/settings/">蓬萊設定</a>的「打錯修正」頁，「模糊音」那一列按下分不清的那幾對（ㄣㄥ、ㄓㄗ、ㄔㄘ、ㄕㄙ、ㄡㄛ），按下去變藍色就是開了。也可以自己在 <code>penglai_zhuyin.custom.yaml</code> 的 <code>patch:</code> 底下寫（見<a href="/wiki/yaml/">自己改設定檔</a>）：</p>
 <pre><code>patch:
   translator/key_model/fuzzy_pairs:
     - ㄣㄥ
@@ -77,7 +77,7 @@
 </ul>
 
 <h2>開關</h2>
-<p>預設開著。不需要的話，在<a href="/wiki/settings/">蓬萊設定</a>的「輸入」頁關掉「打錯也對得到」。模糊音在同一頁的「模糊音」那一列。細部設定（各種錯的機率、照打合法時能不能排第一、修過的詞要不要標讀音）在進階的「組句與學習 › 打錯也對得到」，全部的項目見<a href="/wiki/all-settings/">全部設定</a>。</p>
+<p>預設開著。不需要的話，在<a href="/wiki/settings/">蓬萊設定</a>的「打錯修正」頁關掉「打錯也對得到」。照打合法時能不能排第一、修過的詞要不要標讀音、模糊音都在同一頁；各種錯的機率在那一頁的「細部調整」，全部的項目見<a href="/wiki/all-settings/">全部設定</a>。</p>
 </article><nav class="pager" aria-label="上一頁、下一頁"><a class="prev" href="/wiki/stroke/"><small>上一頁</small>不知道讀音：筆畫查字</a><a class="next" href="/wiki/switcher/"><small>下一頁</small>方案選單（F4）</a></nav>
 </main>
 </div>
