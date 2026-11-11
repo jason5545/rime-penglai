@@ -111,10 +111,20 @@ rm -rf "$A/Contents/Frameworks/rime-plugins"   # 外掛已合併進 librime.1.dy
 # plum 的安裝程式（shell script）不放：蓬萊不用 plum，而且 script 的簽章存在延伸屬性裡，壓成 zip 送公證時會掉，
 # Apple 回「The signature of the binary is invalid」（11/5 實測）
 rm -f "$A/Contents/MacOS/rime-install"
-# 版本號（versions.env 的 SABLE_VERSION）：Finder、安裝時的「要換成哪一版」讀 CFBundleShortVersionString
+# 版本號（versions.env 的 SABLE_VERSION）：Finder、設定視窗底下、安裝時的「要換成哪一版」讀 CFBundleShortVersionString。
+# 自己建的版本後面加這個 repo 的 commit（「1.1.0 (696bc35)」，工作樹有沒 commit 的改動再加 -dirty），看得出裝的是哪一版；
+# 發布（tools/release.sh 設 PENGLAI_RELEASE=1）只寫版本號。CFBundleVersion 一律只寫版本號（librime 的 distribution_version 讀它）
+SHORT_VERSION="$SABLE_VERSION"
+if [[ -z ${PENGLAI_RELEASE:-} ]]; then
+  rev=$(git -C "$REPO" rev-parse --short=7 HEAD 2>/dev/null || true)
+  if [[ -n $rev ]]; then
+    [[ -z $(git -C "$REPO" status --porcelain 2>/dev/null) ]] || rev="$rev-dirty"
+    SHORT_VERSION="$SABLE_VERSION ($rev)"
+  fi
+fi
 /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $SABLE_VERSION" "$A/Contents/Info.plist"
-/usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $SABLE_VERSION" "$A/Contents/Info.plist" 2>/dev/null \
-  || /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $SABLE_VERSION" "$A/Contents/Info.plist"
+/usr/libexec/PlistBuddy -c "Add :CFBundleShortVersionString string $SHORT_VERSION" "$A/Contents/Info.plist" 2>/dev/null \
+  || /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $SHORT_VERSION" "$A/Contents/Info.plist"
 # 命令列工具換成這次自建的：Squirrel 下載的是官方預編檔，直接用 librime 的 C++ 類別，librime patch 改到類別的記憶體配置時就會壞
 # （10/31：裝上 0017–0019 之後 App 裡的 rime_dict_manager --export 當掉，rime-backup 匯出失敗、貂毫被關掉沒有重開）。
 # 自建的 rpath 指到建置資料夾，換成跟原本那支一樣的 @loader_path/../Frameworks
