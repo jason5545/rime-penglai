@@ -7,7 +7,7 @@
 //    --snapshot <資料夾>  每一頁存一張 PNG 後結束
 //    --script <步驟>      照順序呼叫按鈕背後同一組函式（分號隔開，例如 "font=20;inline=hanzi;undo"），每步印出結果
 //    --search <字>        跟 --snapshot 一起用：多截搜尋結果、點第一項之後各一張
-//    --page <頁>          一開始停在哪一頁（panel、colors、typing、reading、schemas、all、history）
+//    --page <頁>          一開始停在哪一頁（typing、reading、correction、punct、keys、panel、colors、dictionary、schemas、all、history）
 //    --offscreen          跟 --snapshot 一起用：視窗放在螢幕外、不搶前景（正在打字時截圖用），自己畫視窗內容
 //  --script 的 type=<按鍵>：用視窗自己開的一個 session 打字（不送出，留在組字中），印第一頁候選和讀音選項，模擬正在打字的輸入框；
 //  reading=<讀音> 選了之後、部署之前先印那個 session 組字中的候選（即時換了沒有）。部署跟輸入法一樣會關掉所有 session，
@@ -137,8 +137,13 @@ enum PenglaiSettingsStandalone {
       print("沒人讀的設定：" + model.rows.filter { $0.unknownLine != nil }.map { "\($0.file ?? "") 第 \($0.unknownLine!) 行 \($0.key)" }.joined(separator: "、"))
       print("外掛模組：" + model.rows.filter { $0.group == PenglaiSettingsModel.pluginGroup }
         .map { "\($0.key) = \($0.shownValue ?? "（沒值）")（\($0.described ? $0.title : "沒說明")；\(describe($0.source))）" }.joined(separator: "、"))
-      // 進階頁每一類每一組幾列（超過一頁的標出來）、沒分到類的、不列的、同一組裡標題重複的
+      // 側欄每一頁的分頁列；細項每一類每一組幾列（超過一頁的標出來）、沒分到類的、不列的、同一組裡標題重複的
       let advanced = model.advancedRows
+      print("側欄：" + model.sidebarPages.map { page in
+        let tabs = (page.homeTab.map { [$0] } ?? []) + model.tabs(for: page).map(\.title)
+        return page.title + (tabs.count > 1 ? "（" + tabs.joined(separator: "｜") + "）" : "")
+      }.joined(separator: "、"))
+      print("進階頁總覽：" + model.hubSections.map(\.title).joined(separator: "、"))
       print("進階頁：" + model.advancedSections.map { section in
         let segments = model.advancedSegments(section.id).map { segment -> String in
           let count = advanced.filter { $0.place.section == section.id && $0.place.segment == segment.id }.count
@@ -174,10 +179,18 @@ enum PenglaiSettingsStandalone {
         + [(.all, .changed)]
       for (page, filter) in pages {
         model.page = page
-        if let filter { model.filter = filter; model.pageIndex = 0 } else { model.filter = .all }
+        model.showHome()
+        if let filter { model.filter = filter; model.pageIndex = 0 }
         RunLoop.current.run(until: Date().addingTimeInterval(0.6))
         let name = page.rawValue + (filter.map { "-" + $0.rawValue } ?? "")
         save(controller.window, to: dir.appendingPathComponent("\(name).png"))
+        // 這一頁分頁列上的每個分頁都截（<頁>-<類>-<組>.png）；沒有主畫面的頁第一個分頁就是上面那張
+        guard filter == nil else { continue }
+        for tab in model.tabs(for: page).dropFirst(page.homeTab == nil ? 1 : 0) {
+          model.openAdvanced(tab.section, segment: tab.segment)
+          RunLoop.current.run(until: Date().addingTimeInterval(0.6))
+          save(controller.window, to: dir.appendingPathComponent("\(page.rawValue)-\(tab.section)-\(tab.segment).png"))
+        }
       }
       // 詞庫頁三份都截（dictionary-<phrase|dict|hidden>.png）
       model.page = .dictionary
@@ -188,7 +201,7 @@ enum PenglaiSettingsStandalone {
       }
       model.dictionaryKind = .phrase
       // 進階頁每一類每一組都截（all-<類>-<組>.png；超過一頁的再加 -<第幾頁>）
-      for section in model.advancedSections {
+      for section in model.hubSections {
         for segment in model.advancedSegments(section.id) {
           model.openAdvanced(section.id, segment: segment.id)
           for index in 0..<model.pageCount {
@@ -199,7 +212,7 @@ enum PenglaiSettingsStandalone {
           }
         }
       }
-      model.advancedSection = nil
+      model.showHome()
       // --search <字>：搜尋結果一張，點第一項跳過去（那一列閃著）再一張
       if let query = options["search"] {
         model.searchText = query
@@ -425,11 +438,18 @@ enum PenglaiSettingsStandalone {
       let results = PenglaiSearch.results(model.searchText, model: model)
       guard let number = Int(value), (1...results.count).contains(number) else { return "沒有第 \(value) 項" }
       model.go(to: results[number - 1])
+      // 細項的列：進階頁的在那一類那一組，掛在別頁的在那個分頁，或直接列在那一頁的主畫面
+      let tab = model.tabs(for: model.page).first { $0.section == model.advancedSection && $0.segment == model.advancedSegment }
+      let inlineRows = model.advancedSection == nil
+        ? PenglaiAdvanced.sections.filter { $0.page == model.page }.flatMap { section in
+            section.segments.filter(\.inline).flatMap { model.advancedRows(section: section.id, segment: $0.id) } }
+        : []
+      let shown = model.visibleRows + inlineRows
       return "跳到 \(model.page.title)" + (model.page == .all ? "／\(model.advancedSection.flatMap(PenglaiAdvanced.section)?.title ?? "總覽")"
         + (model.advancedSegments(model.advancedSection ?? "").count > 1 ? "／\(model.advancedSegments(model.advancedSection ?? "").first { $0.id == model.advancedSegment }?.title ?? "")" : "")
-        + " 第 \(model.pageIndex + 1) 頁" : "")
+        + " 第 \(model.pageIndex + 1) 頁" : tab.map { "／\($0.title)" } ?? "")
         + (model.page == .colors ? (model.colorsDark ? "／深色" : "／淺色") : "") + "，閃 \(model.highlight ?? "（沒有）")"
-        + (model.page == .all ? (model.visibleRows.contains { model.displayTitle($0) == model.highlight } ? "，那一頁看得到" : "，那一頁看不到") : "")
+        + (results[number - 1].row != nil ? (shown.contains { model.displayTitle($0) == model.highlight } ? "，那一頁看得到" : "，那一頁看不到") : "")
     case "undo":
       model.undoLast()
     case "undo_all":

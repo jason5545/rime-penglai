@@ -6,6 +6,9 @@
 //  畫面上不出現設定檔：檔名、行號、設定鍵都不顯示，也沒有「打開檔案」；寫不了的項目只說這裡改不了。
 //  一根手指能操作：每個設定點一下就完成（開關、分段按鈕、−／＋、色塊），不用下拉選單、滑桿、拖拉、組合鍵；
 //  每頁放得下不捲動，「進階」用上一頁、下一頁翻。
+//  側欄照一般輸入法設定的排法分四組（11/11）：打字（一般、讀音、打錯修正、標點符號、按鍵）、外觀（選字窗、配色）、
+//  詞庫和輸入方案、進階和變更紀錄。每一頁最上面是常用的幾項；同一件事的細項用頁首底下的分頁列換（選字窗的字型、
+//  按鍵的快速鍵），不用再到「進階」找。細項照舊登記在 PenglaiAdvanced 的分類表，表裡寫它掛在哪一頁。
 //
 
 import AppKit
@@ -264,30 +267,14 @@ struct PenglaiSettingsView: View {
       }
       .padding(.horizontal, 8).padding(.bottom, 12)
       searchField.padding(.horizontal, 4).padding(.bottom, 10)
-      ForEach(model.sidebarPages) { page in
-        let selected = model.page == page && model.searchText.isEmpty
-        Button {
-          model.searchText = ""
-          model.page = page
-          // 點側欄一律回到那一頁的最上層（進階頁回總覽）
-          if page == .all { model.filter = .all; model.advancedSection = nil; model.pageIndex = 0 }
-        } label: {
-          HStack(spacing: 9) {
-            Group {
-              if let glyph = page.glyph { Text(glyph).font(.system(size: 13, weight: .bold)) } else { Image(systemName: page.symbol) }
-            }
-              .font(.system(size: 12, weight: .semibold)).foregroundColor(.white)
-              .frame(width: 22, height: 22)
-              .background(RoundedRectangle(cornerRadius: 5).fill(page.tint.gradient))
-            Text(page.title).font(.system(size: 13)).foregroundColor(selected ? .white : .primary)
-            Spacer(minLength: 0)
-          }
-          .padding(.horizontal, 8)
-          .frame(height: 34)
-          .background(RoundedRectangle(cornerRadius: 7).fill(selected ? Color.accentColor : Color.clear))
-          .contentShape(Rectangle())
+      let listed = model.sidebarPages
+      ForEach(Array(PenglaiSettingsModel.sidebarGroups.enumerated()), id: \.offset) { index, group in
+        let pages = group.filter(listed.contains)
+        if !pages.isEmpty {
+          // 組和組之間留空，不加標題（跟系統設定一樣）
+          if index > 0 { Color.clear.frame(height: 8) }
+          ForEach(pages) { page in sidebarButton(page) }
         }
-        .buttonStyle(.plain)
       }
       Spacer()
       if !model.schemaName.isEmpty {
@@ -297,6 +284,31 @@ struct PenglaiSettingsView: View {
     .padding(.horizontal, 10).padding(.top, 18).padding(.bottom, 12)
     .frame(width: 200)
     .background(Color(nsColor: .underPageBackgroundColor).opacity(0.5))
+  }
+
+  private func sidebarButton(_ page: PenglaiSettingsModel.Page) -> some View {
+    let selected = model.page == page && model.searchText.isEmpty
+    return Button {
+      model.searchText = ""
+      // 點側欄一律回到那一頁的最上層（進階頁回總覽，有分頁列的回第一個分頁）
+      if model.page == page { model.showHome() } else { model.page = page }
+    } label: {
+      HStack(spacing: 9) {
+        Group {
+          if let glyph = page.glyph { Text(glyph).font(.system(size: 13, weight: .bold)) } else { Image(systemName: page.symbol) }
+        }
+          .font(.system(size: 12, weight: .semibold)).foregroundColor(.white)
+          .frame(width: 22, height: 22)
+          .background(RoundedRectangle(cornerRadius: 5).fill(page.tint.gradient))
+        Text(page.title).font(.system(size: 13)).foregroundColor(selected ? .white : .primary)
+        Spacer(minLength: 0)
+      }
+      .padding(.horizontal, 8)
+      .frame(height: 32)
+      .background(RoundedRectangle(cornerRadius: 7).fill(selected ? Color.accentColor : Color.clear))
+      .contentShape(Rectangle())
+    }
+    .buttonStyle(.plain)
   }
 
   /// 搜尋欄：點進去打字就搜；右邊的 ⓧ 一下清掉（不用組合鍵）
@@ -328,9 +340,7 @@ struct PenglaiSettingsView: View {
       VStack(alignment: .leading, spacing: 4) {
         if let back = header.back {
           Button {
-            model.filter = .all
-            model.advancedSection = nil
-            model.pageIndex = 0
+            model.showHome()
           } label: {
             HStack(spacing: 3) {
               Image(systemName: "chevron.left").font(.system(size: 11, weight: .semibold))
@@ -346,11 +356,13 @@ struct PenglaiSettingsView: View {
       }
       .padding(.horizontal, 30).padding(.top, header.back == nil ? 18 : 12)
       switch model.page {
-      case .panel: PenglaiPanelPage()
-      case .colors: PenglaiColorsPage()
-      case .typing: PenglaiTypingPage()
-      case .learning: PenglaiLearningPage()
+      case .typing: PenglaiGeneralPage()
       case .reading: PenglaiReadingPage()
+      case .correction: PenglaiTabbedPage { PenglaiCorrectionPage() }
+      case .punct: PenglaiTabbedPage { PenglaiPunctPage() }
+      case .keys: PenglaiTabbedPage { EmptyView() }
+      case .panel: PenglaiTabbedPage { PenglaiPanelPage() }
+      case .colors: PenglaiColorsPage()
       case .dictionary: PenglaiDictionaryPage()
       case .schemas: PenglaiSchemasPage()
       case .all: PenglaiAdvancedPage()
@@ -363,9 +375,9 @@ struct PenglaiSettingsView: View {
   private var header: (title: String, subtitle: String, back: String?) {
     if model.page == .all {
       if model.filter == .changed {
-        return ("已自訂的項目", "改過預設值的進階設定。點「還原預設」就回到原本的值。", model.page.title)
+        return ("已自訂的項目", "改過預設值的細項，每一頁的都列在這裡。點「還原預設」就回到原本的值。", model.page.title)
       }
-      if let id = model.advancedSection, let section = PenglaiAdvanced.section(id) {
+      if let id = model.advancedSection, let section = PenglaiAdvanced.section(id), section.page == .all {
         return (section.title, section.desc + "。", model.page.title)
       }
     }
@@ -409,28 +421,32 @@ struct PenglaiSettingsView: View {
 extension PenglaiSettingsModel.Page {
   var subtitle: String {
     switch self {
-    case .panel: return "候選字視窗的版面和顯示方式。"
-    case .colors: return "選字窗的顏色，淺色和深色模式各選一個。"
-    case .typing: return "注音輸入的方式。"
-    case .learning: return "整句怎麼組、打過的怎麼記住，還有快速鍵。"
+    case .typing: return "打字時的輔助功能，還有整句怎麼組、打過的怎麼記住。"
     case .reading: return PenglaiCopy.readingPage.desc ?? ""
+    case .correction: return "按到旁邊的鍵、漏打、分不清的音，也找得到原本要打的詞。"
+    case .punct: return "不按 Shift 也打得出標點：送出之後按空白、按著不放、連打。"
+    case .keys: return "空白鍵、選字鍵、Caps Lock 怎麼用，還有快速鍵。"
+    case .panel: return "候選字視窗的版面、字型和顯示方式。"
+    case .colors: return "選字窗的顏色，淺色和深色模式各選一個。"
     case .dictionary: return PenglaiCopy.dictionary.desc ?? ""
     case .schemas: return "方案選單裡要列出哪些輸入方案。"
-    case .all: return "其他可以調整的項目，依用途分類。一般使用不需要更動。"
+    case .all: return "比較少用到的項目，依用途分類。一般使用不需要更動。"
     case .history: return "從這個視窗做的每一次變更都可以復原。"
     }
   }
 
   var tint: Color {
     switch self {
+    case .typing: return .gray
+    case .reading: return .teal
+    case .correction: return .purple
+    case .punct: return .green
+    case .keys: return .orange
     case .panel: return .blue
     case .colors: return .pink
-    case .typing: return .orange
-    case .learning: return .purple
-    case .reading: return .teal
     case .dictionary: return .brown
-    case .schemas: return .green
-    case .all: return .gray
+    case .schemas: return .cyan
+    case .all: return Color(red: 0.36, green: 0.38, blue: 0.45)
     case .history: return .indigo
     }
   }
@@ -510,9 +526,6 @@ struct PenglaiPanelPage: View {
             }
           }
         }
-      }
-      Section {
-        PenglaiAdvancedLink(section: "appearance", title: "更多外觀設定")
       }
     }
     .penglaiForm()
@@ -598,14 +611,68 @@ struct PenglaiColorsPage: View {
   }
 }
 
-// MARK: - 輸入
+// MARK: - 分頁列
 
-struct PenglaiTypingPage: View {
+/// 有分頁列的頁：頁首底下一排分段按鈕，第一個是這一頁自己的主畫面（home），後面是掛在這一頁的進階分組
+/// （PenglaiAdvanced 的分類表寫 page）。只有一個時不畫分頁列。沒有主畫面的頁（按鍵）只有後面那些
+struct PenglaiTabbedPage<Home: View>: View {
+  @EnvironmentObject var model: PenglaiSettingsModel
+  @ViewBuilder var home: () -> Home
+
+  var body: some View {
+    let tabs = model.tabs(for: model.page)
+    let homeTitle = model.page.homeTab
+    let current = model.advancedSection.map { "\($0)/\(model.advancedSegment)" } ?? ""
+    VStack(alignment: .leading, spacing: 0) {
+      if tabs.count + (homeTitle == nil ? 0 : 1) > 1 {
+        PenglaiSegmented(options: (homeTitle.map { [("", $0)] } ?? []) + tabs.map { ($0.id, $0.title) }, selection: current) { choice in
+          if let tab = tabs.first(where: { $0.id == choice }) {
+            model.advancedSection = tab.section
+            model.advancedSegment = tab.segment
+            model.pageIndex = 0
+          } else {
+            model.showHome()
+          }
+        }
+        .padding(.horizontal, 30).padding(.top, 14)
+      }
+      if model.advancedSection == nil, homeTitle != nil {
+        home()
+      } else {
+        PenglaiAdvancedRows(listed: false, footer: footer)
+      }
+    }
+  }
+
+  /// 那一組的頁尾說明（快速鍵的鍵名對照）
+  private var footer: String? {
+    guard let section = model.advancedSection else { return nil }
+    return PenglaiAdvanced.section(section)?.segments.first { $0.id == model.advancedSegment }?.footer
+  }
+}
+
+/// 直接列在主畫面的進階分組（分類表的 inline）：照分類表的順序一列一列排，控制項照型別給
+struct PenglaiInlineRows: View {
+  @EnvironmentObject var model: PenglaiSettingsModel
+  var section: String
+  var segment: String
+
+  var body: some View {
+    ForEach(model.advancedRows(section: section, segment: segment)) { row in
+      PenglaiGenericRow(row: row)
+    }
+  }
+}
+
+// MARK: - 一般
+
+/// 打字時的輔助功能和組句、學習（11/11：原本的「輸入」「組句與學習」兩頁併成一頁；打錯修正、標點各自成頁）
+struct PenglaiGeneralPage: View {
   @EnvironmentObject var model: PenglaiSettingsModel
 
   var body: some View {
     Form {
-      Section("輸入") {
+      Section("輸入輔助") {
         if let row = model.schemaRow(PenglaiSettingsModel.englishKey) {
           let available = model.englishLexicon != nil && row.blocked == nil
           PenglaiFormRow(PenglaiCopy.english, row: row,
@@ -621,35 +688,12 @@ struct PenglaiTypingPage: View {
             PenglaiSwitch(isOn: state.on, enabled: state.enabled) { model.setPrediction($0) }
           }
         }
-        if let row = model.schemaRow(PenglaiSettingsModel.keyModelKey) {
-          PenglaiFormRow(PenglaiCopy.keyModel, row: row) {
-            PenglaiDetailLink(section: "composing", segment: "key_model")
-            PenglaiSwitch(isOn: row.shownValue.map { $0 == "true" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
-          }
-          let fuzzy = model.fuzzyState
-          PenglaiFormRow(PenglaiCopy.fuzzy, row: nil, note: fuzzy.note) {
-            PenglaiFuzzyPairs()
-          }
-        }
         ForEach(model.catalog?.recipes ?? [], id: \.id) { recipe in
           let state = model.recipeState(recipe)
           let copy = PenglaiCopyItem(title: recipe.title)
           PenglaiFormRow(copy, row: nil, note: recipeNote(state)) {
             PenglaiSwitch(isOn: state == .on ? true : state == .off ? false : nil, enabled: state == .on || state == .off) {
               model.setRecipe(recipe, enable: $0)
-            }
-          }
-        }
-        if let row = model.schemaRow(PenglaiSettingsModel.spacePunctKey) {
-          PenglaiFormRow(PenglaiCopy.spacePunct, row: row) {
-            PenglaiDetailLink(section: "keys", segment: "space_punct")
-            PenglaiSwitch(isOn: row.shownValue.map { $0 != "false" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
-          }
-        }
-        if let row = model.row(PenglaiSettingsModel.longPressKey, config: .squirrel) {
-          PenglaiFormRow(PenglaiCopy.longPress, row: row) {
-            PenglaiSwitch(isOn: (row.shownValue ?? "true") != "false", enabled: row.blocked == nil) {
-              model.set(row, .bool($0), summary: "長按出符號：\($0 ? "開" : "關")")
             }
           }
         }
@@ -661,27 +705,6 @@ struct PenglaiTypingPage: View {
           }
         }
       }
-    }
-    .penglaiForm()
-  }
-
-  private func recipeNote(_ state: PenglaiRecipe.State) -> String? {
-    switch state {
-    case .unavailable: return PenglaiSettingsModel.unsupportedText
-    case .partial: return "這個功能的設定不完整，這裡沒辦法切換"
-    default: return nil
-    }
-  }
-}
-
-// MARK: - 組句與學習
-
-/// 11/10 從輸入頁拆出來：輸入頁加了模糊音、長按出符號之後放不下（頁面不捲動，一根手指在觸控板上捲不動）
-struct PenglaiLearningPage: View {
-  @EnvironmentObject var model: PenglaiSettingsModel
-
-  var body: some View {
-    Form {
       Section {
         if let row = model.schemaRow("translator/max_sentences") {
           PenglaiFormRow(PenglaiCopy.sentences, row: row) {
@@ -710,8 +733,75 @@ struct PenglaiLearningPage: View {
           PenglaiDetailLink(section: "composing")
         }
       }
-      Section {
-        PenglaiAdvancedLink(section: "shortcuts", title: "快速鍵")
+    }
+    .penglaiForm()
+  }
+
+  private func recipeNote(_ state: PenglaiRecipe.State) -> String? {
+    switch state {
+    case .unavailable: return PenglaiSettingsModel.unsupportedText
+    case .partial: return "這個功能的設定不完整，這裡沒辦法切換"
+    default: return nil
+    }
+  }
+}
+
+// MARK: - 打錯修正
+
+/// 打錯也對得到的總開關、它底下的幾個開關（分類表 correction 的 options 那一組）、模糊音；各種錯的機率在分頁「細部調整」
+struct PenglaiCorrectionPage: View {
+  @EnvironmentObject var model: PenglaiSettingsModel
+
+  var body: some View {
+    Form {
+      if let row = model.schemaRow(PenglaiSettingsModel.keyModelKey) {
+        Section("按錯鍵") {
+          PenglaiFormRow(PenglaiCopy.keyModel, row: row) {
+            PenglaiSwitch(isOn: row.shownValue.map { $0 == "true" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
+          }
+          PenglaiInlineRows(section: "correction", segment: "options")
+        }
+        Section("分不清的音") {
+          let fuzzy = model.fuzzyState
+          PenglaiFormRow(PenglaiCopy.fuzzy, row: nil, note: fuzzy.note) {
+            PenglaiFuzzyPairs()
+          }
+        }
+      } else {
+        Section {
+          Text(PenglaiSettingsModel.unsupportedText).foregroundStyle(.secondary)
+        }
+      }
+    }
+    .penglaiForm()
+  }
+}
+
+// MARK: - 標點符號
+
+/// 送出之後按空白補標點（總開關和它的細項：分類表 punct 的 space_punct 那一組）、長按出符號、連打三個點
+struct PenglaiPunctPage: View {
+  @EnvironmentObject var model: PenglaiSettingsModel
+
+  var body: some View {
+    Form {
+      if let row = model.schemaRow(PenglaiSettingsModel.spacePunctKey) {
+        Section("送出之後補標點") {
+          PenglaiFormRow(PenglaiCopy.spacePunct, row: row) {
+            PenglaiSwitch(isOn: row.shownValue.map { $0 != "false" }, enabled: row.blocked == nil) { model.set(row, .bool($0)) }
+          }
+          PenglaiInlineRows(section: "punct", segment: "space_punct")
+        }
+      }
+      Section("符號") {
+        if let row = model.row(PenglaiSettingsModel.longPressKey, config: .squirrel) {
+          PenglaiFormRow(PenglaiCopy.longPress, row: row) {
+            PenglaiSwitch(isOn: (row.shownValue ?? "true") != "false", enabled: row.blocked == nil) {
+              model.set(row, .bool($0), summary: "長按出符號：\($0 ? "開" : "關")")
+            }
+          }
+        }
+        PenglaiInlineRows(section: "punct", segment: "symbols")
       }
     }
     .penglaiForm()
@@ -825,10 +915,13 @@ struct PenglaiSchemasPage: View {
 
 // MARK: - 進階
 
-/// 進階頁照「要做什麼」分類，不照設定檔分：Rime 的設定照元件、檔案散在選字窗外觀、全域、方案好幾處，
+/// 細項照「要做什麼」分類，不照設定檔分：Rime 的設定照元件、檔案散在選字窗外觀、全域、方案好幾處，
 /// 原樣照檔案列出來，方案那一組就有六十幾列、十一頁，而且是照設定鍵的字母排。
 /// 每一類可以再分幾組（分段按鈕），一組一頁放得下（rowsPerPage）。keys 是完整路徑（元件的鍵照方案掛的命名空間），照列出的順序排。
 /// hidden 是這個輸入法改了也沒作用、或只給測試用的，不列；沒分到的列在「其他」，目錄新加的設定不會不見。
+/// 每一類掛在哪一頁寫在 page（11/11）：預設是「進階」（總覽一張卡片）；寫了別頁的，它的每一組是那一頁分頁列上的一個分頁
+/// （選字窗的字型、按鍵的快速鍵），inline 的那一組直接列在那一頁的主畫面（補標點的細項接在總開關底下）。
+/// 手機版（penglai-android 的 PenglaiAdvanced.kt）照這份表搬：類、組、keys、hidden、requirements 改了要一起改；page、inline、tab 是 Mac 的排法
 enum PenglaiAdvanced {
   struct Segment: Identifiable {
     var id: String
@@ -836,6 +929,10 @@ enum PenglaiAdvanced {
     var keys: [String]
     /// 頁尾的說明（引擎參數那幾類另有固定的一句）
     var footer: String? = nil
+    /// 直接列在那一頁的主畫面，不另成分頁
+    var inline = false
+    /// 分頁列上的名字（跟別類的組放在同一排、title 分不出來時）
+    var tab: String? = nil
   }
 
   struct Section: Identifiable {
@@ -844,6 +941,8 @@ enum PenglaiAdvanced {
     var desc: String
     var symbol: String
     var tint: Color
+    /// 掛在哪一頁：.all 是進階頁的總覽
+    var page: PenglaiSettingsModel.Page = .all
     /// 引擎參數：改了直接影響候選排序，總覽裡另成一區、頁尾提醒
     var tuning = false
     /// 這一類裡標題開頭重複的字（分類名稱已經講了），長的先比
@@ -860,7 +959,41 @@ enum PenglaiAdvanced {
   static let otherSection = "other"
 
   static let sections: [Section] = [
-    Section(id: "appearance", title: "選字窗外觀", desc: "字型、圓角、間距、讀音提示", symbol: "macwindow", tint: .blue, segments: [
+    // 打錯修正頁：開關類的接在總開關底下（options），各種錯的機率是分頁「細部調整」
+    Section(id: "correction", title: "打錯修正", desc: "按到旁邊的鍵、漏打、連按兩下的機率", symbol: "wand.and.stars", tint: .purple, page: .correction,
+            prefixes: ["打錯也對得到："], segments: [
+      Segment(id: "options", title: "修正", keys: [
+        "translator/key_model/lone_finals", "translator/key_model/valid_first", "translator/key_model/show_reading",
+        "translator/key_model/fuzzy_pairs",
+      ], inline: true),
+      Segment(id: "rates", title: "細部調整", keys: [
+        "translator/key_model/substitution", "translator/key_model/omit_initial", "translator/key_model/omit_medial",
+        "translator/key_model/double_press", "translator/key_model/extra",
+      ]),
+    ]),
+    // 標點符號頁：兩組都直接列在主畫面（補標點的細項接在總開關底下，連打三個點跟長按出符號放一起）
+    Section(id: "punct", title: "標點符號", desc: "送出之後補標點的細節、連打三個點", symbol: "quote.opening", tint: .green, page: .punct, segments: [
+      Segment(id: "space_punct", title: "送出之後補標點", keys: [
+        "penglai_space/replace", "penglai_space/period", "penglai_space/foreign", "penglai_space/english",
+      ], inline: true),
+      Segment(id: "symbols", title: "符號", keys: ["penglai_space/ellipsis"], inline: true),
+    ]),
+    // 按鍵頁：沒有主畫面，三組就是三個分頁
+    Section(id: "keys", title: "按鍵", desc: "空白鍵、Caps Lock、選字鍵、翻頁", symbol: "keyboard", tint: .orange, page: .keys, segments: [
+      Segment(id: "keys", title: "按鍵", keys: [
+        "speller/use_space", "punctuator/use_space", "ascii_composer/good_old_caps_lock", "menu/alternative_select_keys",
+        "menu/page_down_cycle", "translator/raw_lead_keys",
+      ], tab: "常用按鍵"),
+    ]),
+    Section(id: "shortcuts", title: "快速鍵", desc: "複製、刪學習紀錄、選第二個、數字選字、一鍵忘掉用哪個鍵", symbol: "command", tint: .purple, page: .keys, segments: [
+      // 選鍵的列控制項比較寬、說明另起一行，一頁放五列；選完之後的細節另成一組
+      Segment(id: "shortcuts", title: "按鍵", keys: PenglaiShortcuts.keys,
+              footer: "⌃ Control（左右都算）、⌥ Option、⌘ Command。選了別的功能正在用的鍵，兩個功能對調。", tab: "快速鍵"),
+      Segment(id: "details", title: "細部調整", keys: ["penglai_numsel/commit_whole", "translator/forget_last_history", "penglai_tap/limit"],
+              tab: "快速鍵選項"),
+    ]),
+    // 選字窗頁：主畫面是版面那幾項，這四組是後面的分頁
+    Section(id: "appearance", title: "選字窗外觀", desc: "字型、圓角、間距、讀音提示", symbol: "macwindow", tint: .blue, page: .panel, segments: [
       Segment(id: "fonts", title: "字型與字級", keys: [
         "style/font_face", "style/label_font_face", "style/label_font_point", "style/comment_font_face", "style/comment_font_point",
         "style/preedit_font_face", "style/preedit_font_point",
@@ -875,30 +1008,10 @@ enum PenglaiAdvanced {
         "style/status_message_type", "style/text_orientation", "style/memorize_size",
       ]),
     ]),
-    Section(id: "keys", title: "按鍵", desc: "空白鍵、送出之後補標點、Caps Lock、選字鍵、翻頁", symbol: "keyboard", tint: .orange, segments: [
-      Segment(id: "keys", title: "按鍵", keys: [
-        "speller/use_space", "punctuator/use_space", "ascii_composer/good_old_caps_lock", "menu/alternative_select_keys",
-        "menu/page_down_cycle", "translator/raw_lead_keys", "penglai_space/ellipsis",
-      ]),
-      Segment(id: "space_punct", title: "送出之後補標點", keys: [
-        "penglai_space/replace", "penglai_space/period", "penglai_space/foreign", "penglai_space/english",
-      ]),
-    ]),
-    Section(id: "shortcuts", title: "快速鍵", desc: "複製、刪學習紀錄、選第二個、數字選字、一鍵忘掉用哪個鍵", symbol: "command", tint: .purple, segments: [
-      // 選鍵的列控制項比較寬、說明另起一行，一頁放五列；選完之後的細節另成一組
-      Segment(id: "shortcuts", title: "按鍵", keys: PenglaiShortcuts.keys,
-              footer: "⌃ Control（左右都算）、⌥ Option、⌘ Command。選了別的功能正在用的鍵，兩個功能對調。"),
-      Segment(id: "details", title: "細部調整", keys: ["penglai_numsel/commit_whole", "translator/forget_last_history", "penglai_tap/limit"]),
-    ]),
-    Section(id: "composing", title: "組句與學習", desc: "補完、糾錯、參考前文、候選排序、記住選過的字詞", symbol: "text.badge.checkmark", tint: .green, segments: [
+    Section(id: "composing", title: "組句與學習", desc: "補完、參考前文、候選排序、記住選過的字詞", symbol: "text.badge.checkmark", tint: .green, segments: [
       Segment(id: "composing", title: "組句與補完", keys: [
         "translator/contextual_suggestions", "translator/last_commit_as_context", "translator/enable_completion",
         "translator/enable_word_completion", "translator/enable_correction", "translator/strict_spelling", "reverse_lookup/enable_completion",
-      ]),
-      Segment(id: "key_model", title: "打錯也對得到", keys: [
-        "translator/key_model/valid_first", "translator/key_model/fuzzy_pairs", "translator/key_model/substitution",
-        "translator/key_model/omit_initial", "translator/key_model/omit_medial", "translator/key_model/double_press",
-        "translator/key_model/extra", "translator/key_model/show_reading",
       ]),
       Segment(id: "split", title: "選字吃幾個鍵", keys: ["translator/extend_selection", "translator/split_penalty"]),
       Segment(id: "typing_style", title: "打法", keys: ["translator/typing_style"]),
@@ -1024,7 +1137,7 @@ enum PenglaiAdvanced {
       result["translator/english_keylid_\(key)"] = Requirement(parent: "translator/english_keylid", verb: "打開") { !($0 ?? "").isEmpty }
     }
     result["translator/english_space_min_length"] = Requirement(parent: "translator/english_space", verb: "打開") { $0 == "true" }
-    for key in ["valid_first", "fuzzy_pairs", "substitution", "omit_initial", "omit_medial", "double_press", "extra", "max_edits"] {
+    for key in ["valid_first", "fuzzy_pairs", "substitution", "omit_initial", "omit_medial", "double_press", "extra", "max_edits", "lone_finals"] {
       result["translator/key_model/\(key)"] = Requirement(parent: PenglaiSettingsModel.keyModelKey, verb: "打開") { $0 == "true" }
     }
     result["penglai_space/replace"] = Requirement(parent: "penglai_space/punct", verb: "打開") { $0 != "false" }
@@ -1078,12 +1191,12 @@ enum PenglaiAdvanced {
   /// 這一列要先開（或關）別的項目才有作用時的提示；有作用、或沒有前提的是 nil
   static func hint(_ row: PenglaiSettingRow, model: PenglaiSettingsModel) -> String? {
     if row.key == "reverse_lookup/enable_completion" {
-      return model.reverseLookupOn ? nil : "要先在「輸入」打開「\(PenglaiCopy.strokeLookup.title)」"
+      return model.reverseLookupOn ? nil : "要先在「\(PenglaiSettingsModel.Page.typing.title)」打開「\(PenglaiCopy.strokeLookup.title)」"
     }
-    // 補標點的總開關在「輸入」頁，進階頁不列
+    // 補標點的總開關是主頁的項目（標點符號頁最上面），分類表不列
     if requirements[row.key]?.parent == PenglaiSettingsModel.spacePunctKey,
        let parent = model.row(PenglaiSettingsModel.spacePunctKey, config: row.config), parent.shownValue == "false" {
-      return "要先在「輸入」打開「\(PenglaiCopy.spacePunct.title)」"
+      return "要先打開「\(PenglaiCopy.spacePunct.title)」"
     }
     guard let requirement = requirements[row.key], let parent = model.row(requirement.parent, config: row.config),
           !requirement.met(parent.shownValue) else { return nil }
@@ -1091,7 +1204,7 @@ enum PenglaiAdvanced {
     return "要先\(requirement.verb)「\(title)」"
   }
 
-  /// 整類要先在「輸入」打開某個功能才有作用：沒打開時頁首提醒，附一個過去打開的按鈕
+  /// 整類要先在「一般」打開某個功能才有作用：沒打開時頁首提醒，附一個過去打開的按鈕
   static func banner(_ section: String, model: PenglaiSettingsModel) -> (text: String, item: PenglaiCopyItem)? {
     switch section {
     case "english" where model.englishLexicon != nil && !model.englishOn:
@@ -1125,14 +1238,14 @@ struct PenglaiAdvancedHub: View {
   private let columns = Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .top), count: 3)
 
   var body: some View {
-    let sections = model.advancedSections
+    let sections = model.hubSections
     let rows = model.advancedRows
     VStack(alignment: .leading, spacing: 18) {
       ForEach([false, true], id: \.self) { tuning in
         let list = sections.filter { $0.tuning == tuning }
         if !list.isEmpty {
           VStack(alignment: .leading, spacing: 8) {
-            Text(tuning ? "引擎參數" : "一般").font(.system(size: 13, weight: .semibold))
+            Text(tuning ? "引擎參數" : "功能細項").font(.system(size: 13, weight: .semibold))
             LazyVGrid(columns: columns, alignment: .leading, spacing: 10) {
               ForEach(list) { section in
                 let mine = rows.filter { $0.place.section == section.id }
@@ -1221,7 +1334,7 @@ struct PenglaiAdvancedSectionPage: View {
         HStack(spacing: 10) {
           Label(banner.text, systemImage: "info.circle.fill").font(.system(size: 12)).foregroundStyle(.secondary)
           Spacer(minLength: 0)
-          Button("到「輸入」打開") { model.go(toCopy: banner.item, page: .typing) }
+          Button("到「\(PenglaiSettingsModel.Page.typing.title)」打開") { model.go(toCopy: banner.item, page: .typing) }
         }
         .padding(.horizontal, 30).padding(.top, 12)
       }
@@ -1275,32 +1388,7 @@ struct PenglaiAdvancedRows: View {
   }
 }
 
-/// 主頁通往進階頁某一類的一列（「更多外觀設定」）
-struct PenglaiAdvancedLink: View {
-  @EnvironmentObject var model: PenglaiSettingsModel
-  var section: String
-  var title: String
-
-  var body: some View {
-    if let info = PenglaiAdvanced.section(section), model.advancedSections.contains(where: { $0.id == section }) {
-      Button { model.openAdvanced(section) } label: {
-        LabeledContent {
-          Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundColor(.secondary)
-        } label: {
-          VStack(alignment: .leading, spacing: 3) {
-            Text(title)
-            Text(info.desc).font(.system(size: 11.5)).foregroundStyle(.secondary)
-          }
-        }
-        .contentShape(Rectangle())
-      }
-      .buttonStyle(.plain)
-      .padding(.vertical, 2)
-    }
-  }
-}
-
-/// 主頁某一列旁邊的「細部調整」：跳到進階頁那一類
+/// 主頁某一列旁邊的「細部調整」：跳到那一類細項（在進階頁，或掛在別頁的分頁）
 struct PenglaiDetailLink: View {
   @EnvironmentObject var model: PenglaiSettingsModel
   var section: String
@@ -1427,7 +1515,7 @@ struct PenglaiSearchResult: Identifiable {
   var page: PenglaiSettingsModel.Page
   var location: String? = nil    // 右邊寫的位置；nil 是頁名
   var highlight: String          // 跳過去之後閃哪一列（那一列的標題，配色是配色名稱）
-  var row: PenglaiSettingRow?    // 進階頁的項目：要翻到它那一組、那一頁
+  var row: PenglaiSettingRow?    // 分類表裡的細項：要翻到它那一頁、那個分頁（進階頁是那一類、那一組）
   var darkColors: Bool?          // 配色：切到淺色或深色那一組
   var rank: Int                  // 標題符合排前面，主頁排在進階頁前面
 }
@@ -1474,14 +1562,14 @@ enum PenglaiSearch {
     }
     addCopy(PenglaiCopy.english, .typing, available: model.schemaRow(PenglaiSettingsModel.englishKey) != nil)
     addCopy(PenglaiCopy.prediction, .typing, available: model.predictionSwitch != nil)
-    addCopy(PenglaiCopy.spacePunct, .typing, available: model.schemaRow(PenglaiSettingsModel.spacePunctKey) != nil)
-    addCopy(PenglaiCopy.keyModel, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
-    addCopy(PenglaiCopy.fuzzy, .typing, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
-    addCopy(PenglaiCopy.longPress, .typing, available: model.row(PenglaiSettingsModel.longPressKey, config: .squirrel) != nil)
     addCopy(PenglaiCopy.strokeLookup, .typing, available: model.schemaRow(PenglaiSettingsModel.reverseLookupKey) != nil)
-    addCopy(PenglaiCopy.sentences, .learning, available: schemaReady)
-    addCopy(PenglaiCopy.phraseLength, .learning, available: schemaReady)
-    addCopy(PenglaiCopy.revertSeconds, .learning, available: schemaReady)
+    addCopy(PenglaiCopy.sentences, .typing, available: schemaReady)
+    addCopy(PenglaiCopy.phraseLength, .typing, available: schemaReady)
+    addCopy(PenglaiCopy.revertSeconds, .typing, available: schemaReady)
+    addCopy(PenglaiCopy.keyModel, .correction, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
+    addCopy(PenglaiCopy.fuzzy, .correction, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
+    addCopy(PenglaiCopy.spacePunct, .punct, available: model.schemaRow(PenglaiSettingsModel.spacePunctKey) != nil)
+    addCopy(PenglaiCopy.longPress, .punct, available: model.row(PenglaiSettingsModel.longPressKey, config: .squirrel) != nil)
     addCopy(PenglaiCopy.dictionary, .dictionary, available: schemaReady)
     addCopy(PenglaiCopy.schemes, .schemas, available: model.sidebarPages.contains(.schemas))
     addCopy(PenglaiCopy.history, .history)
@@ -1497,13 +1585,13 @@ enum PenglaiSearch {
       results.append(PenglaiSearchResult(id: "schema|\(schema.id)", title: "輸入方案：\(schema.name)", desc: "要不要列在方案選單裡。",
                                          page: .schemas, highlight: schema.name, rank: 20 + hit))
     }
-    for (row, _) in model.advancedRows {
+    for (row, place) in model.advancedRows {
       let title = model.searchTitle(row)
       let desc = PenglaiAdvanced.desc(row)
       let location = model.advancedLocation(row)
       guard let hit = score(title, [desc ?? "", location ?? ""]) else { continue }
-      results.append(PenglaiSearchResult(id: "row|\(row.id)", title: title, desc: desc, page: .all,
-                                         location: location.map { "進階 › \($0)" }, highlight: model.displayTitle(row), row: row,
+      results.append(PenglaiSearchResult(id: "row|\(row.id)", title: title, desc: desc, page: PenglaiAdvanced.section(place.section)?.page ?? .all,
+                                         location: location, highlight: model.displayTitle(row), row: row,
                                          rank: 30 + hit * 10))
     }
     return results.enumerated().sorted { ($0.element.rank, $0.offset) < ($1.element.rank, $1.offset) }.map(\.element)
@@ -1571,24 +1659,25 @@ struct PenglaiSearchPage: View {
 }
 
 extension PenglaiSettingsModel {
-  /// 點搜尋結果：清掉搜尋、換到那一頁（進階頁翻到那一組那一頁，配色切到淺色或深色），那一列閃 2.5 秒
+  /// 點搜尋結果：清掉搜尋、換到那一頁（細項翻到它那個分頁、那一頁，配色切到淺色或深色），那一列閃 2.5 秒
   func go(to result: PenglaiSearchResult) {
     searchText = ""
-    page = result.page
     if let dark = result.darkColors { colorsDark = dark }
     if let row = result.row, let place = PenglaiAdvanced.place(row, model: self) {
-      filter = .all
-      advancedSection = place.section
-      advancedSegment = place.segment
+      openAdvanced(place.section, segment: place.segment)
       pageIndex = (filteredRows.firstIndex { $0.id == row.id } ?? 0) / Self.rowsPerPage
+    } else if page == result.page {
+      showHome()
+    } else {
+      page = result.page
     }
     flash(result.highlight)
   }
 
-  /// 跳到主頁的某一項（進階頁「到「輸入」打開」）
+  /// 跳到主頁的某一項（進階頁「到「一般」打開」）
   func go(toCopy item: PenglaiCopyItem, page: Page) {
     searchText = ""
-    self.page = page
+    if self.page == page { showHome() } else { self.page = page }
     flash(item.title)
   }
 

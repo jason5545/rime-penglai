@@ -279,16 +279,20 @@ struct PenglaiReadingState: Equatable {
 // MARK: - 模型
 
 final class PenglaiSettingsModel: ObservableObject {
+  /// 側欄的頁，照側欄的順序（11/11 重排）：打字（一般、讀音、打錯修正、標點符號、按鍵）、外觀（選字窗、配色）、
+  /// 詞庫和輸入方案、進階和變更紀錄。rawValue 是 --page 用的名字
   enum Page: String, CaseIterable, Identifiable {
-    case panel, colors, typing, learning, reading, dictionary, schemas, all, history
+    case typing, reading, correction, punct, keys, panel, colors, dictionary, schemas, all, history
     var id: String { rawValue }
     var title: String {
       switch self {
+      case .typing: return "一般"
+      case .reading: return "讀音"
+      case .correction: return "打錯修正"
+      case .punct: return "標點符號"
+      case .keys: return "按鍵"
       case .panel: return "選字窗"
       case .colors: return "配色"
-      case .typing: return "輸入"
-      case .learning: return "組句與學習"
-      case .reading: return "讀音"
       case .dictionary: return "詞庫"
       case .schemas: return "輸入方案"
       case .all: return "進階"
@@ -299,21 +303,47 @@ final class PenglaiSettingsModel: ObservableObject {
     var glyph: String? { self == .reading ? "ㄅ" : nil }
     var symbol: String {
       switch self {
+      case .typing: return "gearshape.fill"
+      case .reading: return "textformat"   // 側欄畫 glyph（ㄅ），這個只是備用
+      case .correction: return "wand.and.stars"
+      case .punct: return "quote.opening"
+      case .keys: return "keyboard.fill"
       case .panel: return "rectangle.grid.1x2.fill"
       case .colors: return "paintpalette.fill"
-      case .typing: return "keyboard.fill"
-      case .learning: return "brain.head.profile"
-      case .reading: return "textformat"   // 側欄畫 glyph（ㄅ），這個只是備用
       case .dictionary: return "character.book.closed.fill"
       case .schemas: return "list.bullet"
       case .all: return "slider.horizontal.3"
       case .history: return "clock.arrow.circlepath"
       }
     }
+    /// 這一頁自己的主畫面在分頁列上叫什麼；nil 是沒有主畫面，只有搬過來的進階分組（按鍵）
+    var homeTab: String? {
+      switch self {
+      case .keys: return nil
+      case .panel, .correction: return "常用"
+      default: return title
+      }
+    }
   }
+
+  /// 側欄的分組（組和組之間留空）：打字、外觀、詞庫、其他
+  static let sidebarGroups: [[Page]] = [
+    [.typing, .reading, .correction, .punct, .keys],
+    [.panel, .colors],
+    [.dictionary, .schemas],
+    [.all, .history],
+  ]
 
   /// 側欄列哪幾頁：輸入方案只有一個可選時不列（那一頁只有一個關不掉的開關）
   var sidebarPages: [Page] { Page.allCases.filter { $0 != .schemas || schemas.count > 1 || page == .schemas } }
+
+  /// 分頁列的一項：搬到這一頁的進階分組（PenglaiAdvanced 的哪一類、哪一組）
+  struct Tab: Identifiable, Equatable {
+    var section: String
+    var segment: String
+    var title: String
+    var id: String { "\(section)/\(segment)" }
+  }
 
   /// 進階頁的篩選：全部（照分類）、只看自訂過的
   enum Filter: String, CaseIterable, Identifiable {
@@ -337,9 +367,10 @@ final class PenglaiSettingsModel: ObservableObject {
   let store: PenglaiSettingsStore
   private let deployer: Deployer
 
-  @Published var page: Page = .panel
+  /// 換頁就回到那一頁的最上層（showHome）
+  @Published var page: Page = .typing { didSet { if page != oldValue { showHome() } } }
   @Published var filter: Filter = .all
-  /// 進階頁看的是哪一類（PenglaiAdvanced.Section 的 id）；nil 是分類總覽
+  /// 現在看的是哪一類進階分組（PenglaiAdvanced.Section 的 id）；nil 是這一頁自己的主畫面（進階頁是分類總覽）
   @Published var advancedSection: String?
   /// 那一類裡看的是哪一組（分段按鈕；只有一組時就是那一組）
   @Published var advancedSegment = ""
@@ -410,10 +441,16 @@ final class PenglaiSettingsModel: ObservableObject {
     let defaults = PenglaiRimeConfig(.defaultConfig)
     activeSchemas = (0..<defaults.listSize("schema_list")).compactMap { defaults.string("schema_list/@\($0)/schema") }
     schemas = readSchemas()
-    // 進階頁停在的那一類、那一組重讀之後沒有了（換方案、檔案被手改）就回總覽、第一組
+    // 停在的那一類、那一組重讀之後沒有了（換方案、檔案被手改）就回總覽、第一組；別頁的分頁沒有了就回那一頁的最上層
     if let section = advancedSection {
-      let segments = advancedSegments(section)
-      if segments.isEmpty { advancedSection = nil } else if !segments.contains(where: { $0.id == advancedSegment }) { advancedSegment = segments[0].id }
+      if page == .all {
+        let segments = advancedSegments(section)
+        if segments.isEmpty { advancedSection = nil } else if !segments.contains(where: { $0.id == advancedSegment }) { advancedSegment = segments[0].id }
+      } else if !tabs(for: page).contains(where: { $0.section == section && $0.segment == advancedSegment }) {
+        showHome()
+      }
+    } else if page.homeTab == nil {
+      showHome()
     }
     reverseLookupPattern = readReverseLookupPattern()
     englishLexicon = readEnglishLexicon()
@@ -869,22 +906,61 @@ final class PenglaiSettingsModel: ObservableObject {
     advancedRows.filter { $0.place.section == section && (segment == nil || $0.place.segment == segment) }.map(\.row)
   }
 
-  /// 打開進階頁的某一類（主頁的「更多」、總覽的卡片都走這裡）
-  func openAdvanced(_ section: String, segment: String? = nil) {
-    searchText = ""
-    page = .all
-    filter = .all
-    advancedSection = section
-    advancedSegment = segment ?? advancedSegments(section).first?.id ?? ""
-    pageIndex = 0
+  /// 進階頁總覽列的分類：沒搬到別頁的
+  var hubSections: [PenglaiAdvanced.Section] { advancedSections.filter { $0.page == .all } }
+
+  /// 這一頁的分頁列上，搬過來的進階分組（照分類表的順序；直接列在主畫面的不算）。進階頁自己用總覽，沒有分頁列
+  func tabs(for page: Page) -> [Tab] {
+    guard page != .all else { return [] }
+    let used = Set(advancedRows.map { "\($0.place.section)/\($0.place.segment)" })
+    return PenglaiAdvanced.sections.filter { $0.page == page }.flatMap { section in
+      section.segments.filter { !$0.inline && used.contains("\(section.id)/\($0.id)") }
+        .map { Tab(section: section.id, segment: $0.id, title: $0.tab ?? $0.title) }
+    }
   }
 
-  /// 這一列在進階頁的哪裡（「中英混輸 › 字母串」），只有一組的分類不寫組名
+  /// 回到這一頁的最上層：自己的主畫面（進階頁是總覽）；沒有主畫面的頁（按鍵）是第一個分頁
+  func showHome() {
+    filter = .all
+    pageIndex = 0
+    if page.homeTab == nil, let first = tabs(for: page).first {
+      advancedSection = first.section
+      advancedSegment = first.segment
+    } else {
+      advancedSection = nil
+    }
+  }
+
+  /// 打開某一類進階分組：在進階頁的進那一類，搬到別頁的換到那一頁的那個分頁（直接列在主畫面的就停在主畫面）。
+  /// 主頁的「細部調整」、總覽的卡片、搜尋結果都走這裡
+  func openAdvanced(_ section: String, segment: String? = nil) {
+    searchText = ""
+    let info = PenglaiAdvanced.section(section)
+    let segments = advancedSegments(section)
+    let target = segment ?? (segments.first { !$0.inline } ?? segments.first)?.id ?? ""
+    page = info?.page ?? .all
+    filter = .all
+    pageIndex = 0
+    if page != .all, info?.segments.first(where: { $0.id == target })?.inline == true {
+      if page.homeTab != nil { advancedSection = nil }
+    } else {
+      advancedSection = section
+      advancedSegment = target
+    }
+  }
+
+  /// 這一列在哪裡：進階頁的是「進階 › 中英混輸 › 字母串」（只有一組的分類不寫組名），
+  /// 搬到別頁的是「按鍵 › 快速鍵」，直接列在那一頁主畫面的只寫頁名
   func advancedLocation(_ row: PenglaiSettingRow) -> String? {
     guard let place = PenglaiAdvanced.place(row, model: self), let section = PenglaiAdvanced.section(place.section) else { return nil }
-    let segments = advancedSegments(place.section)
-    guard segments.count > 1, let segment = segments.first(where: { $0.id == place.segment }) else { return section.title }
-    return "\(section.title) › \(segment.title)"
+    let segment = section.segments.first { $0.id == place.segment }
+    if section.page == .all {
+      guard advancedSegments(place.section).count > 1, let segment else { return "\(Page.all.title) › \(section.title)" }
+      return "\(Page.all.title) › \(section.title) › \(segment.title)"
+    }
+    let tabCount = tabs(for: section.page).count + (section.page.homeTab == nil ? 0 : 1)
+    guard let segment, !segment.inline, tabCount > 1 else { return section.page.title }
+    return "\(section.page.title) › \(segment.tab ?? segment.title)"
   }
 
   var filteredRows: [PenglaiSettingRow] {

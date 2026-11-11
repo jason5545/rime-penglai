@@ -233,6 +233,8 @@ translator:
   # 修過的詞只當建議、最多排第二（valid_first: true 才可以搶第一）。模糊音另外開：fuzzy_pairs: [ㄣㄥ, ㄓㄗ, …]
   key_model:
     enable: true
+    # 只打第一個注音、零聲母的字按到旁邊的韻母鍵也修（「而且」打成 ㄢ ㄑㄧㄝˇ；ㄧㄨㄩ 不換）。蓬萊改過的 librime 才會讀（0076）
+    lone_finals: true
 
 # 聯想（librime-predict，蓬萊改過：patches/librime-predict/0001）。開關是上面的 prediction（預設關）。
 # 打開時：送出之後，拿這則訊息到目前送出的字最長、表裡有的結尾查聯想（最多 max_context_chars 個字），

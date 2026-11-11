@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 11 Nov 2026 13:25:28 +0800
+Subject: [PATCH] Menu: settings first, maintenance and help in their own
+ groups
+
+---
+ sources/SquirrelInputController.swift | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/sources/SquirrelInputController.swift b/sources/SquirrelInputController.swift
+index a7e1496..b781683 100644
+--- a/sources/SquirrelInputController.swift
++++ b/sources/SquirrelInputController.swift
+@@ -374,11 +374,14 @@ final class SquirrelInputController: IMKInputController {
+     let wiki = NSMenuItem(title: NSLocalizedString("Rime Wiki...", comment: "Menu item"), action: #selector(openWiki), keyEquivalent: "")
+     wiki.target = self
+ 
++    // 設定放最上面，維護的（重新部署、同步）和查問題的（記錄檔、說明書）各一組
+     let menu = NSMenu()
++    menu.addItem(penglai)
++    menu.addItem(.separator())
+     menu.addItem(deploy)
+     menu.addItem(sync)
++    menu.addItem(.separator())
+     menu.addItem(logDir)
+-    menu.addItem(penglai)
+     menu.addItem(wiki)
+ 
+     return menu
+-- 
+2.56.0
+

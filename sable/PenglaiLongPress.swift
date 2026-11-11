@@ -21,7 +21,7 @@
 //  把組字送出，iMessage 沒有）：送出去的就是這一鍵、按下去之前組字區是空的，記著；時間到時游標前面確實是它，就先刪掉再換。
 //  修飾鍵沒變的 flagsChanged 不算（11/10 T3：輸入框開頭的 / 讓 T3 開斜線指令選單，長按被清掉，重複照一般鍵打成一串 /）。
 //
-//  設定：sable.yaml 的 long_press_symbols（預設開；蓬萊設定「輸入」頁）。
+//  設定：sable.yaml 的 long_press_symbols（預設開；蓬萊設定「標點符號」頁）。
 //
 
 import AppKit
