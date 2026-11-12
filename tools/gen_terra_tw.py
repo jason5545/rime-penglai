@@ -48,8 +48,12 @@ usage: python3 -I tools/gen_terra_tw.py [--rime DIR] [--upstream FILE] [--static
    比重會影響兩件事：單字候選的排序，以及沒標讀音的詞怎麼自動編碼。
 2. 詞：地球拼音的讀音照舊。地球拼音的讀音都不在教育部的讀音裡時（垃圾 ㄌㄚ ㄐㄧ → ㄌㄜˋ ㄙㄜˋ），教育部的讀音照 essay 詞頻排；
    教育部沒有這個詞、小麥注音有的，只差聲調以外的讀音照 essay 詞頻排（小麥注音常列好幾種讀法，那邊 ㄋㄚˇ 會跟哪邊打架）。
-   其他教育部、小麥注音的讀音 0%。地球拼音的讀音不降：教育部常以讀音為準（滑稽 ㄍㄨˇ ㄐㄧ、姊姊 ㄗˇ ㄗ˙），
+   其他教育部、小麥注音的讀音 0%，例外是下一行。地球拼音的讀音不降：教育部常以讀音為準（滑稽 ㄍㄨˇ ㄐㄧ、姊姊 ㄗˇ ㄗ˙），
    大家實際打的語音（ㄏㄨㄚˊ ㄐㄧ、ㄐㄧㄝˇ ㄐㄧㄝ˙）多半就是地球拼音那個。
+   只差聲調的小麥注音讀音留 TONE_ALT_PCT（11/12，蓬萊音、兼收並蓄）：小麥注音收、政策不排、跟同一個詞有排的讀音只差聲調，
+   而且每個字都是那個字平常就會唸的音（單字比重 ≥ 5%）時，照 essay 詞頻的 5%，不是 0%。起因：打 ㄓˊ ㄅㄛˉ 第一是
+   「直撥」，「直播」排在按鍵模型修出來的「直逼」「擲杯」後面（直播 ㄓˊ ㄅㄛ 只有小麥注音收）。單字比重那個條件擋「那」的
+   ㄋㄚˇ（1%）：不擋時「那樣」「那是」「那時候」打 ㄋㄚˇ 會搶走「哪樣」「哪是」「哪時候」。數字在 TONE_ALT_PCT 旁邊。
 3. 輕聲字也能用本調打（10/28）：讀音有輕聲的詞，補上輕聲字換成本調的讀音（認識 ㄖㄣˋ ㄕ˙ → ㄖㄣˋ ㄕˋ）。
    讀音集合：每個輕聲字換成那個字音相同（只差聲調）的任何一個非輕聲讀音，或不換，全部組合都收（跟政策無關）。
    比重：輕聲字全部換成這個政策下比重最高的同音本調，那一個照 essay 詞頻排，其他 0%；原本那個讀音政策要排才排。
@@ -91,6 +95,10 @@ PRC_PCT = 1.0       # 臺灣優先：大陸才有的讀音降到的比重
 WEAK = 0.05         # 用詞證據不到最常見讀音的 5%，算「臺灣幾乎不用」
 DEMOTED_PCT = 10.0  # 換掉第一之後，原本的讀音最多留 10%（還 ≥ 5%，沒標讀音的詞照樣會用它編碼）
 KEEP_PCT = "0%"     # 政策不排的讀音：收著、查得到，排最後（見檔頭）
+# 只差聲調的小麥注音詞讀音（檔頭規則 2，891 行）：11/12 八組基準 5%、20% 都是改對 1（還參與）、改錯 0；照那個讀音打全碼的
+# 891 題第一名 736 → 747（5%）、754（20%），前五 779 → 886（兩個一樣）。取 5%：前五一樣，比重小、撞到別的詞的機會小。
+# 沒有「單字比重 ≥ 5%」那個條件時（1,149 行）20% 會把「然後說哪邊」改成「那邊」
+TONE_ALT_PCT = 5.0
 DEFAULT_READINGS = os.path.join(W, "rime-config", "penglai_zhuyin.readings.tsv")
 DEFAULT_SCHEMA = os.path.join(W, "rime-config", "penglai_zhuyin.schema.yaml")
 # 罕用黏合音節（docs/optimization.md 第 4 項第 4 條 4C）：聲母＋零聲母音節（同聲調）剛好也是一個音節，
@@ -415,8 +423,10 @@ def tone_standard(t, c, best):
     return v if v != c else None
 
 
-def weigh(rows, S):
-    """三種政策的比重：({政策: {(字詞, 碼): 比重字串}}, [本調讀音 (字詞, 碼)])。比重字串空的就是照 essay 詞頻"""
+def weigh(rows, S, tone_alt_pct=TONE_ALT_PCT):
+    """三種政策的比重：({政策: {(字詞, 碼): 比重字串}}, [本調讀音 (字詞, 碼)])。比重字串空的就是照 essay 詞頻。
+    tone_alt_pct（檔頭規則 2；--tone-alt-pct 試比重，0＝不做）：蓬萊音、兼收並蓄裡，小麥注音收的詞讀音政策不排（0%）、
+    可是跟同一個詞有排的讀音只差聲調（直播 ㄓˊ ㄅㄛ 對 ㄓˊ ㄅㄛˋ）時，改成 essay 詞頻的這個百分比"""
     share = evidence(S)
     cw = {"taiwan": chars_taiwan(rows, share, S["big5"]), "mainland": chars_mainland(rows)}
     cw["equal"] = {k: max((cw["taiwan"][k], cw["mainland"][k]), key=pct_of) for k in cw["taiwan"]}
@@ -447,6 +457,18 @@ def weigh(rows, S):
                 wp[k] = KEEP_PCT
         for k in derived:
             wp[k] = "" if k in std[p] else KEEP_PCT
+        if tone_alt_pct and p != "mainland":
+            ranked = collections.defaultdict(set)
+            for t, c, s, w in rows:
+                if not is_char(t, c) and wp[(t, c)] != KEEP_PCT:
+                    ranked[t].add(toneless(c))
+            def usual(t, c):   # 每個字都是那個字平常就會唸的音（單字比重 ≥ 5%）：那 ㄋㄚˇ 1% 不算，不然「那樣」會搶「哪樣」
+                syl = c.split()
+                return len(syl) == len(t) and all(pct_of(cw[p].get((ch, x), KEEP_PCT)) >= 5 for ch, x in zip(t, syl))
+            for t, c, s, w in rows:
+                if (not is_char(t, c) and wp[(t, c)] == KEEP_PCT and "mcb" in s and toneless(c) in ranked[t]
+                        and usual(t, c)):
+                    wp[(t, c)] = f"{tone_alt_pct:g}%"
         out[p] = wp
     keys = [set(v) for v in out.values()]
     if any(k != keys[0] for k in keys):
@@ -572,6 +594,8 @@ def main():
     ap.add_argument("--schema", default=DEFAULT_SCHEMA, help="方案檔：罕用黏合音節的規則寫在標記之間（變了才寫回）")
     ap.add_argument("--glue-ratio", type=float, default=GLUE_RATIO, help="罕用黏合音節的門檻（試門檻用；0＝不列）")
     ap.add_argument("--sandhi-pct", type=float, default=SANDHI_PCT, help="一、不的變調讀音照 essay 詞頻乘上幾 %%（試比重用）")
+    ap.add_argument("--tone-alt-pct", type=float, default=TONE_ALT_PCT,
+                    help="小麥注音收、只差聲調、政策不排的詞讀音照 essay 詞頻乘上幾 %%（試比重用；0＝一律 0%%）")
     a = ap.parse_args()
 
     S = load_sources(a.upstream or up.path("terra_pinyin.dict.yaml"))
@@ -584,7 +608,7 @@ def main():
         open(a.readings, "w", encoding="utf-8").write(text)
         print(f"{a.readings}：原始表更新，多 {len(n - o)} 行、少 {len(o - n)} 行（共 {len(n)} 行）")
     rows = read_readings(a.readings)
-    weights, derived = weigh(rows, S)
+    weights, derived = weigh(rows, S, a.tone_alt_pct)
     sandhi, raised = add_sandhi(weights, a.sandhi_pct)
     main_policy = a.static or DEFAULT_POLICY
     others = [] if a.static else [p for p in NAMES if p != DEFAULT_POLICY]

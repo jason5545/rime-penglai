@@ -9,10 +9,10 @@ eebc9d20b9a5f8d81457d38487abb4c63cc22282  ./opencc/t2s.json
 bd6607448e742759448271a34ef6323a14b3ec7e  ./penglai_en.LICENSE.txt
 6219352e5e201c6bcc56ce20021e93f014c84e59  ./penglai_en.txt
 d1d88a1d4690eb8a48ca25732e3a1901b445cf52  ./penglai_judge.tbl
-4fe297dbe9ad43d2c4f366bb4d299af9417da77e  ./penglai_keylid.tbl
+2de82fca172ef19107f73f0b6e65c57ed32237a9  ./penglai_keylid.tbl
 5b37e8fdfe24fb70d1358ba749a97ffb25f166bd  ./penglai_predict.LICENSE.txt
 285ba12613588bd9af17bc88e5d55e3c4f4788cc  ./penglai_predict.db
-8c77acf120373c6f8bce43d56894cd3b742f8510  ./penglai_zhuyin.dict.yaml
+239fc85fc5c507c0ac8650f5151936c7a2f627d7  ./penglai_zhuyin.dict.yaml
 6ab4ff39338b77c5ffb3e73e84d27725491ee743  ./penglai_zhuyin.schema.yaml
 e0622538eea967875b3afccbea19150e90758e78  ./punctuation.yaml
 913357df52605d21f8d4a1b9180fe3d41efd3540  ./sable.yaml
