@@ -1266,7 +1266,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 123
+    "order": 125
    }
   },
   {
@@ -1281,7 +1281,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 124
+    "order": 126
    }
   },
   {
@@ -1296,7 +1296,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 125
+    "order": 127
    }
   },
   {
@@ -1324,7 +1324,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 126
+    "order": 128
    }
   },
   {
@@ -1339,7 +1339,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 128
+    "order": 130
    }
   },
   {
@@ -1354,7 +1354,7 @@
    "where": {
     "section": "ranking",
     "segment": "grammar",
-    "order": 127
+    "order": 129
    }
   },
   {
@@ -1667,7 +1667,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 119
+    "order": 121
    }
   },
   {
@@ -1687,7 +1687,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 118
+    "order": 120
    }
   },
   {
@@ -1926,7 +1926,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 116
+    "order": 118
    }
   },
   {
@@ -1949,7 +1949,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 117
+    "order": 119
    }
   },
   {
@@ -1969,7 +1969,7 @@
    "where": {
     "section": "english",
     "segment": "digits",
-    "order": 115
+    "order": 117
    }
   },
   {
@@ -2111,7 +2111,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 107
+    "order": 109
    }
   },
   {
@@ -2135,7 +2135,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 114
+    "order": 116
    }
   },
   {
@@ -2158,7 +2158,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 111
+    "order": 113
    }
   },
   {
@@ -2181,7 +2181,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 112
+    "order": 114
    }
   },
   {
@@ -2204,7 +2204,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 109
+    "order": 111
    }
   },
   {
@@ -2227,7 +2227,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 110
+    "order": 112
    }
   },
   {
@@ -2250,7 +2250,7 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 108
+    "order": 110
    }
   },
   {
@@ -2274,7 +2274,30 @@
    "where": {
     "section": "english",
     "segment": "keylid",
-    "order": 113
+    "order": 115
+   }
+  },
+  {
+   "id": "script_translator:english_letter_margin",
+   "path": "translator/english_letter_margin",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "字母串的按鍵不像英文就不出",
+   "desc": "〔要先開 english_letter_runs〕按鍵層辨識的表拿同一串按鍵比「當注音鍵」跟「當英文字母」哪個像。把這串字母整段當英文，比最像的切法差超過這麼多時，這串字母不當候選、也不排第一（當注音鍵順得多的一長串首注音不出，elvie 照出）。調小擋得多，沒見過的縮寫也比較容易被擋；-1＝不擋。沒有按鍵層的表（english_keylid 關著）時不擋。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "12",
+   "options": [
+    8,
+    12,
+    16
+   ],
+   "min": -1,
+   "max": 30,
+   "penglai": true,
+   "where": {
+    "section": "english",
+    "segment": "letters",
+    "order": 108
    }
   },
   {
@@ -2297,7 +2320,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 105
+    "order": 106
    }
   },
   {
@@ -2320,7 +2343,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 106
+    "order": 107
    }
   },
   {
@@ -2340,7 +2363,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 103
+    "order": 104
    }
   },
   {
@@ -2363,7 +2386,7 @@
    "where": {
     "section": "english",
     "segment": "letters",
-    "order": 104
+    "order": 105
    }
   },
   {
@@ -2406,7 +2429,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 99
+    "order": 100
    }
   },
   {
@@ -2429,7 +2452,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 97
+    "order": 98
    }
   },
   {
@@ -2452,7 +2475,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 98
+    "order": 99
    }
   },
   {
@@ -2478,6 +2501,29 @@
    }
   },
   {
+   "id": "script_translator:english_sentence_margin",
+   "path": "translator/english_sentence_margin",
+   "file": "penglai_zhuyin.custom.yaml",
+   "type": "double",
+   "title": "整句比中文差太多的英文不出",
+   "desc": "單字表以外的字母串、按鍵層的候選沒排第一時，整句的分數比最通順的中文整句低超過「這麼多 × 英文段數」就不出：換掉的那幾個鍵原本是通順的中文，換成英文之後前後的字也接不起來，留在選字窗只是佔位置。調大出得多、雜的也多；-1＝不擋。排第一的英文、單字表裡的英文詞、數字不受影響。只有蓬萊版引擎認得。",
+   "value": null,
+   "builtin": "20",
+   "options": [
+    15,
+    20,
+    25
+   ],
+   "min": -1,
+   "max": 60,
+   "penglai": true,
+   "where": {
+    "section": "english",
+    "segment": "judge",
+    "order": 97
+   }
+  },
+  {
    "id": "script_translator:english_space",
    "path": "translator/english_space",
    "file": "penglai_zhuyin.custom.yaml",
@@ -2494,7 +2540,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 101
+    "order": 102
    }
   },
   {
@@ -2518,7 +2564,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 102
+    "order": 103
    }
   },
   {
@@ -2536,7 +2582,7 @@
    "where": {
     "section": "english",
     "segment": "words",
-    "order": 100
+    "order": 101
    }
   },
   {
@@ -3103,7 +3149,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 120
+    "order": 122
    }
   },
   {
@@ -3840,7 +3886,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 133
+    "order": 135
    }
   },
   {
@@ -4015,7 +4061,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 135
+    "order": 137
    }
   },
   {
@@ -4074,7 +4120,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 131
+    "order": 133
    }
   },
   {
@@ -4104,7 +4150,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 130
+    "order": 132
    }
   },
   {
@@ -4134,7 +4180,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 129
+    "order": 131
    }
   },
   {
@@ -4149,7 +4195,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 122
+    "order": 124
    }
   },
   {
@@ -4165,7 +4211,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 134
+    "order": 136
    }
   },
   {
@@ -4319,7 +4365,7 @@
    "where": {
     "section": "ranking",
     "segment": "sentence",
-    "order": 121
+    "order": 123
    }
   },
   {
@@ -4334,7 +4380,7 @@
    "where": {
     "section": "custom_phrase",
     "segment": "custom_phrase",
-    "order": 132
+    "order": 134
    }
   },
   {
