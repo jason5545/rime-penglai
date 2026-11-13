@@ -1046,6 +1046,7 @@ enum PenglaiAdvanced {
             prefixes: ["中英混輸：按鍵層的", "中英混輸：按鍵層", "中英混輸：", "英文單字進整句：", "整段數字鍵："], segments: [
       Segment(id: "judge", title: "判斷", keys: [
         "translator/english_judge_tau", "translator/english_judge_readings", "translator/english_judge_learned", "translator/english_position",
+        "translator/english_sentence_margin",
       ]),
       Segment(id: "words", title: "英文單字", keys: [
         "translator/english_min_length", "translator/english_min_zipf", "translator/english_max_sentences", "translator/english_weight",
@@ -1053,6 +1054,7 @@ enum PenglaiAdvanced {
       ]),
       Segment(id: "letters", title: "字母串", keys: [
         "translator/english_letter_runs", "translator/english_letter_trim", "translator/english_letter_penalty", "translator/english_letter_position",
+        "translator/english_letter_margin",
       ]),
       Segment(id: "keylid", title: "按鍵層辨識", keys: [
         "translator/english_keylid", "translator/english_keylid_position", "translator/english_keylid_max", "translator/english_keylid_min_length",
@@ -1130,7 +1132,7 @@ enum PenglaiAdvanced {
       "punctuator/use_space": Requirement(parent: "speller/use_space", verb: "關掉") { $0 == "false" },
       "translator/always_show_comments": Requirement(parent: "translator/spelling_hints", verb: "打開") { (Int($0 ?? "") ?? 0) > 0 },
     ]
-    for key in ["english_letter_trim", "english_letter_penalty", "english_letter_position"] {
+    for key in ["english_letter_trim", "english_letter_penalty", "english_letter_position", "english_letter_margin"] {
       result["translator/\(key)"] = Requirement(parent: "translator/english_letter_runs", verb: "打開") { $0 == "true" }
     }
     for key in ["position", "max", "min_length", "candidates", "margin", "switch", "beam"] {
