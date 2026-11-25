@@ -35,7 +35,7 @@
   </nav>
 </header>
 <div class="wiki">
-<aside class="wiki-nav" id="toc" aria-label="說明書目錄"><p class="nav-home"><a href="/wiki/">說明書首頁</a></p><p class="nav-group">開始</p><ul><li><a href="/wiki/about/">蓬萊是什麼</a></li><li><a href="/wiki/install/">安裝</a></li><li><a href="/wiki/changelog/" aria-current="page">版本紀錄</a></li><li><a href="/wiki/first-run/">第一次使用</a></li></ul><p class="nav-group">打字</p><ul><li><a href="/wiki/keyboard/">鍵盤排列與聲調</a></li><li><a href="/wiki/typing/">打字、選字、送出</a></li><li><a href="/wiki/abbrev/">只打第一個注音</a></li><li><a href="/wiki/abbrev-test/">只打第一個注音省多少</a></li><li><a href="/wiki/punctuation/">標點符號</a></li><li><a href="/wiki/english/">英文與數字</a></li><li><a href="/wiki/stroke/">不知道讀音：筆畫查字</a></li><li><a href="/wiki/missing-initial/">打錯也對得到</a></li><li><a href="/wiki/switcher/">方案選單（F4）</a></li><li><a href="/wiki/shortcuts/">按鍵一覽</a></li></ul><p class="nav-group">學習</p><ul><li><a href="/wiki/learning/">打過的會記住</a></li><li><a href="/wiki/undo/">選錯了怎麼辦</a></li><li><a href="/wiki/prediction/">聯想</a></li></ul><p class="nav-group">讀音與詞典</p><ul><li><a href="/wiki/readings/">讀音：蓬萊音、中州音、兼收並蓄</a></li><li><a href="/wiki/dictionary/">詞典從哪來</a></li><li><a href="/wiki/custom-words/">加自己的詞</a></li></ul><p class="nav-group">設定</p><ul><li><a href="/wiki/settings/">蓬萊設定</a></li><li><a href="/wiki/yaml/">自己改設定檔</a></li><li><a href="/wiki/all-settings/">全部設定</a></li><li><a href="/wiki/user-data/">學習紀錄、備份與同步</a></li></ul><p class="nav-group">其他</p><ul><li><a href="/wiki/faq/">常見問題</a></li><li><a href="/wiki/glossary/">名詞解釋</a></li></ul></aside>
+<aside class="wiki-nav" id="toc" aria-label="說明書目錄"><p class="nav-home"><a href="/wiki/">說明書首頁</a></p><p class="nav-group">開始</p><ul><li><a href="/wiki/about/">蓬萊是什麼</a></li><li><a href="/wiki/install/">安裝</a></li><li><a href="/wiki/changelog/" aria-current="page">版本紀錄</a></li><li><a href="/wiki/first-run/">第一次使用</a></li></ul><p class="nav-group">打字</p><ul><li><a href="/wiki/keyboard/">鍵盤排列與聲調</a></li><li><a href="/wiki/typing/">打字、選字、送出</a></li><li><a href="/wiki/abbrev/">只打第一個注音</a></li><li><a href="/wiki/abbrev-test/">只打第一個注音省多少</a></li><li><a href="/wiki/punctuation/">標點符號</a></li><li><a href="/wiki/english/">英文與數字</a></li><li><a href="/wiki/stroke/">不知道讀音：筆畫查字</a></li><li><a href="/wiki/missing-initial/">打錯也對得到</a></li><li><a href="/wiki/switcher/">方案選單（F4）</a></li><li><a href="/wiki/shortcuts/">按鍵一覽</a></li></ul><p class="nav-group">學習</p><ul><li><a href="/wiki/learning/">打過的會記住</a></li><li><a href="/wiki/undo/">選錯了怎麼辦</a></li><li><a href="/wiki/prediction/">聯想</a></li></ul><p class="nav-group">讀音與詞典</p><ul><li><a href="/wiki/readings/">讀音：蓬萊音、中州音、兼收並蓄</a></li><li><a href="/wiki/dictionary/">詞典從哪來</a></li><li><a href="/wiki/custom-words/">加自己的詞</a></li></ul><p class="nav-group">設定</p><ul><li><a href="/wiki/settings/">蓬萊設定</a></li><li><a href="/wiki/yaml/">自己改設定檔</a></li><li><a href="/wiki/all-settings/">全部設定</a></li><li><a href="/wiki/user-data/">學習紀錄、備份與同步</a></li></ul><p class="nav-group">其他</p><ul><li><a href="/wiki/faq/">常見問題</a></li><li><a href="/wiki/secure-input/">貂毫在選單裡變灰、選不到</a></li><li><a href="/wiki/glossary/">名詞解釋</a></li></ul></aside>
 <main class="wiki-main">
 <p class="crumb"><a href="/wiki/">說明書</a> › 開始<a class="to-toc" href="#toc">目錄</a></p>
 <article><h1>版本紀錄</h1>
@@ -51,6 +51,14 @@
 <li>沒見過的英文照舊找得到，選過一次就記住，下次排在前面。</li>
 <li>夾在句子裡的兩三個小寫字母縮寫，第一次打可能不在選字窗裡；常用的可以<a href="/wiki/custom-words/">加進詞庫</a>。</li>
 <li>兩個門檻都能調：蓬萊設定的「進階 › 中英混輸」，或看<a href="/wiki/all-settings/">全部設定</a>的「整句比中文差太多的英文不出」「字母串的按鍵不像英文就不出」。</li>
+</ul>
+<h3>貂毫被防側錄模式停用時會說是誰</h3>
+<p>有程式開著 macOS 的防側錄模式（Secure Input）沒關，系統會停用所有第三方輸入法，貂毫在選單裡變灰、選不到，重裝也沒用。</p>
+<ul>
+<li>開著超過一分鐘（螢幕鎖著的時候不算），螢幕右上角跳出小視窗：系統記的是哪個程式、照情況該試什麼。記的程式已經結束時，直接請你登出再登入。</li>
+<li>系統記的名字常常不對（例如記在登入視窗頭上，實際是密碼管理程式），提示會先講清楚，有開著的密碼管理程式也會點名。</li>
+<li>防側錄模式一關，小視窗自己收掉。不要的話，在蓬萊設定的「一般」頁關掉。</li>
+<li>每次跳出在記錄檔資料夾的 <code>secure_input.log</code> 記一行，回報問題時附上。怎麼查、怎麼解開，見<a href="/wiki/secure-input/">貂毫在選單裡變灰、選不到</a>。</li>
 </ul>
 <h3>移到短的詞之後按 <kbd>←</kbd> 不再一下跳太多</h3>
 <p>按 <kbd>↓</kbd> 或翻頁移到只蓋住前面幾個鍵的詞，再按 <kbd>←</kbd> <kbd>→</kbd>，後面那段原本照上面的候選切音節。上面的候選切法都對不上的時候（打 ㄉㄨㄟ ㄨㄛˇ ㄇㄣ˙ ㄧㄡ ㄏ ㄔㄨˋ ㄉ ㄏ，第一個是「的為我們有好處的話」，把 ㄉㄨㄟ 切成 ㄉ 和 ㄨㄟ，移到只蓋住 ㄉ ㄨ 的詞，例如學過的「動物」），<kbd>←</kbd> 會從結尾直接跳到那個詞後面，中間的音節全部跳過。</p>

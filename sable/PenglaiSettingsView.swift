@@ -36,6 +36,8 @@ enum PenglaiCopy {
                                           keywords: ["預測", "聯想詞", "下一個詞", "接下來", "接著打", "自動完成"])
   static let spacePunct = PenglaiCopyItem(title: "送出之後按空白補標點", desc: "中文送出之後按空白，補上「，」，像問句時補「？」。緊接著再按一次空白換成空白。",
                                           keywords: ["標點", "逗號", "問號", "句號", "空白鍵", "自動標點", "猜標點"])
+  static let secureInput = PenglaiCopyItem(title: "防側錄模式卡住時提醒", desc: "有程式開著 macOS 的防側錄模式（Secure Input）超過一分鐘，貂毫被系統停用、在選單裡變灰時，跳出小視窗說是誰開的、怎麼解開。",
+                                           keywords: ["防側錄", "Secure Input", "安全輸入", "變灰", "選不到", "無法使用", "不能用", "1Password", "密碼", "提醒"])
   static let longPress = PenglaiCopyItem(title: "長按出符號", desc: "數字鍵和 , . / ; - 按著不放，打出按 Shift 的那個符號：. 是「。」、/ 是「？」、1 是「！」。按多久算長按，照系統設定的「重複前延遲」。",
                                          keywords: ["長按", "按住", "符號", "標點", "句號", "問號", "冒號", "驚嘆號", "Shift", "不用 Shift"])
   static let keyModel = PenglaiCopyItem(title: "打錯也對得到", desc: "打完整注音時按到旁邊的鍵、漏打聲母或介音、同一鍵連按兩下，也找得到原本要打的詞（ㄧㄝˋ ㄒㄧㄝ˙ → 謝謝）。只打第一個注音時不改。",
@@ -731,6 +733,15 @@ struct PenglaiGeneralPage: View {
           Text("組句與學習")
           Spacer()
           PenglaiDetailLink(section: "composing")
+        }
+      }
+      if let row = model.row(PenglaiSettingsModel.secureInputKey, config: .squirrel) {
+        Section("提醒") {
+          PenglaiFormRow(PenglaiCopy.secureInput, row: row) {
+            PenglaiSwitch(isOn: (row.shownValue ?? "true") != "false", enabled: row.blocked == nil) {
+              model.set(row, .bool($0), summary: "防側錄模式卡住時提醒：\($0 ? "開" : "關")")
+            }
+          }
         }
       }
     }
@@ -1568,6 +1579,7 @@ enum PenglaiSearch {
     addCopy(PenglaiCopy.sentences, .typing, available: schemaReady)
     addCopy(PenglaiCopy.phraseLength, .typing, available: schemaReady)
     addCopy(PenglaiCopy.revertSeconds, .typing, available: schemaReady)
+    addCopy(PenglaiCopy.secureInput, .typing, available: model.row(PenglaiSettingsModel.secureInputKey, config: .squirrel) != nil)
     addCopy(PenglaiCopy.keyModel, .correction, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
     addCopy(PenglaiCopy.fuzzy, .correction, available: model.schemaRow(PenglaiSettingsModel.keyModelKey) != nil)
     addCopy(PenglaiCopy.spacePunct, .punct, available: model.schemaRow(PenglaiSettingsModel.spacePunctKey) != nil)

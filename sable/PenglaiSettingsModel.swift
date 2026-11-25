@@ -736,6 +736,8 @@ final class PenglaiSettingsModel: ObservableObject {
   static let spacePunctKey = "penglai_space/punct"
   /// 長按出符號（sable/PenglaiLongPress.swift），前端設定 sable.yaml
   static let longPressKey = "long_press_symbols"
+  /// 防側錄模式卡住時提醒（sable/PenglaiSecureInput.swift），前端設定 sable.yaml
+  static let secureInputKey = "secure_input_hint"
   /// 打錯也對得到（按鍵模型，librime 0052）
   static let keyModelKey = "translator/key_model/enable"
   /// 模糊音（按鍵模型的 fuzzy_pairs；librime 0054 起沒打聲調也修）
@@ -1291,7 +1293,7 @@ final class PenglaiSettingsModel: ObservableObject {
     "style/candidate_list_layout", "style/font_point", "style/inline_preedit", "style/inline_candidate", "status_icon/show",
     "style/color_scheme", "style/color_scheme_dark", "menu/page_size", "translator/max_sentences",
     "translator/max_user_phrase_syllables", "translator/revert_learning_seconds", reverseLookupKey, englishKey, spacePunctKey,
-    keyModelKey, longPressKey,
+    keyModelKey, longPressKey, secureInputKey,
   ]
 
   /// 進階頁不列的技術項目：值是檔名或資料格式，使用者不會需要換

@@ -36,6 +36,7 @@
   ]},
   {"title": "其他", "pages": [
    {"slug": "faq", "title": "常見問題", "desc": "打字時常遇到的狀況。"},
+   {"slug": "secure-input", "title": "貂毫在選單裡變灰、選不到", "desc": "macOS 的防側錄模式沒關：怎麼認出來、怎麼解開，貂毫的提醒。"},
    {"slug": "glossary", "title": "名詞解釋", "desc": "組字區、候選、送出、部署……這份說明書用到的詞。"}
   ]}
  ]

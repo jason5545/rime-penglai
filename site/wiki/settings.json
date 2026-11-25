@@ -489,7 +489,21 @@
    "builtin": "true",
    "where": {
     "page": "標點符號",
-    "order": 7
+    "order": 8
+   }
+  },
+  {
+   "id": "sable:secure_input_hint",
+   "path": "secure_input_hint",
+   "file": "sable.custom.yaml",
+   "type": "bool",
+   "title": "防側錄模式卡住時提醒",
+   "desc": "macOS 的防側錄模式（Secure Input）開著的時候，系統停用所有不是 Apple 的輸入法，貂毫在選單裡變灰、選不到。密碼欄位、終端機的「安全鍵盤輸入」、密碼管理程式都會開它，有的程式忘了關。開著超過一分鐘（螢幕鎖著的時候不算），就在螢幕右上角跳出小視窗：系統記的是哪個程式（這個名字有時候不對）、照情況該怎麼解開。防側錄模式一關，視窗自己收掉；按「知道了」之後這一次不再跳。每次跳出都在記錄檔資料夾（輸入法選單的「記錄檔…」）的 secure_input.log 記一行，回報問題時附上。",
+   "value": null,
+   "builtin": "true",
+   "where": {
+    "page": "一般",
+    "order": 5
    }
   },
   {
@@ -528,7 +542,7 @@
    "builtin": "true",
    "where": {
     "page": "選字窗",
-    "order": 13
+    "order": 14
    }
   },
   {
@@ -633,7 +647,7 @@
    },
    "where": {
     "page": "選字窗",
-    "order": 8
+    "order": 9
    }
   },
   {
@@ -647,7 +661,7 @@
    "builtin": null,
    "where": {
     "page": "配色",
-    "order": 14
+    "order": 15
    }
   },
   {
@@ -661,7 +675,7 @@
    "builtin": null,
    "where": {
     "page": "配色",
-    "order": 16
+    "order": 17
    }
   },
   {
@@ -741,7 +755,7 @@
    "max": 72,
    "where": {
     "page": "選字窗",
-    "order": 9
+    "order": 10
    }
   },
   {
@@ -772,7 +786,7 @@
    "builtin": null,
    "where": {
     "page": "選字窗",
-    "order": 12
+    "order": 13
    }
   },
   {
@@ -786,7 +800,7 @@
    "builtin": null,
    "where": {
     "page": "選字窗",
-    "order": 11
+    "order": 12
    }
   },
   {
@@ -1424,7 +1438,7 @@
    "default_section": true,
    "where": {
     "page": "選字窗",
-    "order": 10
+    "order": 11
    }
   },
   {
@@ -2730,7 +2744,7 @@
    "penglai": true,
    "where": {
     "page": "打錯修正",
-    "order": 5
+    "order": 6
    }
   },
   {
@@ -4562,7 +4576,7 @@
    "builtin": "true",
    "where": {
     "page": "標點符號",
-    "order": 6
+    "order": 7
    }
   },
   {

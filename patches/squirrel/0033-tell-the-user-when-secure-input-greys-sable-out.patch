@@ -1,0 +1,92 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Wed, 25 Nov 2026 11:40:12 +0800
+Subject: [PATCH] Tell the user when macOS Secure Input stays on and greys
+ Sable out
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+sable/PenglaiSecureInput.swift: while any program holds macOS Secure Input, the system disables every input method that is not Apple's, so Sable turns grey in the input menu and cannot be picked; a program that forgets to release it, or exits halfway, leaves it that way until logout, and reinstalling does not help. Poll IsSecureEventInputEnabled() every 5 seconds; after 60 seconds on with the screen unlocked, show a small non-activating panel naming the holder the system reports (kCGSSessionSecureInputPID in IOConsoleUsers, which is often wrong) with steps for the case: a program still running (Terminal and iTerm2 also get their Secure Keyboard Entry menu item), loginwindow (check password managers first), a holder that has exited (log out), or unknown. Password managers that are running are named. The panel closes itself once Secure Input is off; "知道了" or the close button silences it for that episode. Each showing is logged to secure_input.log in the log folder. Setting: secure_input_hint in sable.yaml (on unless false). Command line: --secure-input prints the current state, --secure-input --png FILE --kind ... draws the panel. This adds the file to the Xcode project, starts the monitor when the app launches and adds the command.
+---
+ Squirrel.xcodeproj/project.pbxproj        | 4 ++++
+ sources/Main.swift                        | 6 ++++++
+ sources/SquirrelApplicationDelegate.swift | 2 ++
+ 3 files changed, 12 insertions(+)
+
+diff --git a/Squirrel.xcodeproj/project.pbxproj b/Squirrel.xcodeproj/project.pbxproj
+index b088356..36d5009 100644
+--- a/Squirrel.xcodeproj/project.pbxproj
++++ b/Squirrel.xcodeproj/project.pbxproj
+@@ -105,6 +105,7 @@
+ 		B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */; };
+ 		B3F0A0102F26020000AA0001 /* PenglaiDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */; };
+ 		B3F0A0122F26020000AA0001 /* PenglaiLongPress.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0112F26020000AA0001 /* PenglaiLongPress.swift */; };
++		B3F0A0142F26020000AA0001 /* PenglaiSecureInput.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3F0A0132F26020000AA0001 /* PenglaiSecureInput.swift */; };
+ /* End PBXBuildFile section */
+ 
+ /* Begin PBXCopyFilesBuildPhase section */
+@@ -332,6 +333,7 @@
+ 		B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiInstall.swift; path = sources/PenglaiInstall.swift; sourceTree = "<group>"; };
+ 		B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiDictionary.swift; path = sources/PenglaiDictionary.swift; sourceTree = "<group>"; };
+ 		B3F0A0112F26020000AA0001 /* PenglaiLongPress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiLongPress.swift; path = sources/PenglaiLongPress.swift; sourceTree = "<group>"; };
++		B3F0A0132F26020000AA0001 /* PenglaiSecureInput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = PenglaiSecureInput.swift; path = sources/PenglaiSecureInput.swift; sourceTree = "<group>"; };
+ /* End PBXFileReference section */
+ 
+ /* Begin PBXFrameworksBuildPhase section */
+@@ -371,6 +373,7 @@
+ 				B3F0A00D2F26020000AA0001 /* PenglaiInstall.swift */,
+ 				B3F0A00F2F26020000AA0001 /* PenglaiDictionary.swift */,
+ 				B3F0A0112F26020000AA0001 /* PenglaiLongPress.swift */,
++				B3F0A0132F26020000AA0001 /* PenglaiSecureInput.swift */,
+ 				B38E9B8F2BE9AE1E0036ABEF /* Squirrel-Bridging-Header.h */,
+ 			);
+ 			name = Sources;
+@@ -650,6 +653,7 @@
+ 				B3F0A00E2F26020000AA0001 /* PenglaiInstall.swift in Sources */,
+ 				B3F0A0102F26020000AA0001 /* PenglaiDictionary.swift in Sources */,
+ 				B3F0A0122F26020000AA0001 /* PenglaiLongPress.swift in Sources */,
++				B3F0A0142F26020000AA0001 /* PenglaiSecureInput.swift in Sources */,
+ 			);
+ 			runOnlyForDeploymentPostprocessing = 0;
+ 		};
+diff --git a/sources/Main.swift b/sources/Main.swift
+index 99a12ac..6883541 100644
+--- a/sources/Main.swift
++++ b/sources/Main.swift
+@@ -116,6 +116,9 @@ struct SquirrelApp {
+         case "--onboarding":
+           PenglaiOnboarding.runStandalone(Array(args.dropFirst(2)))
+           return true
++        case "--secure-input":
++          PenglaiSecureInput.runCommand(Array(args.dropFirst(2)))
++          return true
+         case "--self-install":
+           PenglaiInstall.runCommand(Array(args.dropFirst(2)))
+         case "--help":
+@@ -183,6 +186,9 @@ Perform actions:
+   --ascii                    turn on ASCII mode
+   --nascii                   turn off ASCII mode
+   --getascii                 get current ASCII mode status
++  --secure-input             print who holds macOS Secure Input (the reason Sable is greyed out), or "off"
++  --secure-input --png FILE --kind held|login|ended|unknown [--name APP] [--managers A,B]  draw the hint to a PNG
++  --secure-input --watch SEC [--delay SEC] [--interval SEC]  run the Secure Input monitor here for a while (testing)
+ Install Sable:
+   --install, --register-input-source    register input source
+   --enable-input-source [source id...]  input source list optional
+diff --git a/sources/SquirrelApplicationDelegate.swift b/sources/SquirrelApplicationDelegate.swift
+index 659f8a2..9f7400e 100644
+--- a/sources/SquirrelApplicationDelegate.swift
++++ b/sources/SquirrelApplicationDelegate.swift
+@@ -29,6 +29,8 @@ final class SquirrelApplicationDelegate: NSObject, NSApplicationDelegate, UNUser
+     panel = SquirrelPanel(position: .zero)
+     refreshStatusItem()
+     addObservers()
++    // 防側錄模式卡住超過一分鐘時提醒（sable/PenglaiSecureInput.swift）
++    PenglaiSecureInput.shared.start()
+   }
+ 
+   func applicationWillTerminate(_ notification: Notification) {
+-- 
+2.56.1
+
