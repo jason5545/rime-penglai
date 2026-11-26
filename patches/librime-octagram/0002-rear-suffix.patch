@@ -1,0 +1,45 @@
+From 977c47afa894f4635a84de20782d190d98764da7 Mon Sep 17 00:00:00 2001
+From: rime-fork <rime-fork@localhost>
+Date: Thu, 26 Nov 2026 09:58:25 +0800
+Subject: [PATCH] =?UTF-8?q?=E8=93=AC=E8=90=8A=E9=9F=BB=EF=BC=9A=E5=8F=A5?=
+ =?UTF-8?q?=E5=B0=BE=E7=9A=84=E5=88=86=EF=BC=8C=E6=AF=94=20n=20=E5=80=8B?=
+ =?UTF-8?q?=E5=AD=97=E9=95=B7=E7=9A=84=E8=A9=9E=E6=94=B9=E7=94=A8=E6=9C=80?=
+ =?UTF-8?q?=E5=BE=8C=20n=20=E5=80=8B=E5=AD=97=E6=9F=A5?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Octagram::Query 判斷句尾（is_rear）只查得了整個詞在 n 個字以內的（collocation_max_length 4，n＝3），
+「就知道了」這種 4 個字以上的詞放在句尾永遠拿不到句尾的分。學過的長詞常常就在句尾：打 ㄋ ㄎ ㄎ ㄍ ㄘㄞ ㄉㄜ˙
+ㄋㄚˋ ㄕㄡˇ ㄐ ㄓ ㄉ，第一個是「你看看剛才的那首就知道」（「就知道」有句尾的分），再打 ㄌ，學過的「就知道了」
+少了句尾的分，整句掉到第 17，第一個變成「你看看剛才的那手機知道了」（「知道了」3 個字有）。
+比 n 個字長的詞改用最後 n 個字查句尾：「就知道了」查「知道了」在句尾的分。n 個字以內的照舊。
+---
+ src/octagram.cc | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/src/octagram.cc b/src/octagram.cc
+index f3b3028..32aaade 100644
+--- a/src/octagram.cc
++++ b/src/octagram.cc
+@@ -175,8 +175,15 @@ double Octagram::Query(const string& context,
+   if (is_rear) {
+     int word_len = utf8::unchecked::distance(word.c_str(),
+                                              word.c_str() + word.length());
+-    if (word_query_len == word_len &&
+-        db_->Lookup(word_query, "$", matches) > 0 &&
++    // 蓬萊：比 n 個字長的詞原本查不了句尾（只查得到整個詞），學過的長詞放在句尾永遠拿不到句尾的分
++    //（「就知道」有、「就知道了」沒有，輸給「手機＋知道了」）。改用最後 n 個字查：「就知道了」查「知道了」在句尾
++    string rear_query = word_query;
++    if (word_query_len < word_len) {
++      int tail_len = 0;
++      rear_query = grammar::encode(last_n_unicode(word, n, tail_len),
++                                   str_end(word));
++    }
++    if (db_->Lookup(rear_query, "$", matches) > 0 &&
+         update_result(result,
+                       scale_value(matches[0].value) + config_->rear_penalty)) {
+       DLOG(INFO) << "update: " << word << "$ / " << result;
+-- 
+2.56.1
+
